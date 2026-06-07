@@ -1,0 +1,113 @@
+/* ==========================================================================
+   LUCY - Sticky Bottom Bar (Global App Promo)
+   ========================================================================== */
+
+.sticky-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+  background-color: #1E3932; /* Dark Green */
+  height: 80px; /* h-20 */
+  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+  font-family: var(--font-sodo);
+}
+
+/* Adjust for mobile screens so it doesn't overlap with the Mobile BottomNav (which is usually ~65px high) */
+@media (max-width: 767px) {
+  .sticky-bottom-bar {
+    bottom: 65px; 
+    height: 70px;
+  }
+}
+
+.sticky-bottom-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px; /* px-8 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+@media (max-width: 767px) {
+  .sticky-bottom-container {
+    padding: 0 16px;
+  }
+}
+
+.sticky-bottom-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sticky-bottom-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2px;
+}
+
+.sticky-bottom-title {
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: #FFFFFF;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  transition: color 0.2s ease;
+  font-family: inherit;
+}
+
+.sticky-bottom-title:hover {
+  color: #d4e9e2; /* Light Starbucks green highlight */
+}
+
+@media (max-width: 480px) {
+  .sticky-bottom-subtitle {
+    font-size: 1rem;
+  }
+  .sticky-bottom-title {
+    font-size: 1.3rem;
+  }
+}
+
+.sticky-bottom-right {
+  display: flex;
+  align-items: center;
+}
+
+.sticky-bottom-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: 1.4rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.sticky-bottom-action:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #FFFFFF;
+}
+
+@media (max-width: 480px) {
+  .sticky-bottom-action {
+    padding: 6px 12px;
+    font-size: 1.2rem;
+  }
+  .sticky-bottom-action span {
+    display: none; /* Hide "Download App" text on very small screens, show only icon */
+  }
+}

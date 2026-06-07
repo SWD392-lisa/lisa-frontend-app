@@ -1,0 +1,188 @@
+@font-face {
+  font-family: 'SoDo Sans';
+  src: url('./fonts/SoDoSans-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SoDo Sans';
+  src: url('./fonts/SoDoSans-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SoDo Sans';
+  src: url('./fonts/SoDoSans-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+:root {
+  /* Colors */
+  --starbucks-green: #006241;
+  --green-accent: #00754A;
+  --house-green: #1E3932;
+  --green-uplift: #2b5148;
+  --green-light: #d4e9e2;
+  --gold: #cba258;
+  --gold-light: #dfc49d;
+  --gold-lightest: #faf6ee;
+  --white: #ffffff;
+  --neutral-cool: #f9f9f9;
+  --canvas-cream: #f2f0eb;
+  --ceramic: #edebe9;
+  --black: #000000;
+  
+  --text-black: rgba(0, 0, 0, 0.87);
+  --text-black-soft: rgba(0, 0, 0, 0.58);
+  --text-white: rgba(255, 255, 255, 1);
+  --text-white-soft: rgba(255, 255, 255, 0.70);
+  --rewards-green: #33433d;
+  
+  --red: #c82014;
+  --yellow: #fbbc05;
+  --red-tint: hsl(4 82% 43% / 5%);
+  --green-tint: hsl(160 32% 87% / 33%);
+
+  /* Typography */
+  --font-sodo: 'SoDo Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --letter-spacing: -0.01em;
+
+  /* Spacing */
+  --space-1: 0.4rem;  /* 4px */
+  --space-2: 0.8rem;  /* 8px */
+  --space-3: 1.6rem;  /* 16px */
+  --space-4: 2.4rem;  /* 24px */
+  --space-5: 3.2rem;  /* 32px */
+  --space-6: 4rem;    /* 40px */
+  --space-7: 4.8rem;  /* 48px */
+  --space-8: 5.6rem;  /* 56px */
+  --space-9: 6.4rem;  /* 64px */
+
+  --outer-gutter: 1.6rem;
+  --outer-gutter-md: 2.4rem;
+  --outer-gutter-lg: 4.0rem;
+
+  /* Border Radius */
+  --radius-card: 12px;
+  --radius-pill: 50px;
+  
+  /* Shadows */
+  --shadow-card: 0px 0px .5px 0px rgba(0,0,0,0.14), 0px 1px 1px 0px rgba(0,0,0,0.24);
+  --shadow-nav: 0 1px 3px rgba(0,0,0,0.1), 0 2px 2px rgba(0,0,0,0.06), 0 0 2px rgba(0,0,0,0.07);
+  --shadow-frap-base: 0 0 6px rgba(0,0,0,0.24);
+  --shadow-frap-ambient: 0 8px 12px rgba(0,0,0,0.14);
+}
+
+html {
+  font-size: 62.5%; /* 1rem = 10px */
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sodo);
+  font-size: 1.6rem;
+  line-height: 1.5;
+  letter-spacing: var(--letter-spacing);
+  color: var(--text-black);
+  background-color: var(--canvas-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-family: var(--font-sodo);
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: 2.4rem;
+  font-weight: 600;
+  color: var(--starbucks-green);
+  line-height: 1.5;
+}
+
+h2 {
+  font-size: 2.4rem;
+  font-weight: 400;
+  color: var(--text-black);
+  line-height: 1.5;
+}
+
+p {
+  margin: 0 0 1.6rem 0;
+}
+
+a {
+  color: var(--green-accent);
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Utilities */
+.text-white {
+  color: var(--text-white);
+}
+
+.text-white-soft {
+  color: var(--text-white-soft);
+}
+
+.bg-house-green {
+  background-color: var(--house-green);
+}
+
+.container {
+  padding-left: var(--outer-gutter);
+  padding-right: var(--outer-gutter);
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-left: var(--outer-gutter-md);
+    padding-right: var(--outer-gutter-md);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: var(--outer-gutter-lg);
+    padding-right: var(--outer-gutter-lg);
+  }
+}
+
+/* Page Layout */
+.page-content {
+  flex: 1;
+  padding-bottom: 80px; /* Space for mobile nav */
+}
+
+@media (min-width: 768px) {
+  .page-content {
+    padding-bottom: 0;
+  }
+}
+
+/* Premium Repeating Background Patterns */
+.city-grid-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10h60M0 30h60M0 50h60M10 0v60M30 0v60M50 0v60' stroke='%2300754A' stroke-width='0.8' stroke-opacity='0.07' fill='none'/%3E%3Crect x='15' y='15' width='10' height='10' rx='1' fill='%2300754A' fill-opacity='0.03'/%3E%3Crect x='35' y='15' width='10' height='10' rx='1' fill='%2300754A' fill-opacity='0.03'/%3E%3Crect x='15' y='35' width='10' height='10' rx='1' fill='%2300754A' fill-opacity='0.03'/%3E%3Crect x='35' y='35' width='10' height='10' rx='1' fill='%2300754A' fill-opacity='0.03'/%3E%3C/svg%3E");
+}
+
+.topo-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-10 30 C 20 60, 40 10, 130 40 M-10 50 C 20 80, 50 20, 130 60 M-10 70 C 20 100, 60 30, 130 80 M-10 10 C 20 40, 30 0, 130 20 M-10 90 C 20 120, 70 40, 130 100' stroke='%2300754A' stroke-width='0.6' stroke-opacity='0.06' fill='none'/%3E%3C/svg%3E");
+}

@@ -1,0 +1,21 @@
+.sb-card {
+  background-color: var(--white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.sb-card--dark {
+  background-color: var(--house-green);
+  color: var(--text-white);
+}
+
+.sb-card-body {
+  padding: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .sb-card-body {
+    padding: var(--space-4);
+  }
+}

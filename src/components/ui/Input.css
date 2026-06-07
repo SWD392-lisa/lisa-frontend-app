@@ -1,0 +1,50 @@
+.sb-input-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: var(--space-4);
+}
+
+.sb-input {
+  width: 100%;
+  padding: 24px 16px 8px; /* Extra padding on top for the floating label */
+  font-family: var(--font-sodo);
+  font-size: 1.6rem;
+  color: var(--text-black);
+  background-color: var(--white);
+  border: 1px solid #d6dbde;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.sb-input:focus {
+  border-color: var(--green-accent);
+}
+
+.sb-input-label {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  color: var(--text-black-soft);
+  font-size: 1.6rem;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.32, 2.32, 0.61, 0.27);
+  transform-origin: left top;
+}
+
+/* Floating state when input is focused or has value */
+.sb-input:focus ~ .sb-input-label,
+.sb-input:not(:placeholder-shown) ~ .sb-input-label {
+  transform: translateY(-8px) scale(0.8125); /* 1.3rem equivalent */
+  color: var(--text-black);
+  font-weight: 600;
+}
+
+.sb-input--error {
+  border-color: var(--red);
+  background-color: var(--red-tint);
+}
+
+.sb-input--success {
+  background-color: var(--green-tint);
+}

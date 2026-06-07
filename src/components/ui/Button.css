@@ -1,0 +1,61 @@
+.sb-button {
+  font-family: var(--font-sodo);
+  border-radius: var(--radius-pill);
+  padding: 7px 16px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: var(--letter-spacing);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.sb-button:active {
+  transform: scale(0.95);
+}
+
+.sb-button--primary-filled {
+  background-color: var(--green-accent);
+  color: var(--white);
+  border: 1px solid var(--green-accent);
+}
+
+.sb-button--primary-outlined {
+  background-color: transparent;
+  color: var(--green-accent);
+  border: 1px solid var(--green-accent);
+}
+
+.sb-button--black-filled {
+  background-color: var(--black);
+  color: var(--white);
+  border: 1px solid var(--black);
+  font-size: 1.4rem;
+}
+
+.sb-button--dark-outlined {
+  background-color: transparent;
+  color: var(--text-black);
+  border: 1px solid var(--text-black);
+  font-size: 1.4rem;
+}
+
+.sb-button--inverted {
+  background-color: var(--white);
+  color: var(--green-accent);
+  border: 1px solid var(--white);
+}
+
+.sb-button--outline-dark {
+  background-color: transparent;
+  color: var(--white);
+  border: 1px solid var(--white);
+}
+
+.sb-button--full-width {
+  width: 100%;
+}
