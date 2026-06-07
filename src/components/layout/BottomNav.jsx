@@ -1,16 +1,18 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, BookOpen, User } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './BottomNav.css';
 
 export const BottomNav = () => {
   const location = useLocation();
+  const { currentUser } = useAuth();
 
   const navItems = [
-    { path: '/dashboard', label: 'Home', icon: Home },
+    { path: currentUser ? '/dashboard' : '/', label: 'Home', icon: Home },
     { path: '/discover', label: 'Discover', icon: Compass },
-    { path: '/learning', label: 'Learning', icon: BookOpen },
-    { path: '/profile', label: 'Profile', icon: User },
+    { path: currentUser ? '/learning' : '/courses', label: 'Learning', icon: BookOpen },
+    { path: currentUser ? '/profile' : '/login', label: 'Profile', icon: User },
   ];
 
   return (

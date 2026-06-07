@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, User, Bell } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, User, Bell, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import logoPhoenix from '../../assets/images/logo_phonenix1.png';
@@ -9,18 +9,26 @@ import './Navbar.css';
 export const Navbar = () => {
   const { currentUser } = useAuth();
   const isAuthenticated = !!currentUser;
+  const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <header className="sb-navbar">
       <div className="container sb-navbar-content">
-        <Link to="/" className="sb-navbar-brand" style={{ padding: '4px 0' }}>
+        <Link to="/" className="sb-navbar-brand" style={{ padding: '4px 0', display: 'flex', alignItems: 'center' }}>
           <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" /> LUCY
         </Link>
 
         <nav className="sb-navbar-links">
-          <Link to="/dashboard" className="sb-navbar-link">Home</Link>
-          <Link to="/discover" className="sb-navbar-link">Discover</Link>
-          <Link to="/learning" className="sb-navbar-link">My Learning</Link>
+          <Link to="/" className={`sb-navbar-link ${isActive('/') ? 'is-active' : ''}`}>Home</Link>
+          <Link to="/discover" className={`sb-navbar-link ${isActive('/discover') ? 'is-active' : ''}`}>Discover</Link>
+          <Link to="/courses" className={`sb-navbar-link ${isActive('/courses') ? 'is-active' : ''}`}>Courses</Link>
+          <Link to="/support" className={`sb-navbar-link ${isActive('/support') ? 'is-active' : ''}`}>Student Support</Link>
+          <Link to="/events" className={`sb-navbar-link ${isActive('/events') ? 'is-active' : ''}`}>Events</Link>
         </nav>
 
         <div className="sb-navbar-actions">
@@ -50,11 +58,57 @@ export const Navbar = () => {
             </>
           )}
           
-          <button className="sb-navbar-mobile-toggle">
+          <button className="sb-navbar-mobile-toggle" onClick={() => setIsMobileMenuOpen(true)}>
             <Menu size={24} />
           </button>
         </div>
       </div>
+
+      {/* Mobile Drawer Overlay */}
+      {isMobileMenuOpen && (
+        <div className="sb-mobile-drawer-overlay" onClick={() => setIsMobileMenuOpen(false)}>
+          <div className="sb-mobile-drawer" onClick={(e) => e.stopPropagation()}>
+            <div className="sb-mobile-drawer-header">
+              <Link to="/" className="sb-navbar-brand" onClick={() => setIsMobileMenuOpen(false)}>
+                <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" style={{ width: '40px', height: '40px' }} /> LUCY
+              </Link>
+              <button className="sb-mobile-drawer-close" onClick={() => setIsMobileMenuOpen(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            
+            <nav className="sb-mobile-drawer-links">
+              <Link to="/" className={`sb-mobile-drawer-link ${isActive('/') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+              <Link to="/discover" className={`sb-mobile-drawer-link ${isActive('/discover') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Discover</Link>
+              <Link to="/courses" className={`sb-mobile-drawer-link ${isActive('/courses') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Courses</Link>
+              <Link to="/support" className={`sb-mobile-drawer-link ${isActive('/support') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Student Support</Link>
+              <Link to="/events" className={`sb-mobile-drawer-link ${isActive('/events') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Events</Link>
+            </nav>
+            
+            <div className="sb-mobile-drawer-actions">
+              {isAuthenticated ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
+                  <Link to="/wallet" className="sb-mobile-drawer-action-item" onClick={() => setIsMobileMenuOpen(false)}>
+                    <span>Wallet (1.5K Stars)</span>
+                  </Link>
+                  <Link to="/profile" className="sb-mobile-drawer-action-item" onClick={() => setIsMobileMenuOpen(false)}>
+                    <span>My Profile</span>
+                  </Link>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+                  <Link to="/login" style={{ textDecoration: 'none' }} onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="dark-outlined" fullWidth>Sign in</Button>
+                  </Link>
+                  <Link to="/register" style={{ textDecoration: 'none' }} onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="black-filled" fullWidth>Join now</Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

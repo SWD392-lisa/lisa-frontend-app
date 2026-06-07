@@ -177,3 +177,12 @@ a {
     padding-bottom: 0;
   }
 }
+
+/* Premium Repeating Background Patterns */
+.city-grid-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10h60M0 30h60M0 50h60M10 0v60M30 0v60M50 0v60' stroke='%2300754A' stroke-width='0.8' stroke-opacity='0.07' fill='none'/%3E%3Crect x='15' y='15' width='10' height='10' rx='1' fill='%2300754A' fill-opacity='0.03'/%3E%3Crect x='35' y='15' width='10' height='10' rx='1' fill='%2300754A' fill-opacity='0.03'/%3E%3Crect x='15' y='35' width='10' height='10' rx='1' fill='%2300754A' fill-opacity='0.03'/%3E%3Crect x='35' y='35' width='10' height='10' rx='1' fill='%2300754A' fill-opacity='0.03'/%3E%3C/svg%3E");
+}
+
+.topo-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-10 30 C 20 60, 40 10, 130 40 M-10 50 C 20 80, 50 20, 130 60 M-10 70 C 20 100, 60 30, 130 80 M-10 10 C 20 40, 30 0, 130 20 M-10 90 C 20 120, 70 40, 130 100' stroke='%2300754A' stroke-width='0.6' stroke-opacity='0.06' fill='none'/%3E%3C/svg%3E");
+}

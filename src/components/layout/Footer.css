@@ -1,0 +1,152 @@
+/* ==========================================================================
+   LUCY - Starbucks Premium Footer
+   ========================================================================== */
+
+.global-footer {
+  background-color: #FFFFFF;
+  color: var(--text-black);
+  font-family: var(--font-sodo);
+  border-top: 1px solid #e5e7eb;
+}
+
+.footer-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 48px 32px;
+}
+
+/* --------------------------------------------------------------------------
+   Top Grid: Links
+   -------------------------------------------------------------------------- */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+
+@media (min-width: 640px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.footer-col h3 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-black);
+  margin-bottom: 24px;
+}
+
+.footer-col a {
+  display: block;
+  font-size: 1.5rem;
+  color: #4b5563; /* text-gray-600 */
+  text-decoration: none;
+  margin-bottom: 16px;
+  transition: color 0.2s ease;
+}
+
+.footer-col a:hover {
+  color: #000000; /* hover:text-black */
+}
+
+/* --------------------------------------------------------------------------
+   Divider
+   -------------------------------------------------------------------------- */
+.footer-divider {
+  margin: 40px 0;
+  border: 0;
+  border-top: 1px solid #d1d5db; /* border-gray-300 */
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Section
+   -------------------------------------------------------------------------- */
+.footer-bottom {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Social Icons */
+.footer-socials {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.social-circle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #000000;
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.social-circle-btn:hover {
+  transform: translateY(-2px);
+  background-color: #333333;
+}
+
+.social-circle-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* Legal Links */
+.footer-legal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.footer-legal-list a {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #374151; /* text-gray-700 */
+  text-decoration: none;
+  padding: 8px 0;
+}
+
+.footer-legal-list a:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 1024px) {
+  .footer-legal-list {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+  }
+  
+  .footer-legal-list a {
+    padding: 0;
+  }
+  
+  .footer-legal-separator {
+    width: 1px;
+    height: 16px;
+    background-color: #d1d5db;
+  }
+}
+
+.footer-copyright {
+  font-size: 1.3rem;
+  color: #6b7280; /* text-gray-500 */
+  margin-top: 16px;
+}
+
+

@@ -1,0 +1,712 @@
+/* ==========================================================================
+   LUCY - Courses Page Stylesheet (3D Glassmorphism & Gamification)
+   ========================================================================== */
+
+.courses-page {
+  background-color: #f8fafc; /* bg-slate-50 */
+  min-height: 100vh;
+  font-family: var(--font-sodo);
+  color: var(--text-black);
+  position: relative;
+  overflow: hidden;
+}
+
+.courses-boxed-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: 80px;
+  position: relative;
+  z-index: 10;
+}
+
+@media (min-width: 768px) {
+  .courses-boxed-container {
+    padding-bottom: 40px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Blurry Gradient Blobs (3D Space effect)
+   -------------------------------------------------------------------------- */
+.courses-aurora-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.courses-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.15;
+}
+
+.courses-blob--1 {
+  width: 450px;
+  height: 450px;
+  background-color: var(--green-accent); /* #00754A */
+  top: -100px;
+  left: -150px;
+}
+
+.courses-blob--2 {
+  width: 400px;
+  height: 400px;
+  background-color: var(--house-green); /* #1E3932 */
+  bottom: 10%;
+  right: -100px;
+}
+
+.courses-blob--3 {
+  width: 350px;
+  height: 350px;
+  background-color: var(--gold); /* #cba258 */
+  top: 30%;
+  left: 30%;
+  opacity: 0.08;
+}
+
+/* --------------------------------------------------------------------------
+   Hero Section
+   -------------------------------------------------------------------------- */
+.courses-hero {
+  padding: var(--space-7) var(--space-4) var(--space-4);
+  text-align: center;
+  position: relative;
+  z-index: 20;
+}
+
+.courses-hero h1 {
+  font-size: 3.6rem;
+  font-weight: 800;
+  color: var(--house-green);
+  margin-bottom: var(--space-3);
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .courses-hero h1 {
+    font-size: 4.8rem;
+  }
+}
+
+/* Capsule Language Toggle */
+.lang-toggle-container {
+  margin-top: var(--space-4);
+  display: inline-flex;
+}
+
+.lang-toggle-capsule {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  padding: 4px;
+  border-radius: 50px;
+  display: flex;
+  gap: 4px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.lang-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-black-soft);
+  font-family: var(--font-sodo);
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 8px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.lang-toggle-btn:hover {
+  color: var(--green-accent);
+}
+
+.lang-toggle-btn.is-active {
+  background-color: var(--green-accent);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(0, 117, 74, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   Skill Tree Map Section
+   -------------------------------------------------------------------------- */
+.skill-tree-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4);
+  position: relative;
+  z-index: 20;
+}
+
+.skill-tree-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  height: 1050px;
+  margin: 0 auto;
+  z-index: 10;
+}
+
+/* SVG Winding Path */
+.timeline-svg-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.timeline-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.svg-path-dashed {
+  stroke: rgba(0, 117, 74, 0.15);
+  stroke-width: 4px;
+  fill: none;
+  stroke-dasharray: 8 8;
+  transition: stroke 0.3s;
+}
+
+.svg-path-active {
+  stroke: var(--green-accent);
+  stroke-width: 4px;
+  fill: none;
+  stroke-dasharray: 8 8;
+  stroke-dashoffset: 0;
+  animation: dash-flow 30s linear infinite;
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Skill Tree Nodes
+   -------------------------------------------------------------------------- */
+.skill-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Node Dot styling */
+.node-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 12;
+}
+
+/* Unlocked pulsing node */
+.node-dot--unlocked {
+  background-color: var(--green-accent);
+  border: 4px solid var(--white);
+  box-shadow: 0 0 20px rgba(0, 117, 74, 0.6);
+  cursor: pointer;
+}
+
+.node-dot--unlocked::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border-radius: 50%;
+  border: 2px solid var(--green-accent);
+  opacity: 0;
+  animation: node-pulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+@keyframes node-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  70% {
+    transform: scale(2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Locked node */
+.node-dot--locked {
+  background-color: #cbd5e1; /* slate-300 */
+  border: 4px solid var(--white);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  cursor: not-allowed;
+  color: #64748b; /* slate-500 */
+}
+
+/* Play Button Float Next to L1 */
+.play-btn-float {
+  position: absolute;
+  top: -8px;
+  right: -32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--white);
+  color: var(--green-accent);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 15;
+}
+
+.play-btn-float:hover {
+  transform: scale(1.15);
+  background-color: var(--green-accent);
+  color: var(--white);
+  box-shadow: 0 6px 15px rgba(0,117,74,0.3);
+}
+
+/* Floating Glass Card */
+.node-glass-card {
+  position: absolute;
+  width: 170px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05), inset 0 2px 5px rgba(255, 255, 255, 0.6);
+  z-index: 15;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  pointer-events: auto;
+}
+
+.node-glass-card--left {
+  right: 42px;
+  top: -20px;
+  transform-origin: right center;
+}
+
+.node-glass-card--right {
+  left: 42px;
+  top: -20px;
+  transform-origin: left center;
+}
+
+.node-glass-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(0, 117, 74, 0.2);
+  box-shadow: 0 12px 36px rgba(0, 117, 74, 0.08);
+}
+
+.node-glass-card.is-locked {
+  opacity: 0.65;
+  background: rgba(241, 245, 249, 0.4);
+}
+
+.card-level-badge {
+  font-size: 1.0rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  background-color: rgba(0, 117, 74, 0.08);
+  color: var(--green-accent);
+  border-radius: 4px;
+  width: fit-content;
+  margin-bottom: 6px;
+}
+
+.node-glass-card.is-locked .card-level-badge {
+  background-color: #e2e8f0;
+  color: #64748b;
+}
+
+.card-node-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--house-green);
+  line-height: 1.3;
+}
+
+.node-glass-card.is-locked .card-node-title {
+  color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   LUCY AI Copilot Floating Card
+   -------------------------------------------------------------------------- */
+.copilot-floating-card {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 28px;
+  padding: var(--space-5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 2px 10px rgba(255, 255, 255, 0.8);
+  position: absolute;
+  width: 320px;
+  z-index: 30;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+}
+
+/* Desktop float coordinates (overlaps with path in responsive way) */
+@media (min-width: 1024px) {
+  .copilot-floating-card {
+    right: -60px;
+    top: 320px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .copilot-floating-card {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: var(--space-6) auto 0;
+    top: auto;
+    right: auto;
+  }
+}
+
+.copilot-floating-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(124, 58, 237, 0.2);
+  box-shadow: 0 30px 60px rgba(124, 58, 237, 0.08);
+}
+
+.copilot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.copilot-badge {
+  background: linear-gradient(135deg, rgba(0,117,74,0.1) 0%, rgba(124,58,237,0.1) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #7c3aed; /* Violet */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.copilot-title-gradient {
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--green-accent) 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-2);
+}
+
+.copilot-desc {
+  font-size: 1.4rem;
+  line-height: 1.6;
+  color: var(--text-black-soft);
+  margin-bottom: var(--space-4);
+}
+
+/* Visualizer animation */
+.copilot-visualizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 24px;
+  padding: 4px 8px;
+  background-color: rgba(124, 58, 237, 0.05);
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.copilot-visualizer-bar {
+  width: 3px;
+  background-color: #7c3aed;
+  border-radius: 3px 3px 0 0;
+  animation: bounce-wave 0.6s ease-in-out infinite alternate;
+}
+
+.copilot-visualizer-bar:nth-child(1) { height: 4px; animation-delay: 0.1s; }
+.copilot-visualizer-bar:nth-child(2) { height: 4px; animation-delay: 0.35s; }
+.copilot-visualizer-bar:nth-child(3) { height: 4px; animation-delay: 0.2s; }
+.copilot-visualizer-bar:nth-child(4) { height: 4px; animation-delay: 0.45s; }
+.copilot-visualizer-bar:nth-child(5) { height: 4px; animation-delay: 0.15s; }
+
+/* --------------------------------------------------------------------------
+   Audio Modal Preview
+   -------------------------------------------------------------------------- */
+.audio-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fade-in 0.2s ease-out;
+}
+
+.audio-player-box {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 30px 70px rgba(0, 117, 74, 0.12);
+  border-radius: 24px;
+  padding: var(--space-5);
+  width: 360px;
+  font-family: var(--font-sodo);
+  position: relative;
+  text-align: center;
+  animation: slide-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.audio-player-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-black-soft);
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.audio-player-close:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.audio-player-disc {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--green-accent) 0%, #1e3932 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: var(--space-2) auto var(--space-4);
+  color: var(--white);
+  box-shadow: 0 8px 25px rgba(0, 117, 74, 0.25);
+  position: relative;
+}
+
+.disc-spinning {
+  animation: spin 6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.audio-player-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--house-green);
+  margin-bottom: 4px;
+}
+
+.audio-player-subtitle {
+  font-size: 1.3rem;
+  color: var(--text-black-soft);
+  margin-bottom: var(--space-4);
+}
+
+.audio-player-progress-container {
+  width: 100%;
+  height: 4px;
+  background-color: rgba(0, 117, 74, 0.1);
+  border-radius: 2px;
+  position: relative;
+  margin-bottom: var(--space-4);
+  overflow: hidden;
+}
+
+.audio-player-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 35%;
+  background-color: var(--green-accent);
+  border-radius: 2px;
+  animation: dummy-play 30s linear infinite;
+}
+
+@keyframes dummy-play {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.audio-player-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+}
+
+.audio-control-btn {
+  background: transparent;
+  border: none;
+  color: var(--house-green);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.audio-control-btn:hover {
+  transform: scale(1.1);
+}
+
+.audio-control-btn--play {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background-color: var(--green-accent);
+  color: var(--white);
+  box-shadow: 0 4px 15px rgba(0, 117, 74, 0.2);
+}
+
+.audio-control-btn--play:hover {
+  background-color: var(--house-green);
+  box-shadow: 0 6px 20px rgba(30, 57, 50, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   Locked Node Tooltip
+   -------------------------------------------------------------------------- */
+.locked-tooltip {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background-color: #1e293b;
+  color: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.locked-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background-color: #1e293b;
+}
+
+.skill-node:hover .locked-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   Final CTA Block
+   -------------------------------------------------------------------------- */
+.final-cta-block {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 15px 40px rgba(0, 117, 74, 0.1);
+  border-radius: 24px;
+  padding: 32px 24px;
+  text-align: center;
+  z-index: 20;
+}
+
+.final-cta-block h3 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--house-green);
+  margin-bottom: 12px;
+}
+
+.final-cta-block p {
+  font-size: 1.5rem;
+  color: var(--text-black-soft);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.final-cta-btn {
+  background-color: #00754A;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 32px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-family: var(--font-sodo);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0, 117, 74, 0.25);
+}
+
+.final-cta-btn:hover {
+  background-color: #1E3932;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0, 117, 74, 0.35);
+}
