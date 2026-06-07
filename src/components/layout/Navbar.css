@@ -1,0 +1,93 @@
+.sb-navbar {
+  position: sticky;
+  top: 0;
+  background-color: var(--white);
+  box-shadow: var(--shadow-nav);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  z-index: 100;
+}
+
+@media (min-width: 480px) {
+  .sb-navbar { height: 72px; }
+}
+
+@media (min-width: 768px) {
+  .sb-navbar { height: 83px; }
+}
+
+@media (min-width: 1024px) {
+  .sb-navbar { height: 99px; }
+}
+
+.sb-navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.sb-navbar-brand {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--starbucks-green);
+  text-decoration: none;
+  letter-spacing: -0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.sb-navbar-links {
+  display: none;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .sb-navbar-links {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.sb-navbar-link {
+  font-family: 'SoDo Sans', sans-serif;
+  color: var(--text-black);
+  text-decoration: none;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1.4rem;
+  letter-spacing: 0.1em;
+  transition: color 0.2s ease;
+}
+
+.sb-navbar-link:hover {
+  color: var(--green-accent);
+}
+
+.sb-navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sb-navbar-mobile-toggle {
+  display: block;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-black);
+}
+
+@media (min-width: 768px) {
+  .sb-navbar-mobile-toggle {
+    display: none;
+  }
+}

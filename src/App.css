@@ -1,0 +1,6 @@
+/* App specific styles, mostly empty as we rely on reusable components and utility classes in index.css */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}

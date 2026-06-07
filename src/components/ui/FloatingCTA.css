@@ -1,0 +1,35 @@
+.sb-floating-cta {
+  position: fixed;
+  bottom: calc(var(--space-4) + 80px); /* 80px for mobile nav spacing */
+  right: var(--space-4);
+  width: 5.6rem;
+  height: 5.6rem;
+  background-color: var(--green-accent);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-frap-base), var(--shadow-frap-ambient);
+  cursor: pointer;
+  z-index: 50;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+@media (min-width: 768px) {
+  .sb-floating-cta {
+    bottom: var(--space-6);
+    right: var(--space-6);
+  }
+}
+
+.sb-floating-cta:active {
+  transform: scale(0.95);
+  box-shadow: var(--shadow-frap-base); /* Ambient shadow fades on press */
+}
+
+.sb-floating-cta svg {
+  width: 24px;
+  height: 24px;
+}
