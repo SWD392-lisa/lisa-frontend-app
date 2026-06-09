@@ -1,0 +1,169 @@
+/* ==========================================================================
+   LUCY - FeaturedMentors Page Styles (Premium Glassmorphism Cards)
+   ========================================================================== */
+
+.mentors-page {
+  background-color: #fcfbfa; /* Trắng ngà */
+  font-family: var(--font-sodo);
+  color: var(--text-black);
+  padding: 120px 0 60px 0;
+  min-height: 100vh;
+}
+
+.mentors-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--outer-gutter-lg);
+}
+
+@media (max-width: 768px) {
+  .mentors-container {
+    padding: 0 var(--outer-gutter-md);
+  }
+}
+
+.mentors-header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.mentors-title {
+  font-size: 4rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #1E3932 0%, #00754A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+.mentors-subtitle {
+  font-size: 1.6rem;
+  color: var(--text-black-soft);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* 4 columns grid layout */
+.mentors-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+@media (min-width: 640px) {
+  .mentors-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mentors-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Glass Card */
+.mentor-glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 24px;
+  padding: 32px 24px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.mentor-glass-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 36px rgba(0, 117, 74, 0.08);
+}
+
+/* Avatar with Gold/Bronze thin border representing Pro gói */
+.mentor-avatar-box {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #dfc49d 0%, #cba258 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.mentor-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FFFFFF;
+}
+
+.mentor-card-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-black);
+  margin-bottom: 8px;
+}
+
+/* Language Badge */
+.mentor-tag-lang {
+  display: inline-block;
+  background: rgba(0, 117, 74, 0.08);
+  color: #00754A;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  border: 1px solid rgba(0, 117, 74, 0.12);
+}
+
+/* Rating Row */
+.mentor-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-black);
+  margin-bottom: 28px;
+  margin-top: auto; /* Push down to bottom above action */
+}
+
+.star-gold-icon {
+  color: var(--gold);
+  fill: var(--gold);
+}
+
+/* Follow Button */
+.mentor-follow-btn {
+  width: 100%;
+  background: transparent;
+  color: var(--green-accent);
+  border: 2px solid var(--green-accent);
+  padding: 12px 0;
+  border-radius: 50px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mentor-follow-btn:hover {
+  background-color: var(--green-accent);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 117, 74, 0.15);
+}
+
+.mentor-follow-btn:active {
+  transform: scale(0.98);
+}

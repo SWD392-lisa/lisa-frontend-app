@@ -1,0 +1,228 @@
+/* ==========================================================================
+   LUCY - ForMentors Page Styles (Premium Recruiter Vibe)
+   ========================================================================== */
+
+.mentors-apply-page {
+  background-color: #fcfbfa; /* Trắng ngà */
+  font-family: var(--font-sodo);
+  color: var(--text-black);
+  padding: 120px 0 60px 0;
+  min-height: 100vh;
+}
+
+.mentors-apply-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--outer-gutter-lg);
+}
+
+@media (max-width: 768px) {
+  .mentors-apply-container {
+    padding: 0 var(--outer-gutter-md);
+  }
+}
+
+.apply-hero {
+  text-align: center;
+  margin-bottom: 80px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.apply-hero h1 {
+  font-size: 3.8rem;
+  font-weight: 800;
+  color: #1E3932; /* xanh đậm */
+  line-height: 1.25;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .apply-hero h1 {
+    font-size: 2.8rem;
+  }
+}
+
+.apply-hero p {
+  font-size: 1.8rem;
+  color: var(--text-black-soft);
+}
+
+/* 3 Benefits Grid */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  margin-bottom: 80px;
+}
+
+@media (min-width: 768px) {
+  .benefits-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.benefit-card {
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.benefit-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background-color: var(--green-tint);
+  color: var(--green-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.benefit-card h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 12px;
+}
+
+.benefit-card p {
+  font-size: 1.45rem;
+  color: var(--text-black-soft);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Application Form */
+.apply-form-section {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.apply-form-section h2 {
+  text-align: center;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 40px;
+}
+
+.apply-glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 32px;
+  padding: 48px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.02);
+}
+
+@media (max-width: 768px) {
+  .apply-glass-card {
+    padding: 32px 20px;
+  }
+}
+
+.apply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.apply-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .apply-form-row {
+    flex-direction: row;
+  }
+  
+  .apply-form-half {
+    flex: 1;
+  }
+}
+
+.apply-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.apply-form-group label {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-black);
+}
+
+.apply-input-field {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 1.5rem;
+  font-family: var(--font-sodo);
+  color: var(--text-black);
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.apply-input-field:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.apply-input-field:focus {
+  border-color: var(--green-accent);
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(0, 117, 74, 0.08);
+}
+
+.apply-submit-btn {
+  background-color: #00754A; /* Xanh lá */
+  color: #FFFFFF;
+  border: 1px solid #00754A;
+  padding: 16px 36px;
+  border-radius: 50px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.apply-submit-btn:hover {
+  background-color: #006241;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 117, 74, 0.2);
+}
+
+.apply-submit-btn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .apply-submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.apply-success-alert {
+  background-color: rgba(0, 117, 74, 0.08);
+  border: 1px solid rgba(0, 117, 74, 0.15);
+  color: #00754A;
+  padding: 16px 24px;
+  border-radius: 16px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}

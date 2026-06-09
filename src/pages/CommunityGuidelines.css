@@ -1,0 +1,158 @@
+/* ==========================================================================
+   LUCY - CommunityGuidelines Page Styles (Sticky Sidebar Layout)
+   ========================================================================== */
+
+.guidelines-page {
+  background-color: #fcfbfa; /* Trắng ngà */
+  font-family: var(--font-sodo);
+  color: var(--text-black);
+  padding: 120px 0 60px 0;
+  min-height: 100vh;
+}
+
+.guidelines-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--outer-gutter-lg);
+}
+
+@media (max-width: 768px) {
+  .guidelines-container {
+    padding: 0 var(--outer-gutter-md);
+  }
+}
+
+.guidelines-title {
+  text-align: center;
+  font-size: 4rem;
+  font-weight: 800;
+  margin-bottom: 64px;
+  background: linear-gradient(135deg, #1E3932 0%, #00754A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+/* Sidebar Layout */
+.guidelines-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+@media (min-width: 768px) {
+  .guidelines-layout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+/* Sticky Sidebar Menu */
+.guidelines-sidebar {
+  position: static;
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .guidelines-sidebar {
+    position: sticky;
+    top: 100px;
+  }
+}
+
+.sidebar-link {
+  display: block;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 12px 18px;
+  color: var(--text-black-soft);
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(0, 117, 74, 0.04);
+  color: var(--green-accent);
+}
+
+.sidebar-link.active {
+  background-color: var(--green-tint);
+  color: var(--green-accent);
+}
+
+/* Main Content Area */
+.guidelines-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Cards style */
+.guidelines-card {
+  background: #FFFFFF;
+  border: 1px solid #edebe9;
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s ease;
+}
+
+.guidelines-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--green-light);
+  box-shadow: 0 8px 30px rgba(0, 117, 74, 0.04);
+}
+
+.guidelines-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.guidelines-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-hug {
+  background-color: rgba(0, 117, 74, 0.08);
+  color: #00754A;
+}
+
+.icon-shield {
+  background-color: rgba(203, 162, 88, 0.1);
+  color: var(--gold);
+}
+
+.icon-toxic {
+  background-color: #fdf2f2;
+  color: #ef4444;
+}
+
+.guidelines-card h3 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin: 0;
+}
+
+.guidelines-card p {
+  font-size: 1.5rem;
+  line-height: 1.7;
+  color: #374151; /* text-gray-800 per specs */
+  margin: 0;
+}
