@@ -28,17 +28,39 @@ const roleOptions = [
 ];
 
 export const Register = () => {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [birthday, setBirthday] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [accountType, setAccountType] = useState('LUCY');
   const navigate = useNavigate();
   const { register, login } = useAuth();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    await register(email, password, accountType);
-    await login(email, password); // Auto login after register
-    navigate('/dashboard');
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+    const userData = {
+      fullName,
+      email,
+      password,
+      confirmPassword,
+      birthday,
+      phoneNumber: phoneNumber || null,
+      accountType
+    };
+    try {
+      await register(userData);
+      await login(email, password); // Auto login after register
+      navigate('/dashboard');
+    } catch (error) {
+      console.error("Registration error:", error);
+      alert("Registration failed. Please check your information and try again.");
+    }
   };
 
   return (
@@ -92,6 +114,18 @@ export const Register = () => {
           </div>
 
           <div className="auth-form-group">
+            <label>Full Name</label>
+            <input 
+              className="auth-input"
+              type="text" 
+              placeholder="Enter your full name"
+              value={fullName} 
+              onChange={e => setFullName(e.target.value)} 
+              required 
+            />
+          </div>
+
+          <div className="auth-form-group">
             <label>Email</label>
             <input 
               className="auth-input"
@@ -104,6 +138,28 @@ export const Register = () => {
           </div>
           
           <div className="auth-form-group">
+            <label>Phone Number (Optional)</label>
+            <input 
+              className="auth-input"
+              type="tel" 
+              placeholder="Enter your phone number"
+              value={phoneNumber} 
+              onChange={e => setPhoneNumber(e.target.value)} 
+            />
+          </div>
+
+          <div className="auth-form-group">
+            <label>Birthday</label>
+            <input 
+              className="auth-input"
+              type="date" 
+              value={birthday} 
+              onChange={e => setBirthday(e.target.value)} 
+              required 
+            />
+          </div>
+
+          <div className="auth-form-group">
             <label>Password</label>
             <input 
               className="auth-input"
@@ -111,6 +167,18 @@ export const Register = () => {
               placeholder="Create a password"
               value={password} 
               onChange={e => setPassword(e.target.value)} 
+              required 
+            />
+          </div>
+
+          <div className="auth-form-group">
+            <label>Confirm Password</label>
+            <input 
+              className="auth-input"
+              type="password" 
+              placeholder="Confirm your password"
+              value={confirmPassword} 
+              onChange={e => setConfirmPassword(e.target.value)} 
               required 
             />
           </div>
