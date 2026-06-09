@@ -1,0 +1,140 @@
+/* ==========================================================================
+   LUCY - LevelPathTeaser Styles (Gamified Teaser Component)
+   ========================================================================== */
+
+.level-teaser-wrapper {
+  max-width: 1200px;
+  margin: 64px auto;
+  border-radius: 32px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(217, 234, 211, 0.25) 0%, rgba(255, 255, 255, 0.75) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.02);
+}
+
+.level-teaser-container {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .level-teaser-container {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Left Column: Content
+   -------------------------------------------------------------------------- */
+.level-teaser-left {
+  padding: 48px;
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+  .level-teaser-left {
+    padding: 32px 24px;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.level-teaser-tag {
+  color: #00754A;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.level-teaser-left h2 {
+  font-size: 3.6rem;
+  font-weight: 800;
+  color: #1E3932;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.level-teaser-desc {
+  font-size: 1.5rem;
+  color: var(--text-black-soft);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.level-teaser-cta {
+  background-color: #1E3932;
+  color: #FFFFFF;
+  border: 1px solid #1E3932;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.level-teaser-cta:hover {
+  background-color: #2d564b;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(30, 57, 50, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   Right Column: Mini Map Visualization (CSS & SVG)
+   -------------------------------------------------------------------------- */
+.level-teaser-right {
+  padding: 48px;
+  flex: 0 0 60%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  min-height: 300px;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .level-teaser-right {
+    padding: 24px;
+    min-height: 240px;
+  }
+}
+
+.map-svg-container {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  position: relative;
+}
+
+/* Glow animation for active node */
+@keyframes active-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 117, 74, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 20px rgba(0, 117, 74, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 117, 74, 0);
+  }
+}
+
+.node-active-glow {
+  animation: active-glow 2s infinite;
+}
+
+/* Locked node styles */
+.node-locked {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
