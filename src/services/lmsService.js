@@ -1,7 +1,8 @@
 import { mockLevels } from './mockData';
 
 // TODO: Replace with actual API calls
-// const API_URL = '/api/lms';
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// const API_URL = `${API_BASE_URL}/lms`;
 
 export const lmsService = {
   getLevels: async (language, userId) => {

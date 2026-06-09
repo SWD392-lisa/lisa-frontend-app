@@ -21,18 +21,24 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const data = await authService.login(email, password);
-    setCurrentUser(data.user);
-    localStorage.setItem('lucy_user', JSON.stringify(data.user));
-    localStorage.setItem('lucy_token', data.access_token);
-    return data.user;
+    const responseBody = await authService.login(email, password);
+    const authData = responseBody.data;
+    setCurrentUser(authData.user);
+    localStorage.setItem('lucy_user', JSON.stringify(authData.user));
+    localStorage.setItem('lucy_token', authData.accessToken);
+    return authData.user;
   };
 
   const register = async (userData) => {
     return await authService.register(userData);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout API error:', error);
+    }
     setCurrentUser(null);
     localStorage.removeItem('lucy_user');
     localStorage.removeItem('lucy_token');
