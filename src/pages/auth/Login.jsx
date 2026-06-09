@@ -23,17 +23,18 @@ const AppleIcon = () => (
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       await login(email, password);
       navigate('/dashboard');
-    } catch (error) {
-      console.error('Login error:', error);
-      alert('Đăng nhập thất bại. Vui lòng kiểm tra lại email/mật khẩu hoặc kết nối tới server.');
+    } catch (err) {
+      setError(err.message || 'Đăng nhập không thành công. Vui lòng kiểm tra lại tài khoản.');
     }
   };
 
@@ -72,6 +73,21 @@ export const Login = () => {
           
           <h2 className="auth-form-title">Chào mừng trở lại</h2>
           <p className="auth-form-subtitle">Đăng nhập tài khoản để tiếp tục hành trình</p>
+
+          {error && (
+            <div style={{
+              backgroundColor: '#fdf2f2',
+              border: '1px solid #fde8e8',
+              color: '#c81e1e',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              fontSize: '1.4rem',
+              marginBottom: '20px',
+              fontWeight: 500
+            }}>
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleLogin}>
             <div className="input-group-premium">

@@ -28,17 +28,45 @@ const roleOptions = [
 ];
 
 export const Register = () => {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [birthday, setBirthday] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [accountType, setAccountType] = useState('LUCY');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { register, login } = useAuth();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    await register(email, password, accountType);
-    await login(email, password); // Auto login after register
-    navigate('/dashboard');
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError('Mật khẩu và xác nhận mật khẩu không khớp.');
+      return;
+    }
+
+    try {
+      const userData = {
+        fullName,
+        email,
+        password,
+        confirmPassword,
+        birthday,
+        phoneNumber: phoneNumber || null
+      };
+      await register(userData);
+      await login(email, password); // Auto login after register
+      navigate('/dashboard');
+    } catch (err) {
+      if (err.errors && Array.isArray(err.errors)) {
+        setError(err.errors.join(' • '));
+      } else {
+        setError(err.message || 'Đăng ký không thành công. Vui lòng kiểm tra lại thông tin.');
+      }
+    }
   };
 
   return (
@@ -68,7 +96,7 @@ export const Register = () => {
       <div className="auth-form-pane">
         <div className="form-pane-mesh-bg"></div>
 
-        <div className="premium-auth-card">
+        <div className="premium-auth-card" style={{ maxWidth: '500px', margin: '40px 0' }}>
           {/* Mobile Logo Header */}
           <Link to="/">
             <img src={logoPhoenix} alt="LUCY Logo" className="form-pane-logo-mobile" />
@@ -77,9 +105,25 @@ export const Register = () => {
           <h2 className="auth-form-title">Tạo tài khoản mới</h2>
           <p className="auth-form-subtitle">Điền thông tin bên dưới để đăng ký nhanh</p>
 
+          {error && (
+            <div style={{
+              backgroundColor: '#fdf2f2',
+              border: '1px solid #fde8e8',
+              color: '#c81e1e',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              fontSize: '1.4rem',
+              marginBottom: '20px',
+              fontWeight: 500,
+              lineHeight: 1.4
+            }}>
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleRegister}>
             
-            {/* Role selection */}
+            {/* Role selection (Mock/UX visual) */}
             <div className="role-select-box">
               <p className="role-select-box-label">Tôi muốn tham gia với vai trò:</p>
               <div className="role-cards-row">
@@ -94,13 +138,26 @@ export const Register = () => {
                       onClick={() => setAccountType(role.id)}
                     >
                       <div className="role-premium-icon">
-                        <Icon size={22} />
+                        <Icon size={20} />
                       </div>
                       <span className="role-premium-card-text">{role.id}</span>
                     </div>
                   );
                 })}
               </div>
+            </div>
+
+            <div className="input-group-premium">
+              <label htmlFor="fullName">Họ và Tên</label>
+              <input 
+                type="text" 
+                id="fullName"
+                placeholder="Nguyễn Văn A"
+                value={fullName}
+                onChange={e => setFullName(e.target.value)}
+                className="input-premium"
+                required
+              />
             </div>
 
             <div className="input-group-premium">
@@ -117,7 +174,31 @@ export const Register = () => {
             </div>
 
             <div className="input-group-premium">
-              <label htmlFor="password">Mật khẩu</label>
+              <label htmlFor="phoneNumber">Số điện thoại (Không bắt buộc)</label>
+              <input 
+                type="tel" 
+                id="phoneNumber"
+                placeholder="+84 901 234 567"
+                value={phoneNumber}
+                onChange={e => setPhoneNumber(e.target.value)}
+                className="input-premium"
+              />
+            </div>
+
+            <div className="input-group-premium">
+              <label htmlFor="birthday">Ngày sinh</label>
+              <input 
+                type="date" 
+                id="birthday"
+                value={birthday}
+                onChange={e => setBirthday(e.target.value)}
+                className="input-premium"
+                required
+              />
+            </div>
+
+            <div className="input-group-premium">
+              <label htmlFor="password">Mật khẩu (Tối thiểu 8 ký tự)</label>
               <input 
                 type="password" 
                 id="password"
@@ -129,7 +210,20 @@ export const Register = () => {
               />
             </div>
 
-            <button type="submit" className="submit-btn-premium">
+            <div className="input-group-premium">
+              <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
+              <input 
+                type="password" 
+                id="confirmPassword"
+                placeholder="Xác nhận mật khẩu"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                className="input-premium"
+                required
+              />
+            </div>
+
+            <button type="submit" className="submit-btn-premium" style={{ marginTop: '24px' }}>
               Đăng Ký Tài Khoản
             </button>
           </form>
