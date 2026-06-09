@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5149';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_URL = `${API_BASE_URL}/api/Auth`;
 
 export const authService = {
@@ -10,8 +10,7 @@ export const authService = {
       credentials: 'include' // Include if backend sets HttpOnly cookies
     });
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Login failed');
+      throw new Error('Login failed');
     }
     return response.json();
   },
@@ -24,11 +23,7 @@ export const authService = {
       body: JSON.stringify(userData)
     });
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      if (response.status === 422 || response.status === 400) {
-        throw errorData; // Return the full validation result object
-      }
-      throw new Error(errorData.message || 'Registration failed');
+      throw new Error('Registration failed');
     }
     return response.json();
   },

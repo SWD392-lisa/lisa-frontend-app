@@ -34,6 +34,8 @@ export const Register = () => {
   const [birthday, setBirthday] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [birthday, setBirthday] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [accountType, setAccountType] = useState('LUCY');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -41,31 +43,26 @@ export const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError('');
-
     if (password !== confirmPassword) {
-      setError('Mật khẩu và xác nhận mật khẩu không khớp.');
+      alert("Passwords do not match");
       return;
     }
-
+    const userData = {
+      fullName,
+      email,
+      password,
+      confirmPassword,
+      birthday,
+      phoneNumber: phoneNumber || null,
+      accountType
+    };
     try {
-      const userData = {
-        fullName,
-        email,
-        password,
-        confirmPassword,
-        birthday,
-        phoneNumber: phoneNumber || null
-      };
       await register(userData);
       await login(email, password); // Auto login after register
       navigate('/dashboard');
-    } catch (err) {
-      if (err.errors && Array.isArray(err.errors)) {
-        setError(err.errors.join(' • '));
-      } else {
-        setError(err.message || 'Đăng ký không thành công. Vui lòng kiểm tra lại thông tin.');
-      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      alert("Registration failed. Please check your information and try again.");
     }
   };
 
@@ -147,90 +144,80 @@ export const Register = () => {
               </div>
             </div>
 
-            <div className="input-group-premium">
-              <label htmlFor="fullName">Họ và Tên</label>
-              <input 
-                type="text" 
-                id="fullName"
-                placeholder="Nguyễn Văn A"
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
-                className="input-premium"
-                required
-              />
-            </div>
-
-            <div className="input-group-premium">
-              <label htmlFor="email">Địa chỉ Email</label>
-              <input 
-                type="email" 
-                id="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="input-premium"
-                required
-              />
-            </div>
-
-            <div className="input-group-premium">
-              <label htmlFor="phoneNumber">Số điện thoại (Không bắt buộc)</label>
-              <input 
-                type="tel" 
-                id="phoneNumber"
-                placeholder="+84 901 234 567"
-                value={phoneNumber}
-                onChange={e => setPhoneNumber(e.target.value)}
-                className="input-premium"
-              />
-            </div>
-
-            <div className="input-group-premium">
-              <label htmlFor="birthday">Ngày sinh</label>
-              <input 
-                type="date" 
-                id="birthday"
-                value={birthday}
-                onChange={e => setBirthday(e.target.value)}
-                className="input-premium"
-                required
-              />
-            </div>
-
-            <div className="input-group-premium">
-              <label htmlFor="password">Mật khẩu (Tối thiểu 8 ký tự)</label>
-              <input 
-                type="password" 
-                id="password"
-                placeholder="Tạo mật khẩu bảo mật"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="input-premium"
-                required
-              />
-            </div>
-
-            <div className="input-group-premium">
-              <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
-              <input 
-                type="password" 
-                id="confirmPassword"
-                placeholder="Xác nhận mật khẩu"
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                className="input-premium"
-                required
-              />
-            </div>
-
-            <button type="submit" className="submit-btn-premium" style={{ marginTop: '24px' }}>
-              Đăng Ký Tài Khoản
-            </button>
-          </form>
-
-          <div className="social-divider-premium">
-            <span>Hoặc đăng ký nhanh bằng</span>
+          <div className="auth-form-group">
+            <label>Full Name</label>
+            <input 
+              className="auth-input"
+              type="text" 
+              placeholder="Enter your full name"
+              value={fullName} 
+              onChange={e => setFullName(e.target.value)} 
+              required 
+            />
           </div>
+
+          <div className="auth-form-group">
+            <label>Email</label>
+            <input 
+              className="auth-input"
+              type="email" 
+              placeholder="Enter your email"
+              value={email} 
+              onChange={e => setEmail(e.target.value)} 
+              required 
+            />
+          </div>
+          
+          <div className="auth-form-group">
+            <label>Phone Number (Optional)</label>
+            <input 
+              className="auth-input"
+              type="tel" 
+              placeholder="Enter your phone number"
+              value={phoneNumber} 
+              onChange={e => setPhoneNumber(e.target.value)} 
+            />
+          </div>
+
+          <div className="auth-form-group">
+            <label>Birthday</label>
+            <input 
+              className="auth-input"
+              type="date" 
+              value={birthday} 
+              onChange={e => setBirthday(e.target.value)} 
+              required 
+            />
+          </div>
+
+          <div className="auth-form-group">
+            <label>Password</label>
+            <input 
+              className="auth-input"
+              type="password" 
+              placeholder="Create a password"
+              value={password} 
+              onChange={e => setPassword(e.target.value)} 
+              required 
+            />
+          </div>
+
+          <div className="auth-form-group">
+            <label>Confirm Password</label>
+            <input 
+              className="auth-input"
+              type="password" 
+              placeholder="Confirm your password"
+              value={confirmPassword} 
+              onChange={e => setConfirmPassword(e.target.value)} 
+              required 
+            />
+          </div>
+          
+          <button type="submit" className="auth-submit-btn">
+            Sign Up
+          </button>
+        </form>
 
           <div className="social-row-premium">
             <button className="social-btn-premium" onClick={() => alert('Chức năng đang phát triển!')}>

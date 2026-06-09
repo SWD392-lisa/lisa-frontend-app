@@ -29,12 +29,12 @@ export const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
     try {
       await login(email, password);
       navigate('/dashboard');
-    } catch (err) {
-      setError(err.message || 'Đăng nhập không thành công. Vui lòng kiểm tra lại tài khoản.');
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Đăng nhập thất bại. Vui lòng kiểm tra lại email/mật khẩu hoặc kết nối tới server.');
     }
   };
 
