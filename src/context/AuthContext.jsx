@@ -28,8 +28,8 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
-  const register = async (email, password, accountType) => {
-    await authService.register(email, password, accountType);
+  const register = async (userData) => {
+    return await authService.register(userData);
   };
 
   const logout = () => {
