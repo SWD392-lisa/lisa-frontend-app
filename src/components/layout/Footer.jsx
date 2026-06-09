@@ -23,13 +23,7 @@ const XIcon = () => (
   <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
 );
 
-const DownloadAppIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <polyline points="7 10 12 15 17 10" />
-    <line x1="12" y1="15" x2="12" y2="3" />
-  </svg>
-);
+
 
 export const Footer = () => {
   return (
@@ -75,19 +69,19 @@ export const Footer = () => {
           {/* 3. Bottom Section: Socials, Legal, Copyright */}
           <div className="footer-bottom">
             <div className="footer-socials">
-              <a href="#" className="social-circle-btn" aria-label="Spotify">
+              <a href="https://spotify.com" target="_blank" rel="noopener noreferrer" className="social-circle-btn" aria-label="Spotify">
                 <SpotifyIcon />
               </a>
-              <a href="#" className="social-circle-btn" aria-label="Facebook">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-circle-btn" aria-label="Facebook">
                 <FacebookIcon />
               </a>
-              <a href="#" className="social-circle-btn" aria-label="Instagram">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-circle-btn" aria-label="Instagram">
                 <InstagramIcon />
               </a>
-              <a href="#" className="social-circle-btn" aria-label="YouTube">
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="social-circle-btn" aria-label="YouTube">
                 <YouTubeIcon />
               </a>
-              <a href="#" className="social-circle-btn" aria-label="X (Twitter)">
+              <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="social-circle-btn" aria-label="X (Twitter)">
                 <XIcon />
               </a>
             </div>

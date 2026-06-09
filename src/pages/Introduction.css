@@ -1,0 +1,622 @@
+/* ==========================================================================
+   LUCY - Introduction Page Styles (Premium Glassmorphism & Modern Styling)
+   ========================================================================== */
+
+.intro-page {
+  background-color: #fcfbfa; /* Trắng ngà nhẹ nhàng */
+  font-family: var(--font-sodo);
+  color: var(--text-black);
+  padding: 80px 0 0px 0; /* Cho phép bù khoảng trống của navbar */
+  min-height: 100vh;
+}
+
+.intro-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 40px var(--outer-gutter-lg);
+}
+
+@media (max-width: 768px) {
+  .intro-container {
+    padding: 24px var(--outer-gutter-md);
+  }
+}
+
+/* Glassmorphism Base Utility */
+.glass-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04), 
+              0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.07);
+}
+
+/* --------------------------------------------------------------------------
+   1. Hero Section
+   -------------------------------------------------------------------------- */
+.intro-hero {
+  text-align: center;
+  padding: 80px 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.intro-hero-badge {
+  display: inline-block;
+  background-color: var(--green-tint);
+  color: var(--green-accent);
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.intro-hero h1 {
+  font-size: 5.6rem;
+  line-height: 1.15;
+  font-weight: 800;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #1E3932 0%, #00754A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 768px) {
+  .intro-hero h1 {
+    font-size: 3.8rem;
+  }
+}
+
+.intro-hero p {
+  font-size: 2rem;
+  color: var(--text-black-soft);
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+.intro-hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Custom buttons for introduction */
+.intro-btn-primary {
+  background-color: #1E3932;
+  color: #FFFFFF;
+  border: 1px solid #1E3932;
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.intro-btn-primary:hover {
+  background-color: #2d564b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 57, 50, 0.2);
+}
+
+.intro-btn-primary:active {
+  transform: translateY(0);
+}
+
+.intro-btn-secondary {
+  background-color: transparent;
+  color: #00754A;
+  border: 2px solid #00754A;
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.intro-btn-secondary:hover {
+  background-color: rgba(0, 117, 74, 0.05);
+  transform: translateY(-2px);
+}
+
+.intro-btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   2. Core Philosophy
+   -------------------------------------------------------------------------- */
+.intro-philosophy {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+  margin-bottom: 96px;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .intro-philosophy {
+    grid-template-columns: 1fr 1.1fr;
+  }
+}
+
+.philo-left h2 {
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 16px;
+}
+
+.philo-left-desc {
+  font-size: 1.8rem;
+  color: var(--text-black-soft);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.problem-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.problem-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.problem-icon {
+  background-color: #fdf2f2;
+  color: #ef4444;
+  padding: 8px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.problem-text h4 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--text-black);
+  margin-bottom: 4px;
+}
+
+.problem-text p {
+  font-size: 1.4rem;
+  color: var(--text-black-soft);
+  margin: 0;
+}
+
+/* Right Solution Card */
+.philo-right {
+  padding: 40px;
+}
+
+.solution-card h3 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--green-accent);
+  margin-bottom: 16px;
+}
+
+.solution-card p {
+  font-size: 1.6rem;
+  line-height: 1.6;
+  color: var(--text-black);
+  margin-bottom: 24px;
+}
+
+.solution-pill-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.solution-pill {
+  background: rgba(0, 117, 74, 0.08);
+  color: #00754A;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  border: 1px solid rgba(0, 117, 74, 0.15);
+}
+
+.solution-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.solution-feature-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--green-accent);
+  border-radius: 50%;
+}
+
+.solution-feature-text {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   3. 100-Level Roadmap
+   -------------------------------------------------------------------------- */
+.intro-roadmap-sec {
+  text-align: center;
+  margin-bottom: 96px;
+}
+
+.intro-roadmap-sec h2 {
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 48px;
+}
+
+.roadmap-flow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .roadmap-flow {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  /* Connecting line in desktop */
+  .roadmap-flow::before {
+    content: '';
+    position: absolute;
+    top: 50px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: linear-gradient(90deg, #d4e9e2 0%, #00754A 50%, #1E3932 100%);
+    z-index: 0;
+  }
+}
+
+.roadmap-node {
+  background: #FFFFFF;
+  border: 1px solid #edebe9;
+  border-radius: 20px;
+  padding: 24px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.roadmap-step-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--green-light);
+  color: var(--green-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 auto 20px;
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.roadmap-node:nth-child(2) .roadmap-step-num {
+  background: #00754A;
+  color: #FFFFFF;
+}
+
+.roadmap-node:nth-child(3) .roadmap-step-num {
+  background: #1E3932;
+  color: #FFFFFF;
+}
+
+.roadmap-node h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.roadmap-node p {
+  font-size: 1.4rem;
+  color: var(--text-black-soft);
+  margin-bottom: 16px;
+}
+
+.roadmap-badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.roadmap-badge {
+  background: var(--neutral-cool);
+  font-size: 1.2rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--text-black);
+  border: 1px solid #edebe9;
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   4. Ecosystem (3 Role Cards)
+   -------------------------------------------------------------------------- */
+.intro-ecosystem {
+  margin-bottom: 96px;
+}
+
+.intro-ecosystem-title {
+  text-align: center;
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 48px;
+}
+
+.ecosystem-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .ecosystem-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.eco-card {
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.eco-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--green-tint);
+  color: var(--green-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.eco-card:nth-child(2) .eco-icon-wrapper {
+  background: rgba(0, 98, 65, 0.1);
+}
+
+.eco-card:nth-child(3) .eco-icon-wrapper {
+  background: rgba(30, 57, 50, 0.1);
+}
+
+.eco-card h3 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 12px;
+}
+
+.eco-card-subtitle {
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--green-accent);
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.eco-card p {
+  font-size: 1.5rem;
+  line-height: 1.6;
+  color: var(--text-black-soft);
+  margin-bottom: 24px;
+}
+
+.eco-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.eco-card li {
+  font-size: 1.4rem;
+  color: var(--text-black);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eco-card li svg {
+  color: var(--green-accent);
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   5. Technical Stack Architecture
+   -------------------------------------------------------------------------- */
+.tech-stack-sec {
+  margin-bottom: 96px;
+}
+
+.tech-stack-sec h2 {
+  text-align: center;
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 16px;
+}
+
+.tech-stack-sec p.section-subtitle {
+  text-align: center;
+  font-size: 1.6rem;
+  color: var(--text-black-soft);
+  max-width: 600px;
+  margin: 0 auto 48px;
+}
+
+.tech-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.tech-card {
+  flex: 1 1 240px;
+  max-width: 280px;
+  background: #FFFFFF;
+  border: 1px solid #edebe9;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+}
+
+.tech-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--green-light);
+  box-shadow: 0 8px 24px rgba(0, 117, 74, 0.06);
+}
+
+.tech-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tech-role {
+  font-size: 1.3rem;
+  color: var(--green-accent);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.tech-desc {
+  font-size: 1.3rem;
+  color: var(--text-black-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   6. Final CTA Banner
+   -------------------------------------------------------------------------- */
+.intro-final-cta {
+  background: #1E3932;
+  border-radius: 24px;
+  padding: 64px 48px;
+  color: #FFFFFF;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(30, 57, 50, 0.15);
+  margin-bottom: 48px;
+}
+
+.intro-final-cta::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(0, 117, 74, 0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.intro-final-cta h2 {
+  font-size: 3.6rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .intro-final-cta h2 {
+    font-size: 2.8rem;
+  }
+}
+
+.intro-final-cta p {
+  font-size: 1.8rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.intro-final-btn {
+  background-color: #FFFFFF;
+  color: #1E3932;
+  border: 1px solid #FFFFFF;
+  padding: 16px 40px;
+  border-radius: 50px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+}
+
+.intro-final-btn:hover {
+  background-color: var(--canvas-cream);
+  color: #006241;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.intro-final-btn:active {
+  transform: translateY(0);
+}

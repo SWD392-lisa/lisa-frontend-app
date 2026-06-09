@@ -37,7 +37,7 @@
 }
 
 .footer-col h3 {
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   font-weight: 600;
   color: var(--text-black);
   margin-bottom: 24px;
@@ -45,7 +45,7 @@
 
 .footer-col a {
   display: block;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   color: #4b5563; /* text-gray-600 */
   text-decoration: none;
   margin-bottom: 16px;

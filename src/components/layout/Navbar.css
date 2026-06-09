@@ -30,20 +30,38 @@
 }
 
 .sb-navbar-brand {
-  font-size: 2.4rem;
+  font-family: 'Lora', Georgia, serif;
+  font-size: 3rem;
   font-weight: 700;
-  color: var(--starbucks-green);
+  font-style: italic;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--house-green) 0%, var(--green-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   text-decoration: none;
-  letter-spacing: -0.05em;
   display: flex;
   align-items: center;
   gap: 8px;
+  filter: drop-shadow(0 2px 4px rgba(0, 98, 65, 0.05));
+  transition: all 0.3s ease;
+}
+
+.sb-navbar-brand:hover {
+  filter: drop-shadow(0 4px 10px rgba(0, 98, 65, 0.12));
+  transform: scale(1.02);
 }
 
 .header-logo {
-  width: 64px;
-  height: 64px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.4));
+  transition: all 0.3s ease;
+}
+
+.header-logo:hover {
+  filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.7));
+  transform: scale(1.05);
 }
 
 .sb-navbar-links {

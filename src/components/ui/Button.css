@@ -16,6 +16,7 @@
 
 .sb-button:active {
   transform: scale(0.95);
+  opacity: 0.7;
 }
 
 .sb-button--primary-filled {
@@ -24,10 +25,19 @@
   border: 1px solid var(--green-accent);
 }
 
+.sb-button--primary-filled:hover {
+  background-color: var(--starbucks-green);
+  border-color: var(--starbucks-green);
+}
+
 .sb-button--primary-outlined {
   background-color: transparent;
   color: var(--green-accent);
   border: 1px solid var(--green-accent);
+}
+
+.sb-button--primary-outlined:hover {
+  background-color: rgba(0, 117, 74, 0.08);
 }
 
 .sb-button--black-filled {
@@ -37,11 +47,21 @@
   font-size: 1.4rem;
 }
 
+.sb-button--black-filled:hover {
+  background-color: #555555;
+  border-color: #555555;
+  opacity: 0.9;
+}
+
 .sb-button--dark-outlined {
   background-color: transparent;
   color: var(--text-black);
   border: 1px solid var(--text-black);
   font-size: 1.4rem;
+}
+
+.sb-button--dark-outlined:hover {
+  background-color: rgba(0, 0, 0, 0.06);
 }
 
 .sb-button--inverted {
@@ -50,10 +70,20 @@
   border: 1px solid var(--white);
 }
 
+.sb-button--inverted:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
 .sb-button--outline-dark {
   background-color: transparent;
   color: var(--white);
   border: 1px solid var(--white);
+}
+
+.sb-button--outline-dark:hover {
+  background-color: var(--white);
+  color: var(--btn-hover-color, var(--starbucks-green));
+  border-color: var(--white);
 }
 
 .sb-button--full-width {

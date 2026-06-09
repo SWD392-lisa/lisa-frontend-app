@@ -1,0 +1,179 @@
+/* ==========================================================================
+   LUCY - HelpCenter Page Styles (Premium AI Search & Categories)
+   ========================================================================== */
+
+.help-page {
+  background-color: #fcfbfa; /* Trắng ngà */
+  font-family: var(--font-sodo);
+  color: var(--text-black);
+  padding: 120px 0 60px 0;
+  min-height: 100vh;
+}
+
+.help-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--outer-gutter-lg);
+}
+
+@media (max-width: 768px) {
+  .help-container {
+    padding: 0 var(--outer-gutter-md);
+  }
+}
+
+/* Hero & Big Pill Search */
+.help-hero {
+  text-align: center;
+  margin-bottom: 80px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.help-hero h1 {
+  font-size: 4rem;
+  font-weight: 800;
+  color: #1E3932;
+  margin-bottom: 32px;
+  letter-spacing: -0.02em;
+}
+
+.help-search-wrapper {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50px;
+  padding: 8px 16px 8px 24px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.help-search-wrapper:focus-within {
+  border-color: var(--green-accent);
+  box-shadow: 0 12px 30px rgba(0, 117, 74, 0.08);
+}
+
+.search-input-field {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1.6rem;
+  font-family: var(--font-sodo);
+  color: var(--text-black);
+  padding: 12px 0;
+  background: transparent;
+}
+
+.search-input-field::placeholder {
+  color: var(--text-black-soft);
+}
+
+.search-actions-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ai-sparkle-btn {
+  color: var(--gold);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.ai-sparkle-btn:hover {
+  transform: scale(1.1) rotate(10deg);
+}
+
+.search-submit-btn {
+  background-color: var(--green-accent);
+  color: #FFFFFF;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-submit-btn:hover {
+  background-color: var(--house-green);
+  transform: scale(1.05);
+}
+
+/* Category Grid */
+.help-grid-title {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 32px;
+}
+
+.help-categories-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto 80px auto;
+}
+
+@media (min-width: 640px) {
+  .help-categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .help-categories-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.help-cat-card {
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+}
+
+.help-cat-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background-color: var(--green-tint);
+  color: var(--green-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.help-cat-card:hover .help-cat-icon {
+  transform: scale(1.1) rotate(5deg);
+  background-color: var(--green-accent);
+  color: #FFFFFF;
+}
+
+.help-cat-card h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 8px;
+}
+
+.help-cat-card p {
+  font-size: 1.4rem;
+  color: var(--text-black-soft);
+  margin: 0;
+  line-height: 1.5;
+}

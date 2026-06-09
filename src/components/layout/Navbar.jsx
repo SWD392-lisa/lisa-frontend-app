@@ -20,7 +20,7 @@ export const Navbar = () => {
     <header className="sb-navbar">
       <div className="container sb-navbar-content">
         <Link to="/" className="sb-navbar-brand" style={{ padding: '4px 0', display: 'flex', alignItems: 'center' }}>
-          <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" /> LUCY
+          <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" /> Lucy
         </Link>
 
         <nav className="sb-navbar-links">
@@ -70,7 +70,7 @@ export const Navbar = () => {
           <div className="sb-mobile-drawer" onClick={(e) => e.stopPropagation()}>
             <div className="sb-mobile-drawer-header">
               <Link to="/" className="sb-navbar-brand" onClick={() => setIsMobileMenuOpen(false)}>
-                <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" style={{ width: '40px', height: '40px' }} /> LUCY
+                <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" style={{ width: '40px', height: '40px' }} /> Lucy
               </Link>
               <button className="sb-mobile-drawer-close" onClick={() => setIsMobileMenuOpen(false)}>
                 <X size={24} />

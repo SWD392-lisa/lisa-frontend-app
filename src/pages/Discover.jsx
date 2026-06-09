@@ -4,6 +4,7 @@ import { LiveNowSection } from '../components/discover/LiveNowSection';
 import { TopMentorsSection } from '../components/discover/TopMentorsSection';
 import { TrendingPodcastsSection } from '../components/discover/TrendingPodcastsSection';
 import { RoadmapSection } from '../components/discover/RoadmapSection';
+import { LevelPathTeaser } from '../components/discover/LevelPathTeaser';
 import './Discover.css';
 
 export const Discover = () => {
@@ -45,7 +46,12 @@ export const Discover = () => {
         
         <hr className="section-divider" />
 
-        {/* Section 4: Roadmap */}
+        {/* Section 4: Level Path Teaser */}
+        <LevelPathTeaser />
+        
+        <hr className="section-divider" />
+
+        {/* Section 5: Roadmap */}
         <RoadmapSection />
 
       </main>
