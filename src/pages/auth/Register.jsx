@@ -34,8 +34,6 @@ export const Register = () => {
   const [birthday, setBirthday] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [birthday, setBirthday] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [accountType, setAccountType] = useState('LUCY');
   const [error, setError] = useState('');
   const navigate = useNavigate();
