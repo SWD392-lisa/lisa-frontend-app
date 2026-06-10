@@ -15,6 +15,8 @@ import { LiveRoom } from './pages/LiveRoom';
 import { Profile } from './pages/Profile';
 import { Learning } from './pages/Learning';
 import { Wallet } from './pages/Wallet';
+import { MentorDashboard } from './pages/MentorDashboard';
+import { MentorRoom } from './pages/MentorRoom';
 import './App.css';
 
 function App() {
@@ -47,6 +49,12 @@ function App() {
 
               {/* Special Routes (No bottom nav) */}
               <Route path="/room/:id" element={<LiveRoom />} />
+
+              {/* Mentor LMS Routes */}
+              <Route element={<MainLayout />}>
+                <Route path="/mentor/dashboard" element={<MentorDashboard />} />
+              </Route>
+              <Route path="/mentor/room/:roomId" element={<MentorRoom />} />
             </Route>
 
             {/* Fallback Route */}
