@@ -1,0 +1,194 @@
+openapi: 3.0.3
+info:
+  title: ProjectLucy API - Register
+  version: 1.0.0
+  description: |
+    POST /api/Auth/register
+    Creates a new user account. Returns 201 on success.
+tags:
+  - Auth
+
+servers:
+  - url: http://localhost:8080
+    description: Local Docker container
+  - url: http://localhost:5149
+    description: Local development
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+            examples:
+              valid:
+                value:
+                  fullName: "Nguyen Van A"
+                  email: "[email protected]"
+                  password: "P@ssw0rd123"
+                  confirmPassword: "P@ssw0rd123"
+                  birthday: "2000-01-15"
+                  phoneNumber: "+84901234567"
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultOfRegisterResponse"
+              examples:
+                created:
+                  value:
+                    status: 201
+                    message: "Registration successful"
+                    data:
+                      isSuccess: true
+        "400":
+          description: DTO-level validation error (DataAnnotations on RegisterRequest)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultOfEmpty"
+        "422":
+          description: Business validation failed (FluentValidation). Includes duplicate email/phone.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultOfValidation"
+              examples:
+                emailDuplicated:
+                  summary: Email is already registered
+                  value:
+                    status: 422
+                    message: "Validation failed"
+                    errors:
+                      - "Email is already registered"
+                phoneDuplicated:
+                  summary: Phone number is already registered
+                  value:
+                    status: 422
+                    message: "Validation failed"
+                    errors:
+                      - "Phone number is already registered"
+                passwordMismatch:
+                  summary: Passwords do not match
+                  value:
+                    status: 422
+                    message: "Validation failed"
+                    errors:
+                      - "Passwords do not match"
+                passwordTooWeak:
+                  summary: Password fails complexity rules
+                  value:
+                    status: 422
+                    message: "Validation failed"
+                    errors:
+                      - "Password must be at least 8 characters"
+                      - "Password must contain at least 1 uppercase letter"
+                      - "Password must contain at least 1 number"
+                      - "Password must contain at least 1 special character"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+components:
+  responses:
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResultOfEmpty"
+          examples:
+            serverError:
+              value:
+                status: 500
+                message: "An unexpected error occurred"
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [fullName, email, password, confirmPassword, birthday]
+      properties:
+        fullName:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: |
+            At least 8 characters and must contain:
+            - 1 uppercase letter
+            - 1 number
+            - 1 special character (non-alphanumeric, non-whitespace)
+        confirmPassword:
+          type: string
+          format: password
+          minLength: 8
+          description: Must match `password`
+        birthday:
+          type: string
+          format: date
+        phoneNumber:
+          type: string
+          maxLength: 30
+          nullable: true
+          description: Optional. Must be unique if provided.
+    RegisterResponse:
+      type: object
+      required: [isSuccess]
+      properties:
+        isSuccess:
+          type: boolean
+          example: true
+    ResultOfRegisterResponse:
+      type: object
+      required: [status, message, data]
+      properties:
+        status:
+          type: integer
+          example: 201
+        message:
+          type: string
+        data:
+          $ref: "#/components/schemas/RegisterResponse"
+        errors:
+          type: array
+          items:
+            type: string
+    ResultOfEmpty:
+      type: object
+      required: [status, message]
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          nullable: true
+        errors:
+          type: array
+          items:
+            type: string
+    ResultOfValidation:
+      type: object
+      required: [status, message, errors]
+      properties:
+        status:
+          type: integer
+          example: 400
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string

@@ -1,0 +1,329 @@
+/* ==========================================================================
+   LUCY - DownloadApp Page Styles (Premium Device Mockup & QR Codes)
+   ========================================================================== */
+
+.download-page {
+  background-color: #fcfbfa; /* Trắng ngà */
+  font-family: var(--font-sodo);
+  color: var(--text-black);
+  padding: 120px 0 60px 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.download-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--outer-gutter-lg);
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .download-container {
+    padding: 0 var(--outer-gutter-md);
+  }
+}
+
+.download-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 64px;
+}
+
+@media (min-width: 768px) {
+  .download-layout {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Left Column: Smart Phone Mockup
+   -------------------------------------------------------------------------- */
+.download-mockup-col {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Custom CSS phone frame */
+.phone-device-frame {
+  width: 290px;
+  height: 580px;
+  background-color: #000000;
+  border-radius: 40px;
+  padding: 12px;
+  border: 4px solid #333333;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+/* Top Speaker notch */
+.phone-device-frame::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 20px;
+  background-color: #000000;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  z-index: 10;
+}
+
+.phone-screen-content {
+  width: 100%;
+  height: 100%;
+  background-color: #1E3932; /* House green app style */
+  border-radius: 32px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 16px 20px;
+  color: #FFFFFF;
+}
+
+/* Simulated Audio Room UI */
+.phone-room-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.phone-room-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.phone-room-status {
+  font-size: 1.1rem;
+  color: var(--green-light);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.phone-room-avatars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: auto;
+}
+
+.phone-avatar-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.phone-avatar-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #00754A;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.phone-avatar-bubble.speaking .phone-avatar-circle {
+  border-color: var(--gold);
+  box-shadow: 0 0 12px var(--gold);
+}
+
+.phone-avatar-name {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+/* Sound Wave animation in phone screen */
+.phone-wave-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 48px;
+  gap: 4px;
+  margin-bottom: 40px;
+}
+
+.phone-wave-bar {
+  width: 3px;
+  height: 10px;
+  background-color: var(--gold);
+  border-radius: 3px;
+  animation: phone-sound-wave 1.2s infinite ease-in-out;
+}
+
+.phone-wave-bar:nth-child(2) { animation-delay: 0.1s; height: 18px; }
+.phone-wave-bar:nth-child(3) { animation-delay: 0.2s; height: 26px; }
+.phone-wave-bar:nth-child(4) { animation-delay: 0.3s; height: 32px; }
+.phone-wave-bar:nth-child(5) { animation-delay: 0.4s; height: 20px; }
+.phone-wave-bar:nth-child(6) { animation-delay: 0.5s; height: 12px; }
+
+@keyframes phone-sound-wave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(2); }
+}
+
+.phone-room-footer {
+  display: flex;
+  justify-content: space-around;
+}
+
+.phone-action-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+.phone-action-btn.leave {
+  background-color: var(--red);
+}
+
+/* --------------------------------------------------------------------------
+   Right Column: Download center details
+   -------------------------------------------------------------------------- */
+.download-center-col {
+  flex: 1;
+  max-width: 560px;
+}
+
+.download-center-col h2 {
+  font-size: 3.6rem;
+  font-weight: 800;
+  color: #1E3932;
+  line-height: 1.25;
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 768px) {
+  .download-center-col h2 {
+    font-size: 2.8rem;
+    text-align: center;
+  }
+}
+
+/* QR Code Glass Box */
+.qr-glass-box {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 24px;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+}
+
+@media (max-width: 768px) {
+  .qr-glass-box {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+  }
+}
+
+.qr-code-image-wrapper {
+  background-color: #FFFFFF;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid #edebe9;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.qr-mock-img {
+  width: 100%;
+  height: 100%;
+}
+
+.qr-box-details h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1E3932;
+  margin-bottom: 8px;
+}
+
+.qr-box-details p {
+  font-size: 1.45rem;
+  color: var(--text-black-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Store Buttons */
+.store-buttons-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .store-buttons-row {
+    justify-content: center;
+  }
+}
+
+.app-store-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #000000;
+  color: #FFFFFF;
+  border: 1px solid #000000;
+  padding: 12px 24px;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.app-store-btn:hover {
+  background-color: #222222;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.app-store-btn:active {
+  transform: translateY(0);
+}
+
+.btn-store-text {
+  text-align: left;
+}
+
+.btn-store-small {
+  font-size: 1rem;
+  text-transform: uppercase;
+  opacity: 0.7;
+  display: block;
+}
+
+.btn-store-large {
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: block;
+}
