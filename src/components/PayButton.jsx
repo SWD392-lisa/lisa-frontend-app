@@ -23,6 +23,7 @@ export default function PayButton({ order, variant = 'primary-filled', fullWidth
         orderAmount: order.amount,
         orderDescription: order.description,
         customerId: order.customerId,
+        paymentMethod: order.paymentMethod,
       });
 
       // Submit sang SePay — trang sẽ redirect, không return về đây

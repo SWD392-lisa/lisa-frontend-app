@@ -58,6 +58,7 @@ export default function CheckoutPage() {
     amount,
     description,
     customerId: currentUser?.userId || 'guest',
+    paymentMethod: 'BANK_TRANSFER',
   };
 
   const isUpgrade = paramType === 'upgrade_pro' || paramType === 'upgrade_super';
