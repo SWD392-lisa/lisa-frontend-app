@@ -1,0 +1,163 @@
+/* ==========================================================================
+   LUCY - Team Page Styles (Premium Glassmorphism & Hover Interactions)
+   ========================================================================== */
+
+.team-page {
+  background-color: #fcfbfa; /* Trắng ngà */
+  font-family: var(--font-sodo);
+  color: var(--text-black);
+  padding: 120px 0 60px 0;
+  min-height: 100vh;
+}
+
+.team-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--outer-gutter-lg);
+}
+
+@media (max-width: 768px) {
+  .team-container {
+    padding: 0 var(--outer-gutter-md);
+  }
+}
+
+.team-title {
+  text-align: center;
+  font-size: 4rem;
+  font-weight: 800;
+  margin-bottom: 64px;
+  background: linear-gradient(135deg, #1E3932 0%, #00754A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+/* 5 Members layout (2 on top, 3 on bottom) */
+.team-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.team-row-top {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.team-row-bottom {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+/* Each Member Card: Premium Glassmorphism */
+.team-card {
+  width: 320px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 32px;
+  padding: 40px 24px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 20px 40px rgba(0, 117, 74, 0.08);
+}
+
+/* Avatar with Green Glow */
+.avatar-wrapper {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  margin-bottom: 24px;
+  padding: 4px;
+  background: linear-gradient(135deg, rgba(0, 117, 74, 0.2) 0%, rgba(203, 162, 88, 0.2) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.team-card:hover .avatar-wrapper {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #00754A 0%, #cba258 100%);
+  box-shadow: 0 0 24px rgba(0, 117, 74, 0.4);
+}
+
+.member-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #FFFFFF;
+}
+
+.member-name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-black);
+  margin-bottom: 6px;
+}
+
+.member-role {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #4b5563; /* text-gray-600 */
+  margin-bottom: 24px;
+  letter-spacing: 0.02em;
+}
+
+/* Hover reveal quote style */
+.member-quote {
+  font-size: 1.3rem;
+  font-style: italic;
+  color: var(--green-accent);
+  line-height: 1.5;
+  margin-top: auto;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  border-top: 1px solid rgba(0, 117, 74, 0.1);
+  padding-top: 16px;
+  width: 100%;
+}
+
+.team-card:hover .member-quote {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .team-layout {
+    align-items: center;
+  }
+  
+  .team-row-top, .team-row-bottom {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  .team-card {
+    width: 290px;
+  }
+}

@@ -9,12 +9,25 @@ import { Login } from './pages/auth/Login';
 import { Register } from './pages/auth/Register';
 import { Discover } from './pages/Discover';
 import { Courses } from './pages/Courses';
-import { StudentSupport } from './pages/StudentSupport';
-import { Events } from './pages/Events';
+import { HelpCenter } from './pages/HelpCenter';
+import { UpcomingEvents } from './pages/UpcomingEvents';
 import { LiveRoom } from './pages/LiveRoom';
 import { Profile } from './pages/Profile';
 import { Learning } from './pages/Learning';
 import { Wallet } from './pages/Wallet';
+import { MentorDashboard } from './pages/MentorDashboard';
+import { MentorRoom } from './pages/MentorRoom';
+import { Introduction } from './pages/Introduction';
+import { Vision } from './pages/Vision';
+import { Team } from './pages/Team';
+import { ContactUs } from './pages/ContactUs';
+import { FeaturedMentors } from './pages/FeaturedMentors';
+import { ExclusivePodcasts } from './pages/ExclusivePodcasts';
+import { CommunityGuidelines } from './pages/CommunityGuidelines';
+import { ReportViolation } from './pages/ReportViolation';
+import { ForMentors } from './pages/ForMentors';
+import { DownloadApp } from './pages/DownloadApp';
+import { ScrollToTop } from './components/layout/ScrollToTop';
 import CheckoutPage from './pages/CheckoutPage';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentError from './pages/PaymentError';
@@ -25,6 +38,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <div className="app">
           <Routes>
             {/* Public Routes */}
@@ -36,8 +50,18 @@ function App() {
             <Route element={<MainLayout />}>
               <Route path="/discover" element={<Discover />} />
               <Route path="/courses" element={<Courses />} />
-              <Route path="/support" element={<StudentSupport />} />
-              <Route path="/events" element={<Events />} />
+              <Route path="/support" element={<HelpCenter />} />
+              <Route path="/support/guidelines" element={<CommunityGuidelines />} />
+              <Route path="/support/report" element={<ReportViolation />} />
+              <Route path="/events" element={<UpcomingEvents />} />
+              <Route path="/events/podcasts" element={<ExclusivePodcasts />} />
+              <Route path="/discover/mentors" element={<FeaturedMentors />} />
+              <Route path="/about" element={<Introduction />} />
+              <Route path="/about/vision" element={<Vision />} />
+              <Route path="/about/team" element={<Team />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/mentors/apply" element={<ForMentors />} />
+              <Route path="/app" element={<DownloadApp />} />
             </Route>
 
             {/* Protected Routes */}
@@ -55,6 +79,12 @@ function App() {
 
               {/* Special Routes (No bottom nav) */}
               <Route path="/room/:id" element={<LiveRoom />} />
+
+              {/* Mentor LMS Routes */}
+              <Route element={<MainLayout />}>
+                <Route path="/mentor/dashboard" element={<MentorDashboard />} />
+              </Route>
+              <Route path="/mentor/room/:roomId" element={<MentorRoom />} />
             </Route>
 
             {/* Fallback Route */}

@@ -14,7 +14,7 @@ export const Landing = () => {
         <div className="landing-header-inner container">
           <div className="landing-header-left" style={{ marginLeft: '-37px' }}>
             <Link to="/" className="landing-logo">
-              <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" /> LUCY
+              <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" /> Lucy
             </Link>
             <nav className="landing-nav">
               <Link to="/discover">DISCOVER</Link>
@@ -33,7 +33,7 @@ export const Landing = () => {
                 <Button variant="dark-outlined" style={{ fontSize: '1.4rem', fontFamily: "'SoDo Sans', 'SodoSans', sans-serif", fontWeight: '700' }}>Sign in</Button>
               </Link>
               <Link to="/register" style={{ textDecoration: 'none' }}>
-                <Button variant="primary-filled" style={{ backgroundColor: '#000000', borderColor: '#000000', color: '#FFFFFF', fontSize: '1.4rem', fontFamily: "'SoDo Sans', 'SodoSans', sans-serif", fontWeight: '700' }}>
+                <Button variant="black-filled" style={{ fontSize: '1.4rem', fontFamily: "'SoDo Sans', 'SodoSans', sans-serif", fontWeight: '700' }}>
                   Join now
                 </Button>
               </Link>
@@ -44,42 +44,36 @@ export const Landing = () => {
 
       <main className="landing-main-container">
         {/* Section 1: Ribbon Banner */}
-        <section className="landing-section" style={{ backgroundColor: '#FFFFFF', padding: '0 24px 16px 24px' }}>
-          <div className="unlock-banner" style={{
-            backgroundColor: '#354A31',
-            margin: '0 -37px',
-            width: 'auto',
-            padding: '33px 37px 42px 37px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '24px',
-            flexWrap: 'wrap'
-          }}>
-            <span style={{ fontWeight: '700', fontSize: '19px', color: 'var(--white)', whiteSpace: 'nowrap', fontFamily: 'SoDoSans, "Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-              Unlock your true potential today
-            </span>
-            <Link to="/courses" style={{ textDecoration: 'none' }}>
-              <Button variant="outline-dark" style={{ 
-                background: 'transparent', 
-                borderColor: 'var(--white)', 
-                color: 'var(--white)', 
-                borderRadius: '50px',
-                padding: '8px 16px',
-                fontSize: '19px',
-                fontFamily: 'SoDoSans, "Helvetica Neue", Helvetica, Arial, sans-serif'
-              }}>
-                Begin your journey
-              </Button>
-            </Link>
-          </div>
+        <section className="landing-section unlock-banner" style={{
+          backgroundColor: '#354A31',
+          '--btn-hover-color': '#354A31',
+          padding: '33px 37px 42px 37px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '24px',
+          flexWrap: 'wrap'
+        }}>
+          <span style={{ fontWeight: '700', fontSize: '19px', color: 'var(--white)', whiteSpace: 'nowrap', fontFamily: 'SoDoSans, "Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+            Unlock your true potential today
+          </span>
+          <Link to="/courses" style={{ textDecoration: 'none' }}>
+            <Button variant="outline-dark" style={{ 
+              borderRadius: '50px',
+              padding: '8px 16px',
+              fontSize: '19px',
+              fontFamily: 'SoDoSans, "Helvetica Neue", Helvetica, Arial, sans-serif'
+            }}>
+              Begin your journey
+            </Button>
+          </Link>
         </section>
 
         {/* Section 2: Light Green Features */}
-        <section className="landing-section celebration-section runic-bg-light" style={{ backgroundColor: '#006242' }}>
+        <section className="landing-section celebration-section runic-bg-light" style={{ backgroundColor: '#022d22', '--btn-hover-color': '#022d22' }}>
           <div className="landing-split split-reverse">
             <div className="split-image image-left">
-              <img src="/images/badge_achievement.png" alt="Course Completion Badge" />
+              <img src="/lucy1.png" alt="Celebrate Achievements" className="celebrate-img" />
             </div>
             <div className="split-content content-right text-center">
               <h2 style={{ fontWeight: '700', fontSize: '3rem', color: '#FFFFFF', marginBottom: '16px' }}>
@@ -90,10 +84,10 @@ export const Landing = () => {
               </p>
               <div className="action-row">
                 <Link to="/courses" style={{ textDecoration: 'none' }}>
-                  <Button variant="outline-dark" style={{ borderRadius: '50px', borderColor: '#FFFFFF', color: '#FFFFFF' }}>Send a badge</Button>
+                  <Button variant="outline-dark" style={{ borderRadius: '50px' }}>Send a badge</Button>
                 </Link>
                 <Link to="/register" style={{ textDecoration: 'none' }}>
-                  <Button variant="dark-filled" style={{ borderRadius: '50px', backgroundColor: '#FFFFFF', color: '#006242' }}>Join now</Button>
+                  <Button variant="dark-filled" style={{ borderRadius: '50px', backgroundColor: '#FFFFFF', color: '#022d22' }}>Join now</Button>
                 </Link>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, User, Bell, X } from 'lucide-react';
+import { Menu, User, Bell, X, LayoutDashboard } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import logoPhoenix from '../../assets/images/logo_phonenix1.png';
@@ -9,6 +9,7 @@ import './Navbar.css';
 export const Navbar = () => {
   const { currentUser } = useAuth();
   const isAuthenticated = !!currentUser;
+  const isMentor = currentUser?.account_type === 'MENTOR';
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -20,7 +21,7 @@ export const Navbar = () => {
     <header className="sb-navbar">
       <div className="container sb-navbar-content">
         <Link to="/" className="sb-navbar-brand" style={{ padding: '4px 0', display: 'flex', alignItems: 'center' }}>
-          <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" /> LUCY
+          <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" /> Lucy
         </Link>
 
         <nav className="sb-navbar-links">
@@ -29,6 +30,11 @@ export const Navbar = () => {
           <Link to="/courses" className={`sb-navbar-link ${isActive('/courses') ? 'is-active' : ''}`}>Courses</Link>
           <Link to="/support" className={`sb-navbar-link ${isActive('/support') ? 'is-active' : ''}`}>Student Support</Link>
           <Link to="/events" className={`sb-navbar-link ${isActive('/events') ? 'is-active' : ''}`}>Events</Link>
+          {isMentor && (
+            <Link to="/mentor/dashboard" className={`sb-navbar-link ${isActive('/mentor/dashboard') ? 'is-active' : ''}`}>
+              Dashboard
+            </Link>
+          )}
         </nav>
 
         <div className="sb-navbar-actions">
@@ -70,7 +76,7 @@ export const Navbar = () => {
           <div className="sb-mobile-drawer" onClick={(e) => e.stopPropagation()}>
             <div className="sb-mobile-drawer-header">
               <Link to="/" className="sb-navbar-brand" onClick={() => setIsMobileMenuOpen(false)}>
-                <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" style={{ width: '40px', height: '40px' }} /> LUCY
+                <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" style={{ width: '40px', height: '40px' }} /> Lucy
               </Link>
               <button className="sb-mobile-drawer-close" onClick={() => setIsMobileMenuOpen(false)}>
                 <X size={24} />
@@ -83,6 +89,11 @@ export const Navbar = () => {
               <Link to="/courses" className={`sb-mobile-drawer-link ${isActive('/courses') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Courses</Link>
               <Link to="/support" className={`sb-mobile-drawer-link ${isActive('/support') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Student Support</Link>
               <Link to="/events" className={`sb-mobile-drawer-link ${isActive('/events') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Events</Link>
+              {isMentor && (
+                <Link to="/mentor/dashboard" className={`sb-mobile-drawer-link ${isActive('/mentor/dashboard') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>
+                  Dashboard
+                </Link>
+              )}
             </nav>
             
             <div className="sb-mobile-drawer-actions">
