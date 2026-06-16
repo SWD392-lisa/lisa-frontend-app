@@ -16,7 +16,9 @@ const CHECKOUT_URLS = {
  * so all fields (including empty optional ones) must be present.
  */
 export function submitToSePay(formData) {
-  const checkoutUrl = formData.isSandbox
+  // Default to sandbox if isSandbox is not specified (or check both cases)
+  const isSandbox = formData.isSandbox ?? formData.IsSandbox ?? true;
+  const checkoutUrl = isSandbox
     ? CHECKOUT_URLS.sandbox
     : CHECKOUT_URLS.production;
 
