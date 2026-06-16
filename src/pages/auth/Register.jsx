@@ -43,7 +43,7 @@ export const Register = () => {
     e.preventDefault();
     setError('');
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Mật khẩu xác nhận không khớp");
       return;
     }
     const userData = {
@@ -61,7 +61,7 @@ export const Register = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error("Registration error:", error);
-      setError(error.message || "Registration failed. Please check your information and try again.");
+      setError(error.message || "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin của bạn.");
     }
   };
 

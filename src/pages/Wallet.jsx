@@ -26,15 +26,15 @@ export const Wallet = () => {
     }
   };
 
-  const isPro = currentUser?.account_type === 'Pro';
-  const isSuper = currentUser?.account_type === 'Super';
+  const isPro = currentUser?.roleCode === 'PRO';
+  const isSuper = currentUser?.roleCode === 'SUPER';
 
   return (
     <div className="wallet-page">
       {/* ── Starbucks dark-green feature band: Balance ── */}
       <div className="wallet-balance-band">
         <div className="wallet-balance-content">
-          <div className="wallet-balance-label">So du LUCY Coin</div>
+          <div className="wallet-balance-label">Số dư LUCY Coin</div>
           <div className="wallet-balance-value">
             {balance.toLocaleString()}
             <WalletIcon size={24} />
@@ -47,15 +47,15 @@ export const Wallet = () => {
         <div className="wallet-balance-action">
           <Button variant="inverted" onClick={handleDepositClick}>
             <Plus size={16} />
-            Nap tien
+            Nạp tiền
           </Button>
         </div>
       </div>
 
       {/* ── Section heading ── */}
-      <h2 className="wallet-section-title">Nang cap tai khoan</h2>
+      <h2 className="wallet-section-title">Nâng cấp tài khoản</h2>
       <p className="wallet-section-desc">
-        Mo khoa them tinh nang voi goi Mentor hoac Creator
+        Mở khóa thêm tính năng với gói Mentor hoặc Creator
       </p>
 
       <div className="wallet-tier-grid">
@@ -68,17 +68,17 @@ export const Wallet = () => {
               </div>
               <div className="wallet-tier-price">
                 <span className="wallet-tier-amount">200k</span>
-                <span className="wallet-tier-period">/ thang</span>
+                <span className="wallet-tier-period">/ tháng</span>
               </div>
             </div>
 
             <h3 className="wallet-tier-name">LUCY Pro</h3>
-            <p className="wallet-tier-sub">Danh cho Mentor</p>
+            <p className="wallet-tier-sub">Dành cho Mentor</p>
 
             <ul className="wallet-tier-features">
-              <li><CheckIcon /> Tao phong Live Audio</li>
-              <li><CheckIcon /> Quan ly hoc vien trong phong</li>
-              <li><CheckIcon /> Nhan goi y tu AI trong luc day</li>
+              <li><CheckIcon /> Tạo phòng Live Audio</li>
+              <li><CheckIcon /> Quản lý học viên trong phòng</li>
+              <li><CheckIcon /> Nhận gợi ý từ AI trong lúc dạy</li>
             </ul>
 
             <Button
@@ -86,7 +86,7 @@ export const Wallet = () => {
               fullWidth
               onClick={() => handleUpgradeClick('Pro')}
             >
-              {isPro ? 'Dang su dung' : 'Nang cap Pro'}
+              {isPro ? 'Đang sử dụng' : 'Nâng cấp Pro'}
             </Button>
           </CardBody>
         </Card>
@@ -96,26 +96,26 @@ export const Wallet = () => {
           <CardBody>
             <div className="wallet-tier-badge-super">
               <Crown size={22} color="var(--gold)" fill="var(--gold)" />
-              <span className="wallet-tier-popular">Pho bien nhat</span>
+              <span className="wallet-tier-popular">Phổ biến nhất</span>
             </div>
 
             <div className="wallet-tier-header">
               <div>
                 <h3 className="wallet-tier-name" style={{ color: 'var(--gold)' }}>LUCY Super</h3>
-                <p className="wallet-tier-sub">Danh cho Content Creator</p>
+                <p className="wallet-tier-sub">Dành cho Content Creator</p>
               </div>
               <div className="wallet-tier-price">
                 <span className="wallet-tier-amount" style={{ color: 'var(--gold)' }}>500k</span>
-                <span className="wallet-tier-period">/ thang</span>
+                <span className="wallet-tier-period">/ tháng</span>
               </div>
             </div>
 
             <ul className="wallet-tier-features">
-              <li><CheckIcon /> Toan bo tinh nang cua goi Pro</li>
+              <li><CheckIcon /> Toàn bộ tính năng của gói Pro</li>
               <li className="wallet-tier-feature-highlight">
-                <Zap size={14} color="var(--gold)" /> <strong>Ghi am phong Live</strong>
+                <Zap size={14} color="var(--gold)" /> <strong>Ghi âm phòng Live</strong>
               </li>
-              <li><CheckIcon /> Xuat ban & kiem tien tu Podcast</li>
+              <li><CheckIcon /> Xuất bản & kiếm tiền từ Podcast</li>
             </ul>
 
             <Button
@@ -124,7 +124,7 @@ export const Wallet = () => {
               style={isSuper ? {} : { backgroundColor: 'var(--gold)', borderColor: 'var(--gold)', color: 'var(--white)' }}
               onClick={() => handleUpgradeClick('Super')}
             >
-              {isSuper ? 'Dang su dung' : 'Nang cap Super'}
+              {isSuper ? 'Đang sử dụng' : 'Nâng cấp Super'}
             </Button>
           </CardBody>
         </Card>

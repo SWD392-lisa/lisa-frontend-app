@@ -36,10 +36,10 @@ export default function CheckoutPage() {
 
   const description = userDescription || (
     paramType === 'upgrade_pro'
-      ? `Nang cap tai khoan len goi LUCY Pro cho ${currentUser?.persona_name || 'Hoc vien'}`
+      ? `Nâng cấp tài khoản lên gói LUCY Pro cho ${currentUser?.fullName || 'Học viên'}`
       : paramType === 'upgrade_super'
-      ? `Nang cap tai khoan len goi LUCY Super cho ${currentUser?.persona_name || 'Hoc vien'}`
-      : paramDesc || `Nap LUCY Coin vao tai khoan ${currentUser?.persona_name || 'Hoc vien'}`
+      ? `Nâng cấp tài khoản lên gói LUCY Super cho ${currentUser?.fullName || 'Học viên'}`
+      : paramDesc || `Nạp LUCY Coin vào tài khoản ${currentUser?.fullName || 'Học viên'}`
   );
 
   const quickAmounts = [50000, 100000, 200000, 500000, 1000000, 2000000];
@@ -57,7 +57,7 @@ export default function CheckoutPage() {
     invoiceNumber,
     amount,
     description,
-    customerId: currentUser?.email || 'guest@lisa.edu.vn',
+    customerId: currentUser?.userId || 'guest',
   };
 
   const isUpgrade = paramType === 'upgrade_pro' || paramType === 'upgrade_super';
@@ -67,13 +67,13 @@ export default function CheckoutPage() {
       {/* Back link — Starbucks back-chevron style */}
       <div className="checkout-back" onClick={() => navigate('/wallet')}>
         <ChevronRight size={16} style={{ transform: 'rotate(180deg)' }} />
-        <span>Quay lai Vi</span>
+        <span>Quay lại Ví</span>
       </div>
 
       {/* Page header */}
       <div className="checkout-hero">
-        <h1 className="checkout-hero-title">Xac nhan Thanh toan</h1>
-        <p className="checkout-hero-sub">Kiem tra thong tin giao dich truoc khi tiep tuc</p>
+        <h1 className="checkout-hero-title">Xác nhận Thanh toán</h1>
+        <p className="checkout-hero-sub">Kiểm tra thông tin giao dịch trước khi tiếp tục</p>
       </div>
 
       <div className="checkout-grid">
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
           <Card className="checkout-card">
             <h2 className="checkout-section-title">
               <CreditCard size={20} color="var(--starbucks-green)" />
-              Chi tiet thanh toan
+              Chi tiết thanh toán
             </h2>
 
             {/* Package upgrade banners */}
@@ -96,8 +96,8 @@ export default function CheckoutPage() {
                     <Star size={14} fill="currentColor" /> LUCY Pro
                   </div>
                   <div className="checkout-package-desc">
-                    Mo khoa tinh nang Mentor: Tao phong Live Audio, quan ly hoc vien,
-                    va nhan goi y tu AI trong luc day.
+                    Mở khóa tính năng Mentor: Tạo phòng Live Audio, quản lý học viên,
+                    và nhận gợi ý từ AI trong lúc dạy.
                   </div>
                 </div>
               </div>
@@ -113,8 +113,8 @@ export default function CheckoutPage() {
                     <Crown size={14} fill="currentColor" /> LUCY Super
                   </div>
                   <div className="checkout-package-desc">
-                    Day du tinh nang goi Pro, bo sung ghi am phong Live chat luong cao,
-                    xuat ban & kiem tien tu Podcast ca nhan.
+                    Đầy đủ tính năng gói Pro, bổ sung ghi âm phòng Live chất lượng cao,
+                    xuất bản & kiếm tiền từ Podcast cá nhân.
                   </div>
                 </div>
               </div>
@@ -123,7 +123,7 @@ export default function CheckoutPage() {
             {/* Amount selection */}
             {!isUpgrade ? (
               <div className="checkout-amount-section">
-                <label className="checkout-field-label">Chon so tien nap</label>
+                <label className="checkout-field-label">Chọn số tiền nạp</label>
                 <div className="checkout-quick-grid">
                   {quickAmounts.map((val) => (
                     <button
@@ -138,7 +138,7 @@ export default function CheckoutPage() {
 
                 <div className="checkout-custom-amount">
                   <Input
-                    label="Nhap so tien khac (VND)"
+                    label="Nhập số tiền khác (VND)"
                     type="text"
                     value={amount ? amount.toLocaleString('vi-VN') : ''}
                     onChange={handleAmountChange}
@@ -149,9 +149,9 @@ export default function CheckoutPage() {
               <div className="checkout-fixed-amount">
                 <Wallet size={18} color="var(--text-black-soft)" />
                 <div>
-                  <div className="checkout-fixed-label">So tien goi co dinh</div>
+                  <div className="checkout-fixed-label">Số tiền gói cố định</div>
                   <div className="checkout-fixed-value">
-                    {amount.toLocaleString('vi-VN')} ₫<span className="checkout-fixed-period">/thang</span>
+                    {amount.toLocaleString('vi-VN')} ₫<span className="checkout-fixed-period">/tháng</span>
                   </div>
                 </div>
               </div>
@@ -160,7 +160,7 @@ export default function CheckoutPage() {
             {/* Description */}
             <div className="checkout-desc-field">
               <Input
-                label="Noi dung thanh toan"
+                label="Nội dung thanh toán"
                 type="text"
                 value={description}
                 onChange={(e) => setUserDescription(e.target.value)}
@@ -172,8 +172,8 @@ export default function CheckoutPage() {
             <div className="checkout-notice">
               <ShieldCheck size={14} color="var(--gold)" />
               <span>
-                He thong su dung cong thanh toan tu dong <strong>SePay Checkout</strong>.
-                Giao dich se duoc xu ly ngay lap tuc thong qua chuyen khoan ngan hang quet ma QR.
+                Hệ thống sử dụng cổng thanh toán tự động <strong>SePay Checkout</strong>.
+                Giao dịch sẽ được xử lý ngay lập tức thông qua chuyển khoản ngân hàng quét mã QR.
               </span>
             </div>
           </Card>
@@ -182,31 +182,31 @@ export default function CheckoutPage() {
         {/* ── RIGHT COLUMN: Order summary ── */}
         <div className="checkout-summary-section">
           <Card className="checkout-summary-card">
-            <h2 className="checkout-summary-heading">Tom tat don hang</h2>
+            <h2 className="checkout-summary-heading">Tóm tắt đơn hàng</h2>
 
             <div className="checkout-summary-rows">
               <div className="checkout-summary-row">
-                <span className="checkout-summary-label">Khach hang</span>
+                <span className="checkout-summary-label">Khách hàng</span>
                 <span className="checkout-summary-value">
-                  {currentUser?.persona_name || 'Khach truy cap'}
+                  {currentUser?.fullName || 'Khách truy cập'}
                 </span>
               </div>
               <div className="checkout-summary-row">
-                <span className="checkout-summary-label">Ma hoa don</span>
+                <span className="checkout-summary-label">Mã hóa đơn</span>
                 <span className="checkout-summary-value checkout-summary-code">
-                  {invoiceNumber || 'Dang tao...'}
+                  {invoiceNumber || 'Đang tạo...'}
                 </span>
               </div>
               <div className="checkout-summary-row">
-                <span className="checkout-summary-label">Loai giao dich</span>
+                <span className="checkout-summary-label">Loại giao dịch</span>
                 <span className="checkout-summary-value">
-                  {paramType === 'deposit' ? 'Nap LUCY Coin' : 'Nang cap VIP'}
+                  {paramType === 'deposit' ? 'Nạp LUCY Coin' : 'Nâng cấp VIP'}
                 </span>
               </div>
             </div>
 
             <div className="checkout-total-bar">
-              <span className="checkout-total-label">Tong thanh toan</span>
+              <span className="checkout-total-label">Tổng thanh toán</span>
               <span className="checkout-total-amount">
                 {amount.toLocaleString('vi-VN')} ₫
               </span>
@@ -214,13 +214,13 @@ export default function CheckoutPage() {
 
             <div className="checkout-pay-action">
               <PayButton order={order}>
-                Xac nhan & Thanh toan ngay
+                Xác nhận & Thanh toán ngay
               </PayButton>
             </div>
 
             <div className="checkout-security-note">
               <ShieldCheck size={14} color="var(--green-accent)" />
-              Giao dich bao mat qua SePay
+              Giao dịch bảo mật qua SePay
             </div>
           </Card>
 
@@ -228,15 +228,15 @@ export default function CheckoutPage() {
           <div className="checkout-trust">
             <div className="checkout-trust-item">
               <CheckCircle size={14} color="var(--green-accent)" />
-              <span>Thanh toan mot lan, khong phat sinh phi</span>
+              <span>Thanh toán một lần, không phát sinh phí</span>
             </div>
             <div className="checkout-trust-item">
               <CheckCircle size={14} color="var(--green-accent)" />
-              <span>Du lieu duoc ma hoa va bao mat</span>
+              <span>Dữ liệu được mã hóa và bảo mật</span>
             </div>
             <div className="checkout-trust-item">
               <CheckCircle size={14} color="var(--green-accent)" />
-              <span>Hoa don dien tu duoc gui qua email</span>
+              <span>Hóa đơn điện tử được gửi qua email</span>
             </div>
           </div>
         </div>

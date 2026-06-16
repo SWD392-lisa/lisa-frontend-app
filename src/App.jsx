@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { Landing } from './pages/Landing';
@@ -34,6 +34,12 @@ import PaymentError from './pages/PaymentError';
 import PaymentCancel from './pages/PaymentCancel';
 import './App.css';
 
+// Component to handle root route redirect
+const RootRoute = () => {
+  const { currentUser } = useAuth();
+  return currentUser ? <Navigate to="/dashboard" replace /> : <Landing />;
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -42,7 +48,7 @@ function App() {
         <div className="app">
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<RootRoute />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             

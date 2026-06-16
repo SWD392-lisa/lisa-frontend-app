@@ -20,12 +20,12 @@ export const Navbar = () => {
   return (
     <header className="sb-navbar">
       <div className="container sb-navbar-content">
-        <Link to="/" className="sb-navbar-brand" style={{ padding: '4px 0', display: 'flex', alignItems: 'center' }}>
+        <Link to={isAuthenticated ? "/dashboard" : "/"} className="sb-navbar-brand" style={{ padding: '4px 0', display: 'flex', alignItems: 'center' }}>
           <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" /> Lucy
         </Link>
 
         <nav className="sb-navbar-links">
-          <Link to="/" className={`sb-navbar-link ${isActive('/') ? 'is-active' : ''}`}>Home</Link>
+          <Link to={isAuthenticated ? "/dashboard" : "/"} className={`sb-navbar-link ${isActive(isAuthenticated ? "/dashboard" : "/") ? 'is-active' : ''}`}>Home</Link>
           <Link to="/discover" className={`sb-navbar-link ${isActive('/discover') ? 'is-active' : ''}`}>Discover</Link>
           <Link to="/courses" className={`sb-navbar-link ${isActive('/courses') ? 'is-active' : ''}`}>Courses</Link>
           <Link to="/support" className={`sb-navbar-link ${isActive('/support') ? 'is-active' : ''}`}>Student Support</Link>
@@ -75,7 +75,7 @@ export const Navbar = () => {
         <div className="sb-mobile-drawer-overlay" onClick={() => setIsMobileMenuOpen(false)}>
           <div className="sb-mobile-drawer" onClick={(e) => e.stopPropagation()}>
             <div className="sb-mobile-drawer-header">
-              <Link to="/" className="sb-navbar-brand" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link to={isAuthenticated ? "/dashboard" : "/"} className="sb-navbar-brand" onClick={() => setIsMobileMenuOpen(false)}>
                 <img src={logoPhoenix} alt="LUCY Logo" className="header-logo" style={{ width: '40px', height: '40px' }} /> Lucy
               </Link>
               <button className="sb-mobile-drawer-close" onClick={() => setIsMobileMenuOpen(false)}>
@@ -84,7 +84,7 @@ export const Navbar = () => {
             </div>
             
             <nav className="sb-mobile-drawer-links">
-              <Link to="/" className={`sb-mobile-drawer-link ${isActive('/') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+              <Link to={isAuthenticated ? "/dashboard" : "/"} className={`sb-mobile-drawer-link ${isActive(isAuthenticated ? "/dashboard" : "/") ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
               <Link to="/discover" className={`sb-mobile-drawer-link ${isActive('/discover') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Discover</Link>
               <Link to="/courses" className={`sb-mobile-drawer-link ${isActive('/courses') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Courses</Link>
               <Link to="/support" className={`sb-mobile-drawer-link ${isActive('/support') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Student Support</Link>
