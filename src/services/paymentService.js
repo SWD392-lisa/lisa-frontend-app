@@ -18,6 +18,8 @@ const parseResponse = async (response) => {
  */
 export async function createPayment({ orderInvoiceNumber, orderAmount, orderDescription, customerId }) {
   const token = localStorage.getItem('lucy_token');
+  console.log('📤 Sending payment request:', { orderInvoiceNumber, orderAmount, orderDescription, customerId });
+  
   const response = await fetch(`${API_BASE}/api/payment/create`, {
     method: 'POST',
     headers: { 
@@ -34,12 +36,16 @@ export async function createPayment({ orderInvoiceNumber, orderAmount, orderDesc
   });
 
   const data = await parseResponse(response);
+  console.log('📥 Payment response from backend:', data);
   
   if (!response.ok) {
     throw new Error(data?.message || 'Không thể tạo đơn hàng thanh toán');
   }
 
-  return data;
+  // Handle both wrapped Result<SePayFormData> and direct SePayFormData
+  const formData = data?.data || data;
+  console.log('🧾 Extracted form data:', formData);
+  return formData;
   // Trả về: { orderAmount, merchant, currency, operation, orderDescription,
   //           orderInvoiceNumber, successUrl, errorUrl, cancelUrl, signature, isSandbox }
 }
