@@ -1,0 +1,199 @@
+/* ──────────────────────────────────────────────
+   Payment Status — shared layout
+   Used by: Success / Error / Cancel
+   Starbucks Design System: card + cream canvas
+   ────────────────────────────────────────────── */
+
+.payment-status-container {
+  max-width: 520px;
+  margin: 60px auto;
+  padding: 0 var(--outer-gutter);
+  animation: statusSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes statusSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Card ── */
+.status-card {
+  background: var(--white);
+  border-radius: var(--radius-card);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+  padding: var(--space-5);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Colorful top accent bar */
+.status-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+}
+
+.success-accent {
+  background: var(--starbucks-green);
+}
+
+.error-accent {
+  background: var(--red);
+}
+
+.cancel-accent {
+  background: var(--gold);
+}
+
+/* ── Icon circle ── */
+.icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  animation: statusPulse 2s infinite;
+}
+
+.success-icon {
+  background-color: hsl(160 32% 87% / 33%);
+}
+
+.success-icon svg {
+  color: var(--starbucks-green);
+}
+
+.error-icon svg {
+  color: var(--red);
+}
+
+.cancel-icon svg {
+  color: var(--gold);
+}
+
+@keyframes statusPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(0, 117, 74, 0.3); }
+  70%  { box-shadow: 0 0 0 15px rgba(0, 117, 74, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 117, 74, 0); }
+}
+
+/* ── Title & subtitle ── */
+.status-title {
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--house-green);
+  margin-bottom: 8px;
+}
+
+.status-subtitle {
+  font-size: 1.5rem;
+  color: var(--text-black-soft);
+  margin: 0 0 var(--space-5);
+  line-height: 1.5;
+}
+
+/* ── Info table ── */
+.info-table {
+  background: var(--neutral-cool);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: var(--space-5);
+  text-align: left;
+  border: 1px solid var(--ceramic);
+}
+
+.info-table--error {
+  text-align: center;
+}
+
+.info-table--cancel {
+  text-align: center;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--ceramic);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.info-row:first-child {
+  padding-top: 0;
+}
+
+.info-label {
+  color: var(--text-black-soft);
+  font-size: 1.4rem;
+}
+
+.info-value {
+  font-weight: 600;
+  color: var(--text-black);
+  font-size: 1.4rem;
+  text-align: right;
+}
+
+.info-value--code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.2rem;
+  max-width: 55%;
+  word-break: break-all;
+}
+
+.info-value--amount {
+  color: var(--starbucks-green);
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.info-value--status {
+  color: var(--starbucks-green);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Error / Cancel detail text ── */
+.error-detail,
+.cancel-detail {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--text-black-soft);
+  line-height: 1.6;
+}
+
+.error-detail + .error-detail,
+.cancel-detail + .cancel-detail {
+  margin-top: 8px;
+}
+
+/* ── Action buttons ── */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 480px) {
+  .action-buttons {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .action-buttons > * {
+    flex: 1;
+    max-width: 200px;
+  }
+}

@@ -1,0 +1,27 @@
+/* ──────────────────────────────────────────────
+   Payment Error — Starbucks Design System variant
+   Only difference: red accent instead of green
+   ────────────────────────────────────────────── */
+
+.status-card.error-card {
+  border-top-color: var(--red);
+}
+
+.icon-wrapper.error-icon {
+  background-color: hsl(4 82% 43% / 5%);
+  animation: errorPulse 2s infinite;
+}
+
+.icon-wrapper.error-icon svg {
+  color: var(--red);
+}
+
+@keyframes errorPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(200, 32, 20, 0.3); }
+  70%  { box-shadow: 0 0 0 15px rgba(200, 32, 20, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(200, 32, 20, 0); }
+}
+
+.status-title.error-title {
+  color: var(--red);
+}

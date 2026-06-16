@@ -15,6 +15,10 @@ import { LiveRoom } from './pages/LiveRoom';
 import { Profile } from './pages/Profile';
 import { Learning } from './pages/Learning';
 import { Wallet } from './pages/Wallet';
+import CheckoutPage from './pages/CheckoutPage';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentError from './pages/PaymentError';
+import PaymentCancel from './pages/PaymentCancel';
 import './App.css';
 
 function App() {
@@ -43,6 +47,10 @@ function App() {
                 <Route path="/learning" element={<Learning />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/wallet" element={<Wallet />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/payment/success" element={<PaymentSuccess />} />
+                <Route path="/payment/error" element={<PaymentError />} />
+                <Route path="/payment/cancel" element={<PaymentCancel />} />
               </Route>
 
               {/* Special Routes (No bottom nav) */}
