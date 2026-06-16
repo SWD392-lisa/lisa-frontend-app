@@ -27,6 +27,7 @@ import { CommunityGuidelines } from './pages/CommunityGuidelines';
 import { ReportViolation } from './pages/ReportViolation';
 import { ForMentors } from './pages/ForMentors';
 import { DownloadApp } from './pages/DownloadApp';
+import { NotFound } from './pages/NotFound';
 import { ScrollToTop } from './components/layout/ScrollToTop';
 import CheckoutPage from './pages/CheckoutPage';
 import PaymentSuccess from './pages/PaymentSuccess';
@@ -34,7 +35,7 @@ import PaymentError from './pages/PaymentError';
 import PaymentCancel from './pages/PaymentCancel';
 import './App.css';
 
-// Component to handle root route redirect
+// Component to handle root route
 const RootRoute = () => {
   const { currentUser } = useAuth();
   return currentUser ? <Navigate to="/dashboard" replace /> : <Landing />;
@@ -94,7 +95,7 @@ function App() {
             </Route>
 
             {/* Fallback Route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </Router>

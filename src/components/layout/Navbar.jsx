@@ -9,7 +9,7 @@ import './Navbar.css';
 export const Navbar = () => {
   const { currentUser } = useAuth();
   const isAuthenticated = !!currentUser;
-  const isMentor = currentUser?.account_type === 'MENTOR';
+  const isMentor = currentUser?.roleCode === 'MENTOR' || currentUser?.roleCode === 'PRO' || currentUser?.roleCode === 'SUPER';
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -45,9 +45,6 @@ export const Navbar = () => {
                   <span style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--gold)' }}>1.5K</span>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
                 </div>
-              </Link>
-              <Link to="/notifications" style={{ color: 'var(--text-black)' }}>
-                <Bell size={24} />
               </Link>
               <Link to="/profile" style={{ color: 'var(--text-black)' }}>
                 <User size={24} />

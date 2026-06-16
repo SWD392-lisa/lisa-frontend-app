@@ -1,6 +1,16 @@
 // src/services/paymentService.js
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5149';
+
+// Helper to parse JSON safely
+const parseResponse = async (response) => {
+    try {
+        const text = await response.text();
+        return text ? JSON.parse(text) : null;
+    } catch {
+        return null;
+    }
+};
 
 /**
  * Gọi .NET backend để tạo form data có signature.
@@ -20,14 +30,16 @@ export async function createPayment({ orderInvoiceNumber, orderAmount, orderDesc
       orderDescription,
       customerId,
     }),
+    credentials: 'include'
   });
 
+  const data = await parseResponse(response);
+  
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || 'Không thể tạo đơn hàng thanh toán');
+    throw new Error(data?.message || 'Không thể tạo đơn hàng thanh toán');
   }
 
-  return response.json();
+  return data;
   // Trả về: { orderAmount, merchant, currency, operation, orderDescription,
   //           orderInvoiceNumber, successUrl, errorUrl, cancelUrl, signature, isSandbox }
 }

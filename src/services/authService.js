@@ -1,5 +1,15 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5149';
 const API_URL = `${API_BASE_URL}/api/Auth`;
+
+// Helper to parse JSON safely
+const parseResponse = async (response) => {
+    try {
+        const text = await response.text();
+        return text ? JSON.parse(text) : null;
+    } catch {
+        return null;
+    }
+};
 
 export const authService = {
     login: async (email, password) => {
@@ -9,9 +19,9 @@ export const authService = {
             body: JSON.stringify({ email, password }),
             credentials: 'include' // Include if backend sets HttpOnly cookies
         });
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
-            throw new Error(data.message || data.errors?.[0] || 'Login failed');
+            throw new Error(data?.message || data?.errors?.[0] || 'Login failed');
         }
         return data;
     },
@@ -25,9 +35,9 @@ export const authService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dataToSend)
         });
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
-            throw new Error(data.message || data.errors?.[0] || 'Registration failed');
+            throw new Error(data?.message || data?.errors?.[0] || 'Registration failed');
         }
         return data;
     },
@@ -39,9 +49,9 @@ export const authService = {
             body: JSON.stringify({ refreshToken }),
             credentials: 'include' // To clear HttpOnly cookie
         });
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
-            throw new Error(data.message || 'Logout failed');
+            throw new Error(data?.message || 'Logout failed');
         }
         return data;
     },
@@ -53,9 +63,9 @@ export const authService = {
             body: JSON.stringify({ refreshToken }),
             credentials: 'include' // To send HttpOnly cookie
         });
-        const data = await response.json();
+        const data = await parseResponse(response);
         if (!response.ok) {
-            throw new Error(data.message || 'Refresh token failed');
+            throw new Error(data?.message || 'Refresh token failed');
         }
         return data;
     }
