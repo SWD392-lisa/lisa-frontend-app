@@ -28,12 +28,10 @@ export const authService = {
 
     register: async (userData) => {
         // userData expects: fullName, email, password, confirmPassword, birthday, phoneNumber
-        // Remove accountType since backend doesn't use it (default is LUCY)
-        const { accountType, ...dataToSend } = userData;
         const response = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataToSend)
+            body: JSON.stringify(userData)
         });
         const data = await parseResponse(response);
         if (!response.ok) {

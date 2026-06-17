@@ -52,8 +52,7 @@ export const Register = () => {
       password,
       confirmPassword,
       birthday,
-      phoneNumber: phoneNumber || null,
-      accountType
+      phoneNumber: phoneNumber || null
     };
     try {
       await register(userData);
