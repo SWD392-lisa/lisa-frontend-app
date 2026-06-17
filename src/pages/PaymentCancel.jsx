@@ -11,7 +11,7 @@ export default function PaymentCancel() {
   const navigate = useNavigate();
   const [notified, setNotified] = useState(false);
 
-  const invoiceNumber = searchParams.get('order_invoice_number');
+  const invoiceNumber = searchParams.get('order_invoice_number') || searchParams.get('orderInvoiceNumber');
 
   useEffect(() => {
     if (!invoiceNumber || notified) return;

@@ -11,8 +11,8 @@ export default function PaymentSuccess() {
   const [confirming, setConfirming] = useState(true);
   const [confirmError, setConfirmError] = useState(null);
 
-  const invoiceNumber = searchParams.get('order_invoice_number') || 'N/A';
-  const transactionId = searchParams.get('transaction_id') || 'N/A';
+  const invoiceNumber = searchParams.get('order_invoice_number') || searchParams.get('orderInvoiceNumber') || 'N/A';
+  const transactionId = searchParams.get('transaction_id') || searchParams.get('transactionId') || 'N/A';
   const amountStr = searchParams.get('order_amount') || searchParams.get('amount') || '';
 
   const amount = amountStr ? parseInt(amountStr, 10) : null;
