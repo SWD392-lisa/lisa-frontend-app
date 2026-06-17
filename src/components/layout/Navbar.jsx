@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, User, Bell, X, LayoutDashboard } from 'lucide-react';
+import { Menu, User, Bell, X, LayoutDashboard, Loader } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
+import { getBalance } from '../../services/walletService';
 import logoPhoenix from '../../assets/images/logo_phonenix1.png';
 import './Navbar.css';
 
@@ -12,6 +13,22 @@ export const Navbar = () => {
   const isMentor = currentUser?.roleCode === 'MENTOR' || currentUser?.roleCode === 'PRO' || currentUser?.roleCode === 'SUPER';
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let cancelled = false;
+    getBalance()
+      .then(result => { if (!cancelled) setWalletBalance(result.balance); })
+      .catch(() => { if (!cancelled) setWalletBalance(0); });
+    return () => { cancelled = true; };
+  }, [isAuthenticated]);
+
+  const formatBalance = (amount) => {
+    if (amount === null) return '...';
+    if (amount >= 1000) return (amount / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return amount.toString();
+  };
 
   const isActive = (path) => {
     return location.pathname === path;
@@ -42,7 +59,7 @@ export const Navbar = () => {
             <>
               <Link to="/wallet" style={{ color: 'var(--text-black)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--gold)' }}>1.5K</span>
+                  <span style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--gold)' }}>{formatBalance(walletBalance)}</span>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
                 </div>
               </Link>
@@ -97,7 +114,7 @@ export const Navbar = () => {
               {isAuthenticated ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
                   <Link to="/wallet" className="sb-mobile-drawer-action-item" onClick={() => setIsMobileMenuOpen(false)}>
-                    <span>Wallet (1.5K Stars)</span>
+                    <span>Wallet ({formatBalance(walletBalance)} Stars)</span>
                   </Link>
                   <Link to="/profile" className="sb-mobile-drawer-action-item" onClick={() => setIsMobileMenuOpen(false)}>
                     <span>My Profile</span>

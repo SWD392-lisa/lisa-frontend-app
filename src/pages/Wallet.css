@@ -241,3 +241,13 @@
     font-size: 2.8rem;
   }
 }
+
+/* ── Loading spinner ── */
+.spin {
+  animation: spinAnim 1s linear infinite;
+}
+
+@keyframes spinAnim {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

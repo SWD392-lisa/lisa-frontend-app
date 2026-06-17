@@ -1,18 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardBody } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
+import { getBalance } from '../services/walletService';
 import {
   Wallet as WalletIcon, Star, Crown, Zap,
-  TrendingUp, Plus
+  TrendingUp, Plus, Loader
 } from 'lucide-react';
 import './Wallet.css';
 
 export const Wallet = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const [balance] = useState(1500);
+  const [balance, setBalance] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchBalance = async () => {
+      try {
+        const result = await getBalance();
+        if (!cancelled) setBalance(result.balance);
+      } catch {
+        if (!cancelled) setBalance(0);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    fetchBalance();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleDepositClick = () => {
     navigate('/checkout?type=deposit&amount=100000');
@@ -36,12 +54,11 @@ export const Wallet = () => {
         <div className="wallet-balance-content">
           <div className="wallet-balance-label">Số dư LUCY Coin</div>
           <div className="wallet-balance-value">
-            {balance.toLocaleString()}
-            <WalletIcon size={24} />
+            {loading ? <Loader size={24} className="spin" /> : <>{balance.toLocaleString()}<WalletIcon size={24} /></>}
           </div>
           <div className="wallet-balance-usd">
             <TrendingUp size={12} />
-            ~${(balance * 0.01).toFixed(2)} USD
+            {loading ? '...' : `~$${(balance * 0.01).toFixed(2)} USD`}
           </div>
         </div>
         <div className="wallet-balance-action">
