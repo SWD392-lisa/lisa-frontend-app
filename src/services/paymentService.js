@@ -50,3 +50,36 @@ export async function createPayment({ orderInvoiceNumber, orderAmount, orderDesc
   // Trả về: { orderAmount, merchant, currency, operation, orderDescription,
   //           orderInvoiceNumber, successUrl, errorUrl, cancelUrl, signature, isSandbox }
 }
+
+/**
+ * Gọi backend để xác nhận thanh toán sau khi SePay redirect về.
+ * Được gọi từ trang PaymentSuccess / PaymentError / PaymentCancel.
+ */
+export async function confirmPayment({ orderInvoiceNumber, transactionId, amount, status }) {
+  const token = localStorage.getItem('lucy_token');
+  console.log('📤 Sending payment confirmation:', { orderInvoiceNumber, transactionId, amount, status });
+
+  const response = await fetch(`${API_BASE}/api/payment/confirm`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify({
+      orderInvoiceNumber,
+      transactionId,
+      amount,
+      status,
+    }),
+    credentials: 'include'
+  });
+
+  const data = await parseResponse(response);
+  console.log('📥 Confirm payment response:', data);
+
+  if (!response.ok) {
+    throw new Error(data?.message || 'Không thể xác nhận thanh toán');
+  }
+
+  return data;
+}

@@ -1,11 +1,31 @@
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { confirmPayment } from '../services/paymentService';
 import './PaymentSuccess.css';
 import './PaymentCancel.css';
 
 export default function PaymentCancel() {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [notified, setNotified] = useState(false);
+
+  const invoiceNumber = searchParams.get('order_invoice_number');
+
+  useEffect(() => {
+    if (!invoiceNumber || notified) return;
+    setNotified(true);
+
+    confirmPayment({
+      orderInvoiceNumber: invoiceNumber,
+      transactionId: searchParams.get('transaction_id') || '',
+      amount: searchParams.get('order_amount') || '',
+      status: 'cancelled',
+    }).catch((err) => {
+      console.error('Failed to notify backend of cancelled payment:', err);
+    });
+  }, []);
 
   return (
     <div className="payment-status-container">
