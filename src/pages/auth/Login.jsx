@@ -16,7 +16,7 @@ const GoogleIcon = () => (
 
 const AppleIcon = () => (
   <svg className="social-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style={{ width: '20px', height: '20px' }}>
-    <path d="M16.5 12c0-2.85 2.33-4.18 2.45-4.25-1.33-1.95-3.39-2.22-4.12-2.25-1.75-.18-3.42 1.03-4.32 1.03-.9 0-2.28-.98-3.73-.95-1.9.03-3.66 1.1-4.63 2.78-1.96 3.4-.5 8.43 1.4 11.18.93 1.35 2.03 2.85 3.48 2.8 1.4-.05 1.95-.9 3.65-.9 1.7 0 2.2.9 3.68.88 1.5-.03 2.45-1.38 3.38-2.73 1.08-1.58 1.53-3.1 1.55-3.18-.03-.02-2.9-1.12-2.9-4.43zM14.6 4.88c.78-.95 1.3-2.28 1.15-3.58-1.13.05-2.53.75-3.33 1.7-.73.83-1.35 2.18-1.18 3.45 1.28.1 2.58-.63 3.36-1.57z"/>
+    <path d="M16.5 12c0-2.85 2.33-4.18 2.45-4.25-1.33-1.95-3.39-2.22-4.12-2.22-1.75-.18-3.42 1.03-4.32 1.03-.9 0-2.28-.98-3.73-.95-1.9.03-3.66 1.1-4.63 2.78-1.96 3.4-.5 8.43 1.4 11.18.93 1.35 2.03 2.85 3.48 2.8 1.4-.05 1.95-.9 3.65-.9 1.7 0 2.2.9 3.68.88 1.5-.03 2.45-1.38 3.38-2.73 1.08-1.58 1.53-3.1 1.55-3.18-.03-.02-2.9-1.12-2.9-4.43zM14.6 4.88c.78-.95 1.3-2.28 1.15-3.58-1.13.05-2.53.75-3.33 1.7-.73.83-1.35 2.18-1.18 3.45 1.28.1 2.58-.63 3.36-1.57z"/>
   </svg>
 );
 
@@ -29,12 +29,13 @@ export const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       await login(email, password);
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      alert('Đăng nhập thất bại. Vui lòng kiểm tra lại email/mật khẩu hoặc kết nối tới server.');
+      setError(error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại email/mật khẩu hoặc kết nối tới server.');
     }
   };
 
@@ -75,49 +76,40 @@ export const Login = () => {
           <p className="auth-form-subtitle">Đăng nhập tài khoản để tiếp tục hành trình</p>
 
           {error && (
-            <div style={{
-              backgroundColor: '#fdf2f2',
-              border: '1px solid #fde8e8',
-              color: '#c81e1e',
-              padding: '12px 16px',
-              borderRadius: '12px',
-              fontSize: '1.4rem',
-              marginBottom: '20px',
-              fontWeight: 500
-            }}>
+            <div className="error-message">
               {error}
             </div>
           )}
 
           <form onSubmit={handleLogin}>
-            <div className="input-group-premium">
-              <label htmlFor="email">Địa chỉ Email</label>
+            <div className="auth-form-group">
               <input 
                 type="email" 
                 id="email"
-                placeholder="name@example.com"
+                placeholder=" "
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="input-premium"
+                className="auth-input"
                 required
               />
+              <label htmlFor="email">Địa chỉ Email</label>
             </div>
 
-            <div className="input-group-premium">
-              <label htmlFor="password">Mật khẩu</label>
+            <div className="auth-form-group">
               <input 
                 type="password" 
                 id="password"
-                placeholder="Nhập mật khẩu"
+                placeholder=" "
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="input-premium"
+                className="auth-input"
                 required
               />
+              <label htmlFor="password">Mật khẩu</label>
             </div>
 
-            <button type="submit" className="submit-btn-premium">
-              Đăng Nhập
+            <button type="submit" className="auth-submit-btn">
+              Đăng nhập
             </button>
           </form>
 
@@ -144,4 +136,3 @@ export const Login = () => {
     </div>
   );
 };
-

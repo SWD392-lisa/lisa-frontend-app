@@ -1,0 +1,27 @@
+/* ──────────────────────────────────────────────
+   Payment Cancel — Starbucks Design System variant
+   Only difference: gold accent instead of green
+   ────────────────────────────────────────────── */
+
+.status-card.cancel-card {
+  border-top-color: var(--gold);
+}
+
+.icon-wrapper.cancel-icon {
+  background-color: var(--gold-lightest);
+  animation: cancelPulse 2s infinite;
+}
+
+.icon-wrapper.cancel-icon svg {
+  color: var(--gold);
+}
+
+@keyframes cancelPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(203, 162, 88, 0.3); }
+  70%  { box-shadow: 0 0 0 15px rgba(203, 162, 88, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(203, 162, 88, 0); }
+}
+
+.status-title.cancel-title {
+  color: var(--gold);
+}

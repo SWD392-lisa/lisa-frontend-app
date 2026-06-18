@@ -17,14 +17,14 @@ const GoogleIcon = () => (
 
 const AppleIcon = () => (
   <svg className="social-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style={{ width: '20px', height: '20px' }}>
-    <path d="M16.5 12c0-2.85 2.33-4.18 2.45-4.25-1.33-1.95-3.39-2.22-4.12-2.25-1.75-.18-3.42 1.03-4.32 1.03-.9 0-2.28-.98-3.73-.95-1.9.03-3.66 1.1-4.63 2.78-1.96 3.4-.5 8.43 1.4 11.18.93 1.35 2.03 2.85 3.48 2.8 1.4-.05 1.95-.9 3.65-.9 1.7 0 2.2.9 3.68.88 1.5-.03 2.45-1.38 3.38-2.73 1.08-1.58 1.53-3.1 1.55-3.18-.03-.02-2.9-1.12-2.9-4.43zM14.6 4.88c.78-.95 1.3-2.28 1.15-3.58-1.13.05-2.53.75-3.33 1.7-.73.83-1.35 2.18-1.18 3.45 1.28.1 2.58-.63 3.36-1.57z"/>
+    <path d="M16.5 12c0-2.85 2.33-4.18 2.45-4.25-1.33-1.95-3.39-2.22-4.12-2.22-1.75-.18-3.42 1.03-4.32 1.03-.9 0-2.28-.98-3.73-.95-1.9.03-3.66 1.1-4.63 2.78-1.96 3.4-.5 8.43 1.4 11.18.93 1.35 2.03 2.85 3.48 2.8 1.4-.05 1.95-.9 3.65-.9 1.7 0 2.2.9 3.68.88 1.5-.03 2.45-1.38 3.38-2.73 1.08-1.58 1.53-3.1 1.55-3.18-.03-.02-2.9-1.12-2.9-4.43zM14.6 4.88c.78-.95 1.3-2.28 1.15-3.58-1.13.05-2.53.75-3.33 1.7-.73.83-1.35 2.18-1.18 3.45 1.28.1 2.58-.63 3.36-1.57z"/>
   </svg>
 );
 
 const roleOptions = [
-  { id: 'LUCY', label: 'LUCY (Anonymous)', icon: User },
-  { id: 'Pro', label: 'Pro (Mentor)', icon: Star },
-  { id: 'Super', label: 'Super (Creator)', icon: Crown }
+  { id: 'LUCY', label: 'LUCY', icon: User },
+  { id: 'Pro', label: 'Pro', icon: Star },
+  { id: 'Super', label: 'Super', icon: Crown }
 ];
 
 export const Register = () => {
@@ -42,10 +42,15 @@ export const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+<<<<<<< HEAD
 
     // Frontend validation — match backend RegisterCommandValidator rules
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+=======
+    if (password !== confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp");
+>>>>>>> 85a3aedd83478d87b13f66b69d3957e69403f9d9
       return;
     }
     if (password.length < 8) {
@@ -71,22 +76,32 @@ export const Register = () => {
       password,
       confirmPassword,
       birthday,
+<<<<<<< HEAD
       phoneNumber: phoneNumber || null,
+=======
+      ...(phoneNumber && { phoneNumber })
+>>>>>>> 85a3aedd83478d87b13f66b69d3957e69403f9d9
     };
     try {
       await register(userData);
       await login(email, password);
       navigate('/dashboard');
+<<<<<<< HEAD
     } catch (err) {
       console.error('Registration error:', err);
       setError(err?.message || 'Registration failed. Please check your information and try again.');
+=======
+    } catch (error) {
+      console.error("Registration error:", error);
+      setError(error.message || "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin của bạn.");
+>>>>>>> 85a3aedd83478d87b13f66b69d3957e69403f9d9
     }
   };
 
   return (
     <div className="auth-page-wrapper">
       
-      {/* 1. Left Visual Pane (Desktop) */}
+      {/* 1. Left Visual Pane (Desktop Only) */}
       <div className="auth-visual-pane">
         <div className="auth-visual-bg"></div>
         
@@ -110,7 +125,7 @@ export const Register = () => {
       <div className="auth-form-pane">
         <div className="form-pane-mesh-bg"></div>
 
-        <div className="premium-auth-card" style={{ maxWidth: '500px', margin: '40px 0' }}>
+        <div className="premium-auth-card">
           {/* Mobile Logo Header */}
           <Link to="/">
             <img src={logoPhoenix} alt="LUCY Logo" className="form-pane-logo-mobile" />
@@ -120,6 +135,7 @@ export const Register = () => {
           <p className="auth-form-subtitle">Điền thông tin bên dưới để đăng ký nhanh</p>
 
           {error && (
+<<<<<<< HEAD
             <div style={{
               backgroundColor: '#fdf2f2',
               border: '1px solid #fde8e8',
@@ -132,13 +148,16 @@ export const Register = () => {
               lineHeight: 1.6,
               whiteSpace: 'pre-line'
             }}>
+=======
+            <div className="error-message">
+>>>>>>> 85a3aedd83478d87b13f66b69d3957e69403f9d9
               {error}
             </div>
           )}
 
           <form onSubmit={handleRegister}>
             
-            {/* Role selection (Mock/UX visual) */}
+            {/* Role selection */}
             <div className="role-select-box">
               <p className="role-select-box-label">Tôi muốn tham gia với vai trò:</p>
               <div className="role-cards-row">
@@ -153,61 +172,67 @@ export const Register = () => {
                       onClick={() => setAccountType(role.id)}
                     >
                       <div className="role-premium-icon">
-                        <Icon size={20} />
+                        <Icon size={24} />
                       </div>
-                      <span className="role-premium-card-text">{role.id}</span>
+                      <span className="role-premium-card-text">{role.label}</span>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-          <div className="auth-form-group">
-            <label>Full Name</label>
-            <input 
-              className="auth-input"
-              type="text" 
-              placeholder="Enter your full name"
-              value={fullName} 
-              onChange={e => setFullName(e.target.value)} 
-              required 
-            />
-          </div>
+            <div className="auth-form-group">
+              <input 
+                className="auth-input"
+                type="text" 
+                id="fullName"
+                placeholder=" "
+                value={fullName} 
+                onChange={e => setFullName(e.target.value)} 
+                required 
+              />
+              <label htmlFor="fullName">Họ và tên</label>
+            </div>
 
-          <div className="auth-form-group">
-            <label>Email</label>
-            <input 
-              className="auth-input"
-              type="email" 
-              placeholder="Enter your email"
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              required 
-            />
-          </div>
-          
-          <div className="auth-form-group">
-            <label>Phone Number (Optional)</label>
-            <input 
-              className="auth-input"
-              type="tel" 
-              placeholder="Enter your phone number"
-              value={phoneNumber} 
-              onChange={e => setPhoneNumber(e.target.value)} 
-            />
-          </div>
+            <div className="auth-form-group">
+              <input 
+                className="auth-input"
+                type="email" 
+                id="email"
+                placeholder=" "
+                value={email} 
+                onChange={e => setEmail(e.target.value)} 
+                required 
+              />
+              <label htmlFor="email">Email</label>
+            </div>
+            
+            <div className="auth-form-group">
+              <input 
+                className="auth-input"
+                type="tel" 
+                id="phone"
+                placeholder=" "
+                value={phoneNumber} 
+                onChange={e => setPhoneNumber(e.target.value)} 
+              />
+              <label htmlFor="phone">Số điện thoại (Tùy chọn)</label>
+            </div>
 
-          <div className="auth-form-group">
-            <label>Birthday</label>
-            <input 
-              className="auth-input"
-              type="date" 
-              value={birthday} 
-              onChange={e => setBirthday(e.target.value)} 
-              required 
-            />
-          </div>
+            <div className="auth-form-group">
+              <input 
+                className="auth-input"
+                type="date" 
+                id="birthday"
+                placeholder=" "
+                value={birthday} 
+                onChange={e => setBirthday(e.target.value)} 
+                required 
+              />
+              <label htmlFor="birthday">Ngày sinh</label>
+            </div>
 
+<<<<<<< HEAD
           <div className="auth-form-group">
             <label>Password</label>
             <input
@@ -222,23 +247,42 @@ export const Register = () => {
               Min 8 ký tự, gồm: chữ HOA, số, ký tự đặc biệt (!@#$%...)
             </p>
           </div>
+=======
+            <div className="auth-form-group">
+              <input 
+                className="auth-input"
+                type="password" 
+                id="password"
+                placeholder=" "
+                value={password} 
+                onChange={e => setPassword(e.target.value)} 
+                required 
+              />
+              <label htmlFor="password">Mật khẩu</label>
+            </div>
+>>>>>>> 85a3aedd83478d87b13f66b69d3957e69403f9d9
 
-          <div className="auth-form-group">
-            <label>Confirm Password</label>
-            <input 
-              className="auth-input"
-              type="password" 
-              placeholder="Confirm your password"
-              value={confirmPassword} 
-              onChange={e => setConfirmPassword(e.target.value)} 
-              required 
-            />
+            <div className="auth-form-group">
+              <input 
+                className="auth-input"
+                type="password" 
+                id="confirmPassword"
+                placeholder=" "
+                value={confirmPassword} 
+                onChange={e => setConfirmPassword(e.target.value)} 
+                required 
+              />
+              <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
+            </div>
+            
+            <button type="submit" className="auth-submit-btn">
+              Đăng ký
+            </button>
+          </form>
+
+          <div className="social-divider-premium">
+            <span>Hoặc đăng nhập nhanh bằng</span>
           </div>
-          
-          <button type="submit" className="auth-submit-btn">
-            Sign Up
-          </button>
-        </form>
 
           <div className="social-row-premium">
             <button className="social-btn-premium" onClick={() => alert('Chức năng đang phát triển!')}>

@@ -16,8 +16,8 @@ export const Profile = () => {
 
   // If loading or not available, use fallback
   const user = currentUser || {
-    persona_name: 'Guest',
-    account_type: 'LUCY',
+    fullName: 'Guest',
+    roleCode: 'LUCY',
     stats: { total_hours: 0 },
     xp: 0
   };
@@ -42,7 +42,7 @@ export const Profile = () => {
         }}>
           👤
         </div>
-        <h2 style={{ fontSize: '2.4rem', fontWeight: 700, marginBottom: '4px' }}>{user.persona_name}</h2>
+        <h2 style={{ fontSize: '2.4rem', fontWeight: 700, marginBottom: '4px' }}>{user.fullName}</h2>
         <span style={{ 
           display: 'inline-block', 
           backgroundColor: 'var(--gold-lightest)', 
@@ -53,7 +53,7 @@ export const Profile = () => {
           fontWeight: 600,
           border: '1px solid var(--gold)'
         }}>
-          {user.account_type} MEMBER
+          {user.roleCode} MEMBER
         </span>
       </div>
 
@@ -61,14 +61,14 @@ export const Profile = () => {
         <Card>
           <CardBody style={{ textAlign: 'center' }}>
             <Clock size={24} color="var(--green-accent)" style={{ margin: '0 auto 8px' }} />
-            <div style={{ fontSize: '2.4rem', fontWeight: 700 }}>{user.stats.total_hours}h</div>
+            <div style={{ fontSize: '2.4rem', fontWeight: 700 }}>{user.stats?.total_hours || 0}h</div>
             <div style={{ fontSize: '1.4rem', color: 'var(--text-black-soft)' }}>Tổng giờ học</div>
           </CardBody>
         </Card>
         <Card>
           <CardBody style={{ textAlign: 'center' }}>
             <Award size={24} color="var(--gold)" style={{ margin: '0 auto 8px' }} />
-            <div style={{ fontSize: '2.4rem', fontWeight: 700 }}>{user.xp}</div>
+            <div style={{ fontSize: '2.4rem', fontWeight: 700 }}>{user.xp || 0}</div>
             <div style={{ fontSize: '1.4rem', color: 'var(--text-black-soft)' }}>XP tích lũy</div>
           </CardBody>
         </Card>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { Landing } from './pages/Landing';
@@ -27,8 +27,19 @@ import { CommunityGuidelines } from './pages/CommunityGuidelines';
 import { ReportViolation } from './pages/ReportViolation';
 import { ForMentors } from './pages/ForMentors';
 import { DownloadApp } from './pages/DownloadApp';
+import { NotFound } from './pages/NotFound';
 import { ScrollToTop } from './components/layout/ScrollToTop';
+import CheckoutPage from './pages/CheckoutPage';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentError from './pages/PaymentError';
+import PaymentCancel from './pages/PaymentCancel';
 import './App.css';
+
+// Component to handle root route
+const RootRoute = () => {
+  const { currentUser } = useAuth();
+  return currentUser ? <Navigate to="/dashboard" replace /> : <Landing />;
+};
 
 function App() {
   return (
@@ -38,7 +49,7 @@ function App() {
         <div className="app">
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<RootRoute />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
@@ -67,6 +78,10 @@ function App() {
                 <Route path="/learning" element={<Learning />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/wallet" element={<Wallet />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/payment/success" element={<PaymentSuccess />} />
+                <Route path="/payment/error" element={<PaymentError />} />
+                <Route path="/payment/cancel" element={<PaymentCancel />} />
               </Route>
 
               {/* Special Routes (No bottom nav) */}
@@ -80,7 +95,7 @@ function App() {
             </Route>
 
             {/* Fallback Route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </Router>
