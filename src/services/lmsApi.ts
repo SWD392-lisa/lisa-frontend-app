@@ -37,98 +37,107 @@ async function handleResponse<T>(res: Response): Promise<T> {
 export interface CreateSessionPayload {
   roomId: string;
   levelId: number | string;
-  mentorUserId: string;
+  mentorUserId?: string;
 }
 
+// Matches Java LearningSessionDto exactly
 export interface SessionResponse {
-  sessionId: string;
+  id: number;
   roomId: string;
-  levelId: number | string;
-  status: string;
-  createdAt: string;
+  mentorUserId: string;
+  levelId: number;
+  levelTitle: string;
+  currentSubNumber: number;
+  totalSubLevels: number;
+  status: 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'ENDED';
+  startedAt: string;
+  endedAt?: string;
 }
 
-export interface SubLevel {
-  subLevelId: string;
-  title: string;
+// Matches Java SpeakingTaskDto exactly
+export interface BackendSpeakingTask {
+  id: number;
+  taskType: 'QUESTION' | 'ANSWER' | 'BULLET';
+  content: string;
+  pronunciation?: string;
+  orderIndex: number;
+}
+
+// Matches Java SubLevelDto exactly
+export interface BackendSubLevel {
+  id: number;
+  subNumber: number;
   topic: string;
-  description: string;
-  speakingTasks: SpeakingTask[];
-  order: number;
+  durationMinutes: number;
+  tasks: BackendSpeakingTask[];
 }
 
-export interface SpeakingTask {
-  taskId: string;
-  prompt: string;
-  durationSeconds?: number;
-  completed?: boolean;
-}
-
+// Matches Java RoomLearningContextDto exactly
 export interface LearningContext {
-  roomId: string;
-  sessionId: string;
-  sessionStatus: 'ACTIVE' | 'PAUSED' | 'ENDED';
-  currentLevel: {
-    levelId: number | string;
-    title: string;
-    stage: string;
-  };
-  currentSubLevel: SubLevel;
-  availableLevels: Array<{ levelId: number | string; title: string; stage: string }>;
-  pinnedLevelId: number | string | null;
+  session: SessionResponse | null;
+  currentSubLevel: BackendSubLevel | null;
 }
 
-export interface NextSubLevelResponse {
-  sessionId: string;
-  previousSubLevel: SubLevel;
-  currentSubLevel: SubLevel;
-  isLevelComplete: boolean;
-}
+// nextSubLevel endpoint returns LearningSessionDto (same as SessionResponse)
+export type NextSubLevelResponse = SessionResponse;
+
+// Legacy aliases kept for any code that imports these names
+export type SubLevel = BackendSubLevel;
+export type SpeakingTask = BackendSpeakingTask;
 
 export interface CompleteSubLevelPayload {
-  sessionId: string;
-  subLevelId: string;
+  userId: string;
+  roomId: string;
+  levelId: number | string;
+  subLevelId: number | string;
   speakingMinutes?: number;
 }
 
 export interface CompleteSubLevelResponse {
-  success: boolean;
-  sessionId: string;
-  subLevelId: string;
+  id: number;
+  userId: string;
+  roomId: string;
+  levelId: number;
+  subLevelId: number;
+  subLevelTopic: string;
+  subNumber: number;
   speakingMinutes: number;
+  completed: boolean;
+  updatedAt: string;
 }
 
-export interface MentorSession {
-  sessionId: string;
+export interface BackendLearningSession {
+  id: number;
   roomId: string;
-  roomTitle: string;
-  status: 'ACTIVE' | 'PAUSED' | 'ENDED';
-  currentLevel: string;
-  currentSubLevel: string;
+  mentorUserId: string;
+  levelId: number;
+  levelTitle: string;
+  currentSubNumber: number;
+  totalSubLevels: number;
+  status: 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'ENDED';
   startedAt: string;
   endedAt?: string;
-  speakingMinutes: number;
-  learnerCount: number;
 }
 
-export interface LearnerCompletionSummary {
-  learnerId: string;
-  learnerName: string;
+export interface RoomLearnerSummary {
+  userId: string;
   completedSubLevels: number;
+  totalSpeakingMinutes: number;
+}
+
+export interface BackendRoomProgress {
+  roomId: string;
+  levelId: number;
   totalSubLevels: number;
-  completionPercent: number;
+  learners: RoomLearnerSummary[];
 }
 
 export interface MentorDashboard {
   mentorUserId: string;
-  mentorName: string;
   totalSessions: number;
   activeSessions: number;
-  completedSessions: number;
-  totalSpeakingMinutes: number;
-  currentSession: MentorSession | null;
-  recentSessions: MentorSession[];
-  learnerSummaries: LearnerCompletionSummary[];
+  sessions: BackendLearningSession[];
+  activeRoomProgress: BackendRoomProgress | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -142,10 +151,11 @@ export interface MentorDashboard {
 export async function createLearningSession(
   payload: CreateSessionPayload,
 ): Promise<SessionResponse> {
+  const { roomId, levelId } = payload;
   const res = await fetch(`${BASE_URL}/sessions`, {
     method: 'POST',
     headers: getAuthHeaders(),
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ roomId, levelId }),
   });
   return handleResponse<SessionResponse>(res);
 }
@@ -199,4 +209,65 @@ export async function getMentorDashboard(mentorUserId: string): Promise<MentorDa
     headers: getAuthHeaders(),
   });
   return handleResponse<MentorDashboard>(res);
+}
+
+/**
+ * Pause the active learning session for a room.
+ * POST /rooms/{roomId}/pause
+ */
+export async function pauseSession(roomId: string): Promise<SessionResponse> {
+  const res = await fetch(`${BASE_URL}/rooms/${roomId}/pause`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<SessionResponse>(res);
+}
+
+/**
+ * Resume a paused learning session for a room.
+ * POST /rooms/{roomId}/resume
+ */
+export async function resumeSession(roomId: string): Promise<SessionResponse> {
+  const res = await fetch(`${BASE_URL}/rooms/${roomId}/resume`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<SessionResponse>(res);
+}
+
+/**
+ * End the learning session for a room.
+ * POST /rooms/{roomId}/end
+ */
+export async function endSession(roomId: string): Promise<SessionResponse> {
+  const res = await fetch(`${BASE_URL}/rooms/${roomId}/end`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<SessionResponse>(res);
+}
+
+export interface LevelInfo {
+  levelId: number;
+  title: string;
+  stage: string;
+}
+
+export async function getAvailableLevels(): Promise<LevelInfo[]> {
+  const CURRICULUM_BASE_URL = BASE_URL.replace('/api/lms', '/api/curriculum');
+  const res = await fetch(`${CURRICULUM_BASE_URL}/levels?language=ENGLISH`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  const data = await handleResponse<any[]>(res);
+  return data.map((l) => {
+    let stageStr = 'Sơ cấp';
+    if (l.stage === 2) stageStr = 'Trung cấp';
+    else if (l.stage === 3) stageStr = 'Cao cấp';
+    return {
+      levelId: l.id,
+      title: l.title,
+      stage: stageStr
+    };
+  });
 }

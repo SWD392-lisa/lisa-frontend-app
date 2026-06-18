@@ -26,6 +26,9 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser(authData.user);
     localStorage.setItem('lucy_user', JSON.stringify(authData.user));
     localStorage.setItem('lucy_token', authData.accessToken);
+    if (authData.refreshToken) {
+      localStorage.setItem('lucy_refresh_token', authData.refreshToken);
+    }
     return authData.user;
   };
 
@@ -35,13 +38,15 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await authService.logout();
+      const refreshToken = localStorage.getItem('lucy_refresh_token');
+      await authService.logout(refreshToken);
     } catch (error) {
       console.error('Logout API error:', error);
     }
     setCurrentUser(null);
     localStorage.removeItem('lucy_user');
     localStorage.removeItem('lucy_token');
+    localStorage.removeItem('lucy_refresh_token');
   };
 
   const value = {

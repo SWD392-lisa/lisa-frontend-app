@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5149';
 const API_URL = `${API_BASE_URL}/api/Auth`;
 
 export const authService = {
@@ -23,7 +23,20 @@ export const authService = {
       body: JSON.stringify(userData)
     });
     if (!response.ok) {
-      throw new Error('Registration failed');
+      let message = 'Registration failed';
+      try {
+        const body = await response.json();
+        // Backend wraps errors in { message, errors: [...] }
+        if (body?.errors && Array.isArray(body.errors) && body.errors.length > 0) {
+          message = body.errors.join('\n');
+        } else if (body?.message) {
+          message = body.message;
+        }
+      } catch {
+        // response body was not JSON — use status text
+        message = `Registration failed (${response.status})`;
+      }
+      throw new Error(message);
     }
     return response.json();
   },

@@ -22,6 +22,7 @@ import './MentorDashboard.css';
 // ---------------------------------------------------------------------------
 
 function formatMinutes(mins) {
+  if (typeof mins !== 'number' || isNaN(mins)) return '0m';
   if (mins >= 60) {
     const h = Math.floor(mins / 60);
     const m = mins % 60;
@@ -43,6 +44,60 @@ function getCompletionColor(pct) {
   if (pct === 100) return 'var(--green-accent)';
   if (pct >= 50) return 'var(--gold)';
   return 'var(--red)';
+}
+
+function calculateDurationMinutes(startedAt, endedAt) {
+  if (!startedAt) return 0;
+  const start = new Date(startedAt).getTime();
+  const end = endedAt ? new Date(endedAt).getTime() : Date.now();
+  const diffMs = end - start;
+  if (isNaN(diffMs) || diffMs <= 0) return 0;
+  return Math.round(diffMs / (1000 * 60));
+}
+
+function formatTime(isoString) {
+  if (!isoString) return '—';
+  try {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return isoString;
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return isoString;
+  }
+}
+
+function formatDate(isoString) {
+  if (!isoString) return '—';
+  try {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return isoString;
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  } catch {
+    return isoString;
+  }
+}
+
+function mapSessionToUI(session, activeRoomProgress = null) {
+  if (!session) return null;
+  const speakingMinutes = calculateDurationMinutes(session.startedAt, session.endedAt);
+  
+  let learnerCount = 0;
+  if (activeRoomProgress && activeRoomProgress.roomId === session.roomId && activeRoomProgress.learners) {
+    learnerCount = activeRoomProgress.learners.length;
+  }
+
+  return {
+    sessionId: session.id,
+    roomId: session.roomId,
+    roomTitle: `Room: ${session.roomId}`,
+    status: session.status || 'ENDED',
+    currentLevel: session.levelTitle || 'SAYING WHO I AM',
+    currentSubLevel: `Sub-level ${session.currentSubNumber || 1}/${session.totalSubLevels || 1}`,
+    startedAt: session.startedAt,
+    endedAt: session.endedAt,
+    speakingMinutes: speakingMinutes,
+    learnerCount: learnerCount || 0
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -71,7 +126,7 @@ function ActiveSessionCard({ session }) {
     <div className="mentor-active-session">
       <div className="mentor-active-session__live-pill">
         <span className="mentor-active-session__live-dot" />
-        LIVE
+        {session.status || 'LIVE'}
       </div>
       <div className="mentor-active-session__room">{session.roomTitle}</div>
       <div className="mentor-active-session__meta">
@@ -92,6 +147,9 @@ function ActiveSessionCard({ session }) {
           {elapsed} speaking
         </span>
       </div>
+      <div style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.7)', marginTop: '8px', paddingLeft: '4px' }}>
+        Started: {formatTime(session.startedAt)} ({formatDate(session.startedAt)})
+      </div>
       <div className="mentor-active-session__actions">
         <Link to={`/mentor/room/${session.roomId}`} style={{ textDecoration: 'none' }}>
           <Button variant="inverted" style={{ fontSize: '1.4rem', padding: '8px 20px' }}>
@@ -105,18 +163,38 @@ function ActiveSessionCard({ session }) {
 }
 
 function SessionListItem({ session }) {
+  const isCompleted = session.status === 'COMPLETED' || session.status === 'ENDED';
+  const statusColor = isCompleted ? 'var(--green-accent)' : 'var(--gold)';
+
   return (
     <Card>
       <CardBody>
         <div className="mentor-session-item">
           <div className="mentor-session-item__left">
             <div className="mentor-session-item__icon">
-              <BookOpen size={20} color="var(--green-accent)" />
+              <BookOpen size={20} color={statusColor} />
             </div>
             <div className="mentor-session-item__info">
-              <div className="mentor-session-item__room">{session.roomTitle}</div>
+              <div className="mentor-session-item__room">
+                {session.roomTitle} 
+                <span className="mentor-session-item__status-tag" style={{
+                  marginLeft: '8px',
+                  fontSize: '1.1rem',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  color: statusColor,
+                  fontWeight: 600,
+                  border: `1px solid ${statusColor}`
+                }}>
+                  {session.status}
+                </span>
+              </div>
               <div className="mentor-session-item__sub">
-                {session.currentLevel} · {session.currentSubLevel}
+                <strong>{session.currentLevel}</strong> · {session.currentSubLevel}
+              </div>
+              <div style={{ fontSize: '1.2rem', color: 'var(--text-black-soft)', marginTop: '4px' }}>
+                Time: {formatTime(session.startedAt)} - {session.endedAt ? formatTime(session.endedAt) : 'Now'} ({formatDate(session.startedAt)})
               </div>
             </div>
           </div>
@@ -204,19 +282,69 @@ export const MentorDashboard = () => {
     setLoading(true);
     setError(null);
     try {
-      // Use real API when backend is available:
-      // const data = await getMentorDashboard(currentUser?.id);
-      // Fallback to mock while backend is being developed:
-      const data = await new Promise((resolve) =>
-        setTimeout(() => resolve(mockMentorDashboard), 400)
-      );
-      setDashboard(data);
+      if (!currentUser?.userId) {
+        throw new Error('Not authenticated');
+      }
+      const data = await getMentorDashboard(currentUser.userId);
+      
+      // Map backend DTO to frontend UI expectations
+      const sessions = data.sessions || [];
+      const activeSessionsCount = typeof data.activeSessions === 'number' ? data.activeSessions : sessions.filter(s => s.status === 'ACTIVE').length;
+      const totalSessionsCount = typeof data.totalSessions === 'number' ? data.totalSessions : sessions.length;
+
+      // Extract and map active/paused session as "current session"
+      const activeSessionRaw = sessions.find(s => s.status === 'ACTIVE' || s.status === 'PAUSED') || null;
+      const currentSession = activeSessionRaw ? mapSessionToUI(activeSessionRaw, data.activeRoomProgress) : null;
+
+      // Recent sessions: only COMPLETED or ENDED (not ACTIVE/PAUSED which is the current session)
+      const recentSessions = sessions
+        .filter(s => s.status !== 'ACTIVE' && s.status !== 'PAUSED')
+        .map(s => mapSessionToUI(s, data.activeRoomProgress))
+        .filter(Boolean);
+
+      // Calculate completed sessions (COMPLETED or ENDED)
+      const completedSessionsCount = sessions.filter(s => s.status === 'COMPLETED' || s.status === 'ENDED').length;
+
+      // Sum speaking minutes (calculated from startedAt and endedAt)
+      const totalSpeakingMinutes = sessions.reduce((sum, s) => {
+        return sum + calculateDurationMinutes(s.startedAt, s.endedAt);
+      }, 0);
+
+      // Extract learner summaries from activeRoomProgress
+      const learnerSummaries = [];
+      if (data.activeRoomProgress && data.activeRoomProgress.learners) {
+        const totalSubLevels = data.activeRoomProgress.totalSubLevels || 1;
+        data.activeRoomProgress.learners.forEach((l) => {
+          const completionPercent = totalSubLevels > 0 
+            ? Math.round((l.completedSubLevels / totalSubLevels) * 100)
+            : 0;
+          learnerSummaries.push({
+            learnerId: l.userId,
+            learnerName: `Learner ${l.userId.substring(0, 5)}`,
+            completedSubLevels: l.completedSubLevels,
+            totalSubLevels: totalSubLevels,
+            completionPercent: completionPercent
+          });
+        });
+      }
+
+      setDashboard({
+        mentorUserId: data.mentorUserId,
+        mentorName: currentUser.fullName || currentUser.full_name || 'Mentor',
+        totalSessions: totalSessionsCount,
+        activeSessions: activeSessionsCount,
+        completedSessions: completedSessionsCount,
+        totalSpeakingMinutes: totalSpeakingMinutes,
+        currentSession,
+        recentSessions,
+        learnerSummaries
+      });
     } catch (err) {
       setError(err?.message || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
     }
-  }, [currentUser?.id]);
+  }, [currentUser]);
 
   useEffect(() => {
     fetchDashboard();

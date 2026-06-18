@@ -41,10 +41,30 @@ export const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError('');
+
+    // Frontend validation — match backend RegisterCommandValidator rules
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setError('Passwords do not match');
       return;
     }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError('Password must contain at least 1 uppercase letter');
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError('Password must contain at least 1 number');
+      return;
+    }
+    if (!/[^a-zA-Z0-9\s]/.test(password)) {
+      setError('Password must contain at least 1 special character (e.g. !@#$%)');
+      return;
+    }
+
     const userData = {
       fullName,
       email,
@@ -52,15 +72,14 @@ export const Register = () => {
       confirmPassword,
       birthday,
       phoneNumber: phoneNumber || null,
-      accountType
     };
     try {
       await register(userData);
-      await login(email, password); // Auto login after register
+      await login(email, password);
       navigate('/dashboard');
-    } catch (error) {
-      console.error("Registration error:", error);
-      alert("Registration failed. Please check your information and try again.");
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err?.message || 'Registration failed. Please check your information and try again.');
     }
   };
 
@@ -110,7 +129,8 @@ export const Register = () => {
               fontSize: '1.4rem',
               marginBottom: '20px',
               fontWeight: 500,
-              lineHeight: 1.4
+              lineHeight: 1.6,
+              whiteSpace: 'pre-line'
             }}>
               {error}
             </div>
@@ -190,14 +210,17 @@ export const Register = () => {
 
           <div className="auth-form-group">
             <label>Password</label>
-            <input 
+            <input
               className="auth-input"
-              type="password" 
+              type="password"
               placeholder="Create a password"
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
-              required 
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
             />
+            <p style={{ fontSize: '1.2rem', color: 'var(--text-black-soft, #888)', marginTop: '6px', lineHeight: 1.5 }}>
+              Min 8 ký tự, gồm: chữ HOA, số, ký tự đặc biệt (!@#$%...)
+            </p>
           </div>
 
           <div className="auth-form-group">

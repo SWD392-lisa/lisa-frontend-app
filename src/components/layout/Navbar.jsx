@@ -9,7 +9,8 @@ import './Navbar.css';
 export const Navbar = () => {
   const { currentUser } = useAuth();
   const isAuthenticated = !!currentUser;
-  const isMentor = currentUser?.account_type === 'MENTOR';
+  const isMentor = currentUser?.account_type === 'MENTOR' ||
+    (currentUser?.roleCode && ['PRO', 'MENTOR', 'SUPER', 'CREATOR', 'ADMIN'].includes(currentUser.roleCode.toUpperCase()));
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

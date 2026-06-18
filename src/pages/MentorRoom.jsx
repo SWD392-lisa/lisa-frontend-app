@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
 import {
   BookOpen,
   CheckCircle,
@@ -13,7 +14,17 @@ import {
   RefreshCw,
   X,
 } from 'lucide-react';
-import { getRoomLearningContext, nextSubLevel, completeSubLevel } from '../services/lmsApi';
+import {
+  getRoomLearningContext,
+  createLearningSession,
+  nextSubLevel,
+  completeSubLevel,
+  pauseSession,
+  resumeSession,
+  endSession,
+  getAvailableLevels,
+  getMentorDashboard,
+} from '../services/lmsApi';
 import { mockLearningContext, mockSubLevels } from '../services/mockData';
 import './MentorRoom.css';
 
@@ -120,6 +131,7 @@ function TaskItem({ task, index, onToggle }) {
 export const MentorRoom = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
   // ── State ──
   const [context, setContext] = useState(null);
@@ -133,6 +145,7 @@ export const MentorRoom = () => {
   const [selectedLevelId, setSelectedLevelId] = useState(null);
   const [pinnedLevelId, setPinnedLevelId] = useState(null);
   const [pinning, setPinning] = useState(false);
+  const [availableLevels, setAvailableLevels] = useState([]);
 
   // SubLevel & tasks (local copies for task-toggling)
   const [currentSubLevel, setCurrentSubLevel] = useState(null);
@@ -149,17 +162,61 @@ export const MentorRoom = () => {
     setLoading(true);
     setError(null);
     try {
-      // Use real API when backend is available:
-      // const data = await getRoomLearningContext(roomId);
-      const data = await new Promise((resolve) =>
-        setTimeout(() => resolve(mockLearningContext), 500)
-      );
+      let data;
+      try {
+        data = await getRoomLearningContext(roomId);
+      } catch (err) {
+        if (err.message && (err.message.includes('404') || err.message.includes('not found'))) {
+          data = {
+            session: null,
+            currentSubLevel: null
+          };
+        } else {
+          throw err;
+        }
+      }
       setContext(data);
-      setSessionStatus(data.sessionStatus ?? 'ACTIVE');
-      setSelectedLevelId(data.currentLevel?.levelId ?? null);
-      setPinnedLevelId(data.pinnedLevelId ?? null);
-      setCurrentSubLevel(data.currentSubLevel);
-      setTasks(data.currentSubLevel?.speakingTasks?.map((t) => ({ ...t })) ?? []);
+
+      const session = data?.session;
+      setSessionStatus(session?.status ?? 'INACTIVE');
+      setSelectedLevelId(session?.levelId ?? null);
+      setPinnedLevelId(session?.levelId ?? null);
+      setCurrentSubLevel(data?.currentSubLevel ?? null);
+
+      if (data?.currentSubLevel && data.currentSubLevel.tasks) {
+        const resolvedTasks = [...data.currentSubLevel.tasks]
+          .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+          .map((t) => ({
+            taskId: t.id,
+            prompt: t.content,
+            taskType: t.taskType,
+            completed: false
+          }));
+        setTasks(resolvedTasks);
+      } else {
+        setTasks([]);
+      }
+
+      // Fetch available levels for selector
+      let levels = [];
+      try {
+        levels = await getAvailableLevels();
+        setAvailableLevels(levels);
+      } catch (lvErr) {
+        console.error('Failed to load available levels:', lvErr);
+        if (session) {
+          levels = [{
+            levelId: session.levelId,
+            title: session.levelTitle || 'SAYING WHO I AM',
+            stage: 'Sơ cấp'
+          }];
+          setAvailableLevels(levels);
+        }
+      }
+
+      if (!session && levels && levels.length > 0) {
+        setSelectedLevelId((prev) => prev ?? levels[0].levelId);
+      }
     } catch (err) {
       setError(err?.message || 'Failed to load room context.');
     } finally {
@@ -174,12 +231,37 @@ export const MentorRoom = () => {
   // ── Handlers ──
 
   const handlePinLevel = async () => {
-    if (!selectedLevelId) return;
+    if (!selectedLevelId || !currentUser) return;
     setPinning(true);
     try {
-      // await createLearningSession({ roomId, levelId: selectedLevelId, mentorUserId: ... });
-      await new Promise((r) => setTimeout(r, 400)); // mock delay
-      setPinnedLevelId(selectedLevelId);
+      // 1. Get current session details from mentor dashboard first
+      const dashboard = await getMentorDashboard(currentUser.userId);
+      
+      // 2. Check if active session exists in current room
+      const activeSessionInRoom = dashboard.sessions?.find(
+        (s) => s.roomId === roomId && (s.status === 'ACTIVE' || s.status === 'PAUSED')
+      );
+      const hasActiveSession = (dashboard.activeRoomProgress && dashboard.activeRoomProgress.roomId === roomId) ||
+                               (activeSessionInRoom != null);
+
+      if (hasActiveSession) {
+        // Reuse current session
+        const activeSession = activeSessionInRoom || (dashboard.sessions?.find(s => s.roomId === roomId));
+        if (activeSession) {
+          setPinnedLevelId(activeSession.levelId);
+          setSelectedLevelId(activeSession.levelId);
+        }
+      } else {
+        // 3. Only call POST /api/lms/sessions when no active session exists
+        await createLearningSession({
+          roomId,
+          levelId: selectedLevelId
+        });
+        setPinnedLevelId(selectedLevelId);
+      }
+      
+      // 5. Automatically refresh dashboard / load currentSubLevel
+      await fetchContext();
     } catch (err) {
       alert('Failed to pin level: ' + err.message);
     } finally {
@@ -191,18 +273,11 @@ export const MentorRoom = () => {
     if (advancingSubLevel) return;
     setAdvancingSubLevel(true);
     try {
-      // const res = await nextSubLevel(roomId);
-      // Mock: cycle through available sub-levels
-      await new Promise((r) => setTimeout(r, 400));
-      
-      const currentIndex = mockSubLevels.findIndex(
-        (s) => s.subLevelId === currentSubLevel?.subLevelId
-      );
-      const nextIndex = (currentIndex === -1 ? 0 : currentIndex + 1) % mockSubLevels.length;
-      const nextSub = mockSubLevels[nextIndex];
-      
-      setCurrentSubLevel(nextSub);
-      setTasks(nextSub.speakingTasks.map((t) => ({ ...t })));
+      const res = await nextSubLevel(roomId);
+      if (res && (res.status === 'COMPLETED' || res.status === 'ENDED')) {
+        setSessionStatus('ENDED');
+      }
+      await fetchContext();
     } catch (err) {
       alert('Failed to advance sub-level: ' + err.message);
     } finally {
@@ -212,18 +287,27 @@ export const MentorRoom = () => {
 
   const handleTogglePause = async () => {
     const next = sessionStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
-    // TODO: POST pause/resume to API
-    await new Promise((r) => setTimeout(r, 200));
-    setSessionStatus(next);
+    try {
+      if (sessionStatus === 'ACTIVE') {
+        await pauseSession(roomId);
+      } else {
+        await resumeSession(roomId);
+      }
+      setSessionStatus(next);
+    } catch (err) {
+      alert('Failed to toggle pause state: ' + err.message);
+    }
   };
 
   const handleEndSession = async () => {
     setShowEndDialog(false);
-    // await completeSubLevel({ sessionId: context?.sessionId, subLevelId: currentSubLevel?.subLevelId, ... });
-    await new Promise((r) => setTimeout(r, 300));
-    setSessionStatus('ENDED');
-    // Navigate back after a moment
-    setTimeout(() => navigate(-1), 1000);
+    try {
+      await endSession(roomId);
+      setSessionStatus('ENDED');
+      setTimeout(() => navigate(-1), 1000);
+    } catch (err) {
+      alert('Failed to end session: ' + err.message);
+    }
   };
 
   const handleToggleTask = (taskId) => {
@@ -265,9 +349,17 @@ export const MentorRoom = () => {
     );
   }
 
-  const room = context;
+  if (!context) {
+    return (
+      <div className="mentor-room" style={{ padding: '40px', textAlign: 'center', fontSize: '1.6rem', color: 'var(--text-black-soft)' }}>
+        Loading room context…
+      </div>
+    );
+  }
+
   const isPaused = sessionStatus === 'PAUSED';
   const isEnded = sessionStatus === 'ENDED';
+  const isSessionActive = sessionStatus === 'ACTIVE' || sessionStatus === 'PAUSED';
   const completedCount = tasks.filter((t) => t.completed).length;
   const isPinned = selectedLevelId === pinnedLevelId;
 
@@ -285,7 +377,7 @@ export const MentorRoom = () => {
         <header className="mentor-room__header">
           <div className="mentor-room__header-left">
             <div className="mentor-room__room-title">
-              {room?.currentLevel?.title ?? 'Mentor Room'}
+              {context?.session?.levelTitle ?? 'Mentor Room'}
             </div>
             <div className="mentor-room__header-meta">
               <StatusPill status={sessionStatus} />
@@ -318,14 +410,23 @@ export const MentorRoom = () => {
                 onChange={(e) => setSelectedLevelId(Number(e.target.value))}
                 disabled={isEnded}
               >
-                {(room?.availableLevels ?? []).map((lv) => (
+                {(availableLevels ?? []).map((lv) => (
                   <option key={lv.levelId} value={lv.levelId}>
-                    Level {lv.levelId} — {lv.title} ({lv.stage})
+                    Level {lv.levelId} - {lv.title}
                   </option>
                 ))}
               </select>
 
-              {isPinned ? (
+              {isSessionActive ? (
+                <Button
+                  variant="primary-filled"
+                  disabled={true}
+                  style={{ padding: '9px 18px', fontSize: '1.4rem', backgroundColor: 'var(--ceramic)', borderColor: 'var(--ceramic)', color: 'var(--text-black-soft)' }}
+                >
+                  <MapPin size={14} />
+                  Session đang hoạt động
+                </Button>
+              ) : isPinned ? (
                 <span className="mentor-room__pinned-badge">
                   <MapPin size={13} />
                   Pinned
@@ -345,21 +446,24 @@ export const MentorRoom = () => {
           </div>
 
           {/* Current SubLevel Card */}
-          {currentSubLevel && (
+          {currentSubLevel ? (
             <div className="mentor-room__sublevel-card">
               <div className="mentor-room__sublevel-header">
-                <div className="mentor-room__sublevel-label">Current Sub-Level</div>
-                <div className="mentor-room__sublevel-title">{currentSubLevel.title}</div>
+                <div className="mentor-room__sublevel-label">
+                  Current Sub-Level
+                  {context?.session?.totalSubLevels > 0 && (
+                    <span style={{ marginLeft: '8px', fontWeight: 400, opacity: 0.7 }}>
+                      {currentSubLevel.subNumber || 1}/{context.session.totalSubLevels}
+                    </span>
+                  )}
+                </div>
+                <div className="mentor-room__sublevel-title">
+                  Sub-Level {currentSubLevel.subNumber || 1}
+                </div>
                 <div className="mentor-room__sublevel-topic">
-                  📌 Topic: {currentSubLevel.topic}
+                  📌 {currentSubLevel.topic}
                 </div>
               </div>
-
-              {currentSubLevel.description && (
-                <div className="mentor-room__sublevel-desc">
-                  {currentSubLevel.description}
-                </div>
-              )}
 
               {/* Speaking Tasks */}
               <div className="mentor-room__tasks-section">
@@ -382,6 +486,19 @@ export const MentorRoom = () => {
                 </div>
               </div>
             </div>
+          ) : (
+            <div className="mentor-room__no-session-card" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px dashed rgba(255, 255, 255, 0.1)',
+              borderRadius: '12px',
+              padding: '40px 20px',
+              textAlign: 'center',
+              color: 'var(--text-black-soft)',
+              fontSize: '1.5rem',
+              marginTop: '20px'
+            }}>
+              Chưa có session nào hoạt động trong room này. Hãy chọn một level bên trên và nhấn Pin Level để bắt đầu.
+            </div>
           )}
 
         </main>
@@ -394,7 +511,7 @@ export const MentorRoom = () => {
               id="btn-next-sublevel"
               variant="primary-filled"
               onClick={handleNextSubLevel}
-              disabled={advancingSubLevel || isEnded}
+              disabled={advancingSubLevel || isEnded || !isSessionActive}
               style={{ fontSize: '1.4rem', padding: '9px 16px' }}
             >
               {advancingSubLevel ? (
@@ -406,7 +523,7 @@ export const MentorRoom = () => {
             </Button>
 
             {/* Pause / Resume */}
-            {!isEnded && (
+            {!isEnded && isSessionActive && (
               <Button
                 id="btn-pause-resume"
                 variant="dark-outlined"
@@ -425,13 +542,13 @@ export const MentorRoom = () => {
               id="btn-end-session"
               variant="primary-filled"
               onClick={() => setShowEndDialog(true)}
-              disabled={isEnded}
+              disabled={isEnded || !isSessionActive}
               style={{
                 fontSize: '1.4rem',
                 padding: '9px 16px',
-                backgroundColor: isEnded ? 'var(--ceramic)' : 'var(--red)',
-                borderColor: isEnded ? 'var(--ceramic)' : 'var(--red)',
-                color: isEnded ? 'var(--text-black-soft)' : 'var(--white)',
+                backgroundColor: (isEnded || !isSessionActive) ? 'var(--ceramic)' : 'var(--red)',
+                borderColor: (isEnded || !isSessionActive) ? 'var(--ceramic)' : 'var(--red)',
+                color: (isEnded || !isSessionActive) ? 'var(--text-black-soft)' : 'var(--white)',
               }}
             >
               {isEnded ? 'Session Ended' : 'End Session'}
