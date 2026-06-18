@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
-import PayButton from '../components/PayButton';
+import { Button } from '../components/ui/Button';
+import { getUpgradePackages, createUpgradePayment } from '../services/roleUpgradeService';
+import { createPayment } from '../services/paymentService';
+import { submitToSePay } from '../utils/sePayForm';
 import {
   ArrowLeft, CreditCard, ShieldCheck, Wallet, Star, Crown,
-  Zap, CheckCircle, ChevronRight
+  Zap, CheckCircle, ChevronRight, Loader
 } from 'lucide-react';
 import './CheckoutPage.css';
 
@@ -17,7 +20,7 @@ export default function CheckoutPage() {
 
   const paramType = searchParams.get('type') || 'deposit';
   const paramAmount = parseInt(searchParams.get('amount'), 10) || 100000;
-  const paramDesc = searchParams.get('desc') || '';
+  const rolePriceId = searchParams.get('rolePriceId');
 
   const [invoiceNumber] = useState(() => {
     const timestamp = Date.now();
@@ -27,19 +30,42 @@ export default function CheckoutPage() {
 
   const [customAmount, setCustomAmount] = useState(paramAmount);
   const [userDescription, setUserDescription] = useState('');
+  const [upgradePackage, setUpgradePackage] = useState(null);
+  const [loadingPackage, setLoadingPackage] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState(null);
 
-  const amount = paramType === 'upgrade_pro'
-    ? 200000
-    : paramType === 'upgrade_super'
-    ? 500000
+  const isUpgrade = paramType === 'upgrade';
+
+  // Load upgrade package info
+  useEffect(() => {
+    if (!isUpgrade || !rolePriceId) return;
+
+    let cancelled = false;
+    const load = async () => {
+      setLoadingPackage(true);
+      try {
+        const pkgs = await getUpgradePackages();
+        const pkg = pkgs.find(p => p.rolePriceId === parseInt(rolePriceId, 10));
+        if (!cancelled) setUpgradePackage(pkg || null);
+      } catch {
+        // ignore
+      } finally {
+        if (!cancelled) setLoadingPackage(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [isUpgrade, rolePriceId]);
+
+  const amount = isUpgrade
+    ? (upgradePackage?.price || paramAmount)
     : customAmount;
 
   const description = userDescription || (
-    paramType === 'upgrade_pro'
-      ? `Nâng cấp tài khoản lên gói LUCY Pro cho ${currentUser?.fullName || 'Học viên'}`
-      : paramType === 'upgrade_super'
-      ? `Nâng cấp tài khoản lên gói LUCY Super cho ${currentUser?.fullName || 'Học viên'}`
-      : paramDesc || `Nạp LUCY Coin vào tài khoản ${currentUser?.fullName || 'Học viên'}`
+    isUpgrade && upgradePackage
+      ? `Nâng cấp tài khoản lên LUCY ${upgradePackage.roleName} cho ${currentUser?.fullName || 'Học viên'}`
+      : `Nạp LUCY Coin vào tài khoản ${currentUser?.fullName || 'Học viên'}`
   );
 
   const quickAmounts = [50000, 100000, 200000, 500000, 1000000, 2000000];
@@ -53,19 +79,51 @@ export default function CheckoutPage() {
     setCustomAmount(value);
   };
 
-  const order = {
-    invoiceNumber,
-    amount,
-    description,
-    customerId: currentUser?.userId || 'guest',
-    paymentMethod: 'BANK_TRANSFER',
+  const handlePay = async () => {
+    if (!amount || amount <= 0) {
+      setPayError('Số tiền thanh toán phải lớn hơn 0');
+      return;
+    }
+
+    setPaying(true);
+    setPayError(null);
+
+    try {
+      let formData;
+
+      if (isUpgrade) {
+        formData = await createUpgradePayment({
+          rolePriceId: parseInt(rolePriceId, 10),
+        });
+      } else {
+        formData = await createPayment({
+          orderInvoiceNumber: invoiceNumber,
+          orderAmount: amount,
+          orderDescription: description,
+          customerId: currentUser?.userId || 'guest',
+          paymentMethod: 'BANK_TRANSFER',
+        });
+      }
+
+      submitToSePay(formData);
+    } catch (err) {
+      console.error('Payment error:', err);
+      setPayError(err.message || 'Có lỗi xảy ra khi tạo giao dịch.');
+      setPaying(false);
+    }
   };
 
-  const isUpgrade = paramType === 'upgrade_pro' || paramType === 'upgrade_super';
+  if (isUpgrade && loadingPackage) {
+    return (
+      <div className="checkout-page" style={{ display: 'flex', justifyContent: 'center', paddingTop: '80px' }}>
+        <Loader size={32} className="spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="checkout-page">
-      {/* Back link — Starbucks back-chevron style */}
+      {/* Back link */}
       <div className="checkout-back" onClick={() => navigate('/wallet')}>
         <ChevronRight size={16} style={{ transform: 'rotate(180deg)' }} />
         <span>Quay lại Ví</span>
@@ -78,7 +136,7 @@ export default function CheckoutPage() {
       </div>
 
       <div className="checkout-grid">
-        {/* ── LEFT COLUMN: Payment details ── */}
+        {/* ── LEFT COLUMN ── */}
         <div className="checkout-form-section">
           <Card className="checkout-card">
             <h2 className="checkout-section-title">
@@ -86,42 +144,28 @@ export default function CheckoutPage() {
               Chi tiết thanh toán
             </h2>
 
-            {/* Package upgrade banners */}
-            {paramType === 'upgrade_pro' && (
-              <div className="checkout-package-banner">
-                <div className="checkout-package-icon" style={{ background: 'var(--green-accent)' }}>
-                  <Star size={20} color="white" />
+            {/* Upgrade package banner */}
+            {isUpgrade && upgradePackage && (
+              <div className={`checkout-package-banner ${upgradePackage.roleCode === 'SUPER' ? 'checkout-package-banner--gold' : ''}`}>
+                <div className="checkout-package-icon" style={{
+                  background: upgradePackage.roleCode === 'SUPER' ? 'var(--gold)' : 'var(--green-accent)'
+                }}>
+                  {upgradePackage.roleCode === 'SUPER' ? <Crown size={20} color="white" /> : <Star size={20} color="white" />}
                 </div>
                 <div>
-                  <div className="checkout-package-name">
-                    <Star size={14} fill="currentColor" /> LUCY Pro
+                  <div className="checkout-package-name" style={
+                    upgradePackage.roleCode === 'SUPER' ? { color: 'var(--gold)' } : {}
+                  }>
+                    LUCY {upgradePackage.roleName}
                   </div>
                   <div className="checkout-package-desc">
-                    Mở khóa tính năng Mentor: Tạo phòng Live Audio, quản lý học viên,
-                    và nhận gợi ý từ AI trong lúc dạy.
+                    {upgradePackage.description || `Nâng cấp tài khoản lên gói ${upgradePackage.roleName}`}
                   </div>
                 </div>
               </div>
             )}
 
-            {paramType === 'upgrade_super' && (
-              <div className="checkout-package-banner checkout-package-banner--gold">
-                <div className="checkout-package-icon" style={{ background: 'var(--gold)' }}>
-                  <Crown size={20} color="white" />
-                </div>
-                <div>
-                  <div className="checkout-package-name" style={{ color: 'var(--gold)' }}>
-                    <Crown size={14} fill="currentColor" /> LUCY Super
-                  </div>
-                  <div className="checkout-package-desc">
-                    Đầy đủ tính năng gói Pro, bổ sung ghi âm phòng Live chất lượng cao,
-                    xuất bản & kiếm tiền từ Podcast cá nhân.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Amount selection */}
+            {/* Amount section */}
             {!isUpgrade ? (
               <div className="checkout-amount-section">
                 <label className="checkout-field-label">Chọn số tiền nạp</label>
@@ -180,7 +224,7 @@ export default function CheckoutPage() {
           </Card>
         </div>
 
-        {/* ── RIGHT COLUMN: Order summary ── */}
+        {/* ── RIGHT COLUMN ── */}
         <div className="checkout-summary-section">
           <Card className="checkout-summary-card">
             <h2 className="checkout-summary-heading">Tóm tắt đơn hàng</h2>
@@ -195,13 +239,13 @@ export default function CheckoutPage() {
               <div className="checkout-summary-row">
                 <span className="checkout-summary-label">Mã hóa đơn</span>
                 <span className="checkout-summary-value checkout-summary-code">
-                  {invoiceNumber || 'Đang tạo...'}
+                  {isUpgrade ? 'Tạo khi thanh toán' : (invoiceNumber || 'Đang tạo...')}
                 </span>
               </div>
               <div className="checkout-summary-row">
                 <span className="checkout-summary-label">Loại giao dịch</span>
                 <span className="checkout-summary-value">
-                  {paramType === 'deposit' ? 'Nạp LUCY Coin' : 'Nâng cấp VIP'}
+                  {isUpgrade ? 'Nâng cấp tài khoản' : 'Nạp LUCY Coin'}
                 </span>
               </div>
             </div>
@@ -214,10 +258,27 @@ export default function CheckoutPage() {
             </div>
 
             <div className="checkout-pay-action">
-              <PayButton order={order}>
-                Xác nhận & Thanh toán ngay
-              </PayButton>
+              <Button
+                variant="primary-filled"
+                fullWidth
+                onClick={handlePay}
+                disabled={paying}
+              >
+                {paying ? 'Đang xử lý...' : `Xác nhận & Thanh toán ngay`}
+              </Button>
             </div>
+
+            {payError && (
+              <p style={{
+                color: 'var(--red, #c82014)',
+                fontSize: '1.4rem',
+                marginTop: '8px',
+                textAlign: 'center',
+                fontWeight: 500
+              }}>
+                ⚠️ {payError}
+              </p>
+            )}
 
             <div className="checkout-security-note">
               <ShieldCheck size={14} color="var(--green-accent)" />

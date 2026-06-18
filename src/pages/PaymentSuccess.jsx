@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { confirmPayment } from '../services/paymentService';
+import { confirmUpgradePayment } from '../services/roleUpgradeService';
 import './PaymentSuccess.css';
 
 export default function PaymentSuccess() {
@@ -10,10 +11,12 @@ export default function PaymentSuccess() {
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState(true);
   const [confirmError, setConfirmError] = useState(null);
+  const [result, setResult] = useState(null);
 
   const invoiceNumber = searchParams.get('order_invoice_number') || searchParams.get('orderInvoiceNumber') || 'N/A';
   const transactionId = searchParams.get('transaction_id') || searchParams.get('transactionId') || 'N/A';
   const amountStr = searchParams.get('order_amount') || searchParams.get('amount') || searchParams.get('orderAmount') || '';
+  const paymentType = searchParams.get('type') || 'deposit';
 
   const amount = amountStr ? parseInt(amountStr, 10) : null;
 
@@ -23,13 +26,30 @@ export default function PaymentSuccess() {
       return;
     }
 
-    confirmPayment({
-      orderInvoiceNumber: invoiceNumber,
-      transactionId,
-      amount: amountStr,
-      status: 'success',
-    })
-      .then(() => {
+    const confirm = paymentType === 'upgrade'
+      ? confirmUpgradePayment({
+          orderInvoiceNumber: invoiceNumber,
+          transactionId,
+          amount: amountStr,
+          status: 'success',
+        })
+      : confirmPayment({
+          orderInvoiceNumber: invoiceNumber,
+          transactionId,
+          amount: amountStr,
+          status: 'success',
+        });
+
+    confirm
+      .then((res) => {
+        // If upgrade response contains new token, update localStorage
+        if (res?.newAccessToken && res?.user) {
+          localStorage.setItem('lucy_token', res.newAccessToken);
+          localStorage.setItem('lucy_user', JSON.stringify(res.user));
+          // Dispatch a storage event so AuthContext picks up the change
+          window.dispatchEvent(new Event('storage'));
+        }
+        setResult(res);
         setConfirming(false);
       })
       .catch((err) => {
@@ -39,23 +59,28 @@ export default function PaymentSuccess() {
       });
   }, []);
 
+  const isUpgrade = paymentType === 'upgrade';
+
   return (
     <div className="payment-status-container">
       <div className="status-card">
-        {/* Decorative top accent */}
         <div className="status-accent success-accent" />
 
         <div className="icon-wrapper success-icon">
           <Check size={40} strokeWidth={3} />
         </div>
 
-        <h1 className="status-title">Thanh toan thanh cong!</h1>
+        <h1 className="status-title">
+          {isUpgrade ? 'Nang cap tai khoan thanh cong!' : 'Thanh toan thanh cong!'}
+        </h1>
         <p className="status-subtitle">
           {confirming
             ? 'Dang xac nhan giao dich...'
             : confirmError
               ? 'Giao dich da duoc xu ly, nhung co loi khi cap nhat du lieu.'
-              : 'Cam on ban. Don hang cua ban da duoc xu ly tu dong va hoan tat.'}
+              : isUpgrade
+                ? 'Chuc mung! Tai khoan cua ban da duoc nang cap. Vui long dang nhap lai de cap nhat quyen truy cap.'
+                : 'Cam on ban. Don hang cua ban da duoc xu ly tu dong va hoan tat.'}
         </p>
 
         {confirmError && (
@@ -86,7 +111,9 @@ export default function PaymentSuccess() {
 
           <div className="info-row">
             <span className="info-label">Trang thai</span>
-            <span className="info-value info-value--status">Da nhan tien</span>
+            <span className="info-value info-value--status">
+              {isUpgrade ? 'Da nang cap' : 'Da nhan tien'}
+            </span>
           </div>
         </div>
 
