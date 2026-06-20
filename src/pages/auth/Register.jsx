@@ -65,25 +65,15 @@ export const Register = () => {
       password,
       confirmPassword,
       birthday,
-<<<<<<< HEAD
-      phoneNumber: phoneNumber || null,
-=======
       ...(phoneNumber && { phoneNumber })
->>>>>>> 85a3aedd83478d87b13f66b69d3957e69403f9d9
     };
     try {
       await register(userData);
       await login(email, password);
       navigate('/dashboard');
-<<<<<<< HEAD
-    } catch (err) {
-      console.error('Registration error:', err);
-      setError(err?.message || 'Registration failed. Please check your information and try again.');
-=======
     } catch (error) {
       console.error("Registration error:", error);
       setError(error.message || "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin của bạn.");
->>>>>>> 85a3aedd83478d87b13f66b69d3957e69403f9d9
     }
   };
 
@@ -124,22 +114,7 @@ export const Register = () => {
           <p className="auth-form-subtitle">Điền thông tin bên dưới để đăng ký nhanh</p>
 
           {error && (
-<<<<<<< HEAD
-            <div style={{
-              backgroundColor: '#fdf2f2',
-              border: '1px solid #fde8e8',
-              color: '#c81e1e',
-              padding: '12px 16px',
-              borderRadius: '12px',
-              fontSize: '1.4rem',
-              marginBottom: '20px',
-              fontWeight: 500,
-              lineHeight: 1.6,
-              whiteSpace: 'pre-line'
-            }}>
-=======
             <div className="error-message">
->>>>>>> 85a3aedd83478d87b13f66b69d3957e69403f9d9
               {error}
             </div>
           )}
@@ -199,22 +174,6 @@ export const Register = () => {
               <label htmlFor="birthday">Ngày sinh</label>
             </div>
 
-<<<<<<< HEAD
-          <div className="auth-form-group">
-            <label>Password</label>
-            <input
-              className="auth-input"
-              type="password"
-              placeholder="Create a password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-            <p style={{ fontSize: '1.2rem', color: 'var(--text-black-soft, #888)', marginTop: '6px', lineHeight: 1.5 }}>
-              Min 8 ký tự, gồm: chữ HOA, số, ký tự đặc biệt (!@#$%...)
-            </p>
-          </div>
-=======
             <div className="auth-form-group">
               <input 
                 className="auth-input"
@@ -227,7 +186,6 @@ export const Register = () => {
               />
               <label htmlFor="password">Mật khẩu</label>
             </div>
->>>>>>> 85a3aedd83478d87b13f66b69d3957e69403f9d9
 
             <div className="auth-form-group">
               <input 
