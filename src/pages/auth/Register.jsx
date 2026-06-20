@@ -37,15 +37,9 @@ export const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
-<<<<<<< HEAD
 
-    // Frontend validation — match backend RegisterCommandValidator rules
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-=======
     if (password !== confirmPassword) {
       setError("Mật khẩu xác nhận không khớp");
->>>>>>> 85a3aedd83478d87b13f66b69d3957e69403f9d9
       return;
     }
     if (password.length < 8) {
