@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Star, Crown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import logoPhoenix from '../../assets/images/logo_phonenix1.png';
 import './Auth.css';
@@ -21,11 +20,7 @@ const AppleIcon = () => (
   </svg>
 );
 
-const roleOptions = [
-  { id: 'LUCY', label: 'LUCY', icon: User },
-  { id: 'Pro', label: 'Pro', icon: Star },
-  { id: 'Super', label: 'Super', icon: Crown }
-];
+
 
 export const Register = () => {
   const [fullName, setFullName] = useState('');
@@ -157,29 +152,7 @@ export const Register = () => {
 
           <form onSubmit={handleRegister}>
             
-            {/* Role selection */}
-            <div className="role-select-box">
-              <p className="role-select-box-label">Tôi muốn tham gia với vai trò:</p>
-              <div className="role-cards-row">
-                {roleOptions.map((role) => {
-                  const Icon = role.icon;
-                  const isActive = accountType === role.id;
-                  
-                  return (
-                    <div 
-                      key={role.id} 
-                      className={`role-premium-card ${isActive ? 'active' : ''}`}
-                      onClick={() => setAccountType(role.id)}
-                    >
-                      <div className="role-premium-icon">
-                        <Icon size={24} />
-                      </div>
-                      <span className="role-premium-card-text">{role.label}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+
 
             <div className="auth-form-group">
               <input 
