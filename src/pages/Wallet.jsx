@@ -1,20 +1,44 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardBody } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { getBalance } from '../services/walletService';
+import { getUpgradePackages, upgradeUsingWallet } from '../services/roleUpgradeService';
 import {
   Wallet as WalletIcon, Star, Crown, Zap,
-  TrendingUp, Plus, Loader
+  TrendingUp, Plus, Loader, CheckCircle, AlertCircle
 } from 'lucide-react';
 import './Wallet.css';
 
+const PACKAGE_ICONS = {
+  PRO: { icon: Star, color: 'var(--green-accent)' },
+  SUPER: { icon: Crown, color: 'var(--gold)' },
+};
+
+const PACKAGE_FEATURES = {
+  PRO: [
+    'Tạo phòng Live Audio',
+    'Quản lý học viên trong phòng',
+    'Nhận gợi ý từ AI trong lúc dạy',
+  ],
+  SUPER: [
+    'Toàn bộ tính năng của gói Pro',
+    'Ghi âm phòng Live chất lượng cao',
+    'Xuất bản & kiếm tiền từ Podcast',
+  ],
+};
+
 export const Wallet = () => {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser, updateUser } = useAuth();
   const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [packages, setPackages] = useState([]);
+  const [packagesLoading, setPackagesLoading] = useState(true);
+  const [upgrading, setUpgrading] = useState(null); // rolePriceId being processed
+  const [upgradeError, setUpgradeError] = useState(null);
+  const [upgradeSuccess, setUpgradeSuccess] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -32,33 +56,74 @@ export const Wallet = () => {
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    const fetchPackages = async () => {
+      try {
+        const result = await getUpgradePackages();
+        if (!cancelled) setPackages(result);
+      } catch (err) {
+        console.error('Failed to load upgrade packages:', err);
+      } finally {
+        if (!cancelled) setPackagesLoading(false);
+      }
+    };
+    fetchPackages();
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleUpgradeClick = async (pkg) => {
+    setUpgradeError(null);
+    setUpgradeSuccess(null);
+    setUpgrading(pkg.rolePriceId);
+
+    try {
+      const result = await upgradeUsingWallet(pkg.rolePriceId);
+      // Success — update user info with new token
+      if (result.newAccessToken && result.user) {
+        updateUser(result.user, result.newAccessToken);
+      }
+      setUpgradeSuccess(`Nâng cấp lên ${pkg.roleName} thành công!`);
+      // Refresh packages to reflect new role
+      const updatedPackages = await getUpgradePackages();
+      setPackages(updatedPackages);
+    } catch (err) {
+      if (err.status === 402) {
+        // Insufficient balance — redirect to SePay checkout
+        navigate(`/checkout?type=upgrade&rolePriceId=${pkg.rolePriceId}`);
+        return;
+      }
+      setUpgradeError(err.message || 'Nâng cấp thất bại. Vui lòng thử lại.');
+    } finally {
+      setUpgrading(null);
+    }
+  };
+
   const handleDepositClick = () => {
     navigate('/checkout?type=deposit&amount=100000');
   };
 
-  const handleUpgradeClick = (tier) => {
-    if (tier === 'Pro') {
-      navigate('/checkout?type=upgrade_pro&amount=200000');
-    } else if (tier === 'Super') {
-      navigate('/checkout?type=upgrade_super&amount=500000');
-    }
-  };
+  const isPackageDisabled = (pkg) => pkg.isCurrentRole;
 
-  const isPro = currentUser?.roleCode === 'PRO';
-  const isSuper = currentUser?.roleCode === 'SUPER';
+  const getPackageButtonState = (pkg) => {
+    if (pkg.isCurrentRole) {
+      return { label: 'Đang sử dụng', variant: 'primary-outlined', disabled: true };
+    }
+    return { label: 'Nâng cấp', variant: 'primary-filled', disabled: false };
+  };
 
   return (
     <div className="wallet-page">
-      {/* ── Starbucks dark-green feature band: Balance ── */}
+      {/* ── Balance Band ── */}
       <div className="wallet-balance-band">
         <div className="wallet-balance-content">
           <div className="wallet-balance-label">Số dư LUCY Coin</div>
           <div className="wallet-balance-value">
-            {loading ? <Loader size={24} className="spin" /> : <>{balance.toLocaleString()}<WalletIcon size={24} /></>}
+            {loading ? <Loader size={24} className="spin" /> : <>{balance?.toLocaleString()}<WalletIcon size={24} /></>}
           </div>
           <div className="wallet-balance-usd">
             <TrendingUp size={12} />
-            {loading ? '...' : `~$${(balance * 0.01).toFixed(2)} USD`}
+            {loading ? '...' : `~$${((balance || 0) * 0.01).toFixed(2)} USD`}
           </div>
         </div>
         <div className="wallet-balance-action">
@@ -75,77 +140,99 @@ export const Wallet = () => {
         Mở khóa thêm tính năng với gói Mentor hoặc Creator
       </p>
 
-      <div className="wallet-tier-grid">
-        {/* ── Pro Tier Card ── */}
-        <Card className={`wallet-tier-card ${isPro ? 'wallet-tier-card--active' : ''}`}>
-          <CardBody>
-            <div className="wallet-tier-header">
-              <div className="wallet-tier-badge" style={{ background: 'var(--green-accent)' }}>
-                <Star size={22} color="white" fill="white" />
-              </div>
-              <div className="wallet-tier-price">
-                <span className="wallet-tier-amount">200k</span>
-                <span className="wallet-tier-period">/ tháng</span>
-              </div>
-            </div>
+      {/* Status messages */}
+      {upgradeSuccess && (
+        <div className="wallet-status wallet-status--success">
+          <CheckCircle size={18} />
+          <span>{upgradeSuccess}</span>
+        </div>
+      )}
+      {upgradeError && (
+        <div className="wallet-status wallet-status--error">
+          <AlertCircle size={18} />
+          <span>{upgradeError}</span>
+        </div>
+      )}
 
-            <h3 className="wallet-tier-name">LUCY Pro</h3>
-            <p className="wallet-tier-sub">Dành cho Mentor</p>
+      {/* Package cards */}
+      {packagesLoading ? (
+        <div className="wallet-loading">
+          <Loader size={32} className="spin" />
+        </div>
+      ) : (
+        <div className="wallet-tier-grid">
+          {packages.map((pkg) => {
+            const iconConfig = PACKAGE_ICONS[pkg.roleCode] || { icon: Star, color: 'var(--green-accent)' };
+            const IconComponent = iconConfig.icon;
+            const btnState = getPackageButtonState(pkg);
+            const isSuper = pkg.roleCode === 'SUPER';
+            const features = PACKAGE_FEATURES[pkg.roleCode] || [];
 
-            <ul className="wallet-tier-features">
-              <li><CheckIcon /> Tạo phòng Live Audio</li>
-              <li><CheckIcon /> Quản lý học viên trong phòng</li>
-              <li><CheckIcon /> Nhận gợi ý từ AI trong lúc dạy</li>
-            </ul>
+            return (
+              <Card
+                key={pkg.rolePriceId}
+                className={`wallet-tier-card ${pkg.isCurrentRole ? 'wallet-tier-card--active' : ''} ${isSuper ? 'wallet-tier-card--super' : ''}`}
+              >
+                <CardBody>
+                  {isSuper && (
+                    <div className="wallet-tier-badge-super">
+                      <Crown size={22} color="var(--gold)" fill="var(--gold)" />
+                      <span className="wallet-tier-popular">Phổ biến nhất</span>
+                    </div>
+                  )}
 
-            <Button
-              variant={isPro ? 'primary-outlined' : 'primary-filled'}
-              fullWidth
-              onClick={() => handleUpgradeClick('Pro')}
-            >
-              {isPro ? 'Đang sử dụng' : 'Nâng cấp Pro'}
-            </Button>
-          </CardBody>
-        </Card>
+                  <div className="wallet-tier-header">
+                    {!isSuper && (
+                      <div className="wallet-tier-badge" style={{ background: iconConfig.color }}>
+                        <IconComponent size={22} color="white" fill="white" />
+                      </div>
+                    )}
+                    <div className="wallet-tier-price">
+                      <span className="wallet-tier-amount" style={isSuper ? { color: 'var(--gold)' } : {}}>
+                        {pkg.price?.toLocaleString('vi-VN')}
+                      </span>
+                      <span className="wallet-tier-period">/ tháng</span>
+                    </div>
+                  </div>
 
-        {/* ── Super Tier Card (Gold) ── */}
-        <Card className={`wallet-tier-card wallet-tier-card--super ${isSuper ? 'wallet-tier-card--active' : ''}`}>
-          <CardBody>
-            <div className="wallet-tier-badge-super">
-              <Crown size={22} color="var(--gold)" fill="var(--gold)" />
-              <span className="wallet-tier-popular">Phổ biến nhất</span>
-            </div>
+                  <h3 className="wallet-tier-name" style={isSuper ? { color: 'var(--gold)' } : {}}>
+                    LUCY {pkg.roleName}
+                  </h3>
+                  {pkg.description && (
+                    <p className="wallet-tier-sub">{pkg.description}</p>
+                  )}
 
-            <div className="wallet-tier-header">
-              <div>
-                <h3 className="wallet-tier-name" style={{ color: 'var(--gold)' }}>LUCY Super</h3>
-                <p className="wallet-tier-sub">Dành cho Content Creator</p>
-              </div>
-              <div className="wallet-tier-price">
-                <span className="wallet-tier-amount" style={{ color: 'var(--gold)' }}>500k</span>
-                <span className="wallet-tier-period">/ tháng</span>
-              </div>
-            </div>
+                  <ul className="wallet-tier-features">
+                    {features.map((feat, i) => (
+                      <li key={i}>
+                        {feat.includes('Ghi âm') || feat.includes('Podcast') ? (
+                          <><Zap size={14} color="var(--gold)" /> <strong>{feat}</strong></>
+                        ) : (
+                          <><CheckIcon /> {feat}</>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
 
-            <ul className="wallet-tier-features">
-              <li><CheckIcon /> Toàn bộ tính năng của gói Pro</li>
-              <li className="wallet-tier-feature-highlight">
-                <Zap size={14} color="var(--gold)" /> <strong>Ghi âm phòng Live</strong>
-              </li>
-              <li><CheckIcon /> Xuất bản & kiếm tiền từ Podcast</li>
-            </ul>
-
-            <Button
-              variant={isSuper ? 'primary-outlined' : 'primary-filled'}
-              fullWidth
-              style={isSuper ? {} : { backgroundColor: 'var(--gold)', borderColor: 'var(--gold)', color: 'var(--white)' }}
-              onClick={() => handleUpgradeClick('Super')}
-            >
-              {isSuper ? 'Đang sử dụng' : 'Nâng cấp Super'}
-            </Button>
-          </CardBody>
-        </Card>
-      </div>
+                  <Button
+                    variant={btnState.variant}
+                    fullWidth
+                    disabled={btnState.disabled || upgrading === pkg.rolePriceId}
+                    onClick={() => handleUpgradeClick(pkg)}
+                    style={isSuper && !pkg.isCurrentRole ? {
+                      backgroundColor: 'var(--gold)',
+                      borderColor: 'var(--gold)',
+                      color: 'var(--white)'
+                    } : {}}
+                  >
+                    {upgrading === pkg.rolePriceId ? 'Đang xử lý...' : btnState.label}
+                  </Button>
+                </CardBody>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

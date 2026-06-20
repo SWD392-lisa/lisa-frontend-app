@@ -49,11 +49,20 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('lucy_refresh_token');
   };
 
+  const updateUser = (user, token) => {
+    setCurrentUser(user);
+    localStorage.setItem('lucy_user', JSON.stringify(user));
+    if (token) {
+      localStorage.setItem('lucy_token', token);
+    }
+  };
+
   const value = {
     currentUser,
     login,
     register,
     logout,
+    updateUser,
     loading
   };
 
