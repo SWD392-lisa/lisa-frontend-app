@@ -4,21 +4,21 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5149';
 
 // Helper to parse JSON safely
 const parseResponse = async (response) => {
-    try {
-        const text = await response.text();
-        return text ? JSON.parse(text) : null;
-    } catch {
-        return null;
-    }
+  try {
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+  } catch {
+    return null;
+  }
 };
 
 /**
  * Gọi .NET backend để tạo form data có signature.
  * Backend sẽ không trả về checkout URL — chỉ trả dữ liệu để React tự submit.
  */
-export async function createPayment({ orderInvoiceNumber, orderAmount, orderDescription, customerId, paymentMethod }) {
+export async function createPayment({ orderInvoiceNumber, orderAmount, orderDescription, customerId, paymentMethod, transactionTypeCode }) {
   const token = localStorage.getItem('lucy_token');
-  console.log('📤 Sending payment request:', { orderInvoiceNumber, orderAmount, orderDescription, customerId, paymentMethod });
+  console.log('📤 Sending payment request:', { orderInvoiceNumber, orderAmount, orderDescription, customerId, paymentMethod, transactionTypeCode });
   
   const response = await fetch(`${API_BASE}/api/payment/create`, {
     method: 'POST',
@@ -32,6 +32,7 @@ export async function createPayment({ orderInvoiceNumber, orderAmount, orderDesc
       orderDescription,
       customerId,
       paymentMethod,
+      transactionTypeCode,
     }),
     credentials: 'include'
   });

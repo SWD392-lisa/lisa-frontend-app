@@ -102,6 +102,7 @@ export default function CheckoutPage() {
           orderDescription: description,
           customerId: currentUser?.userId || 'guest',
           paymentMethod: 'BANK_TRANSFER',
+          transactionTypeCode: 'DEPOSIT',
         });
       }
 
