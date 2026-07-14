@@ -18,6 +18,22 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.room-lms-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  color: var(--white);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.room-lms-status span {
+  color: var(--text-white-soft);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
 .close-btn {
   background: none;
   border: none;
@@ -87,6 +103,81 @@
   grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
   gap: 16px;
 }
+
+.participant-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+}
+
+.participant-tile.is-speaking {
+  border-color: var(--green-accent);
+  background: rgba(0, 117, 74, 0.2);
+}
+
+.participant-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-white-soft);
+  font-size: 1.1rem;
+}
+
+.speaker-badge {
+  color: var(--gold);
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.room-task-list {
+  display: grid;
+  gap: 8px;
+  max-width: 70rem;
+}
+
+.room-task-list p {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--gold);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.room-materials {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.room-material-list {
+  display: grid;
+  gap: 8px;
+}
+
+.room-material {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  color: var(--white);
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+}
+
+.room-material span {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+}
+
+.room-material small { color: var(--text-white-soft); }
+.room-empty { color: var(--text-white-soft); font-size: 1.3rem; }
+.live-room__message { align-items: center; justify-content: center; gap: 14px; color: var(--white); }
 
 .room-controls {
   padding: 16px 24px;

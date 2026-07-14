@@ -17,6 +17,18 @@
   background-color: var(--canvas-cream);
 }
 
+.mentor-room__lms-extras { display: grid; grid-template-columns: minmax(0, 1fr) 30rem; gap: 16px; }
+.mentor-room__materials-card { background: var(--white); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 16px; }
+.mentor-room__material-form { display: grid; grid-template-columns: 1fr 100px 1.2fr auto; gap: 8px; margin: 12px 0; }
+.mentor-room__material-form input, .mentor-room__material-form select { min-width: 0; border: 1px solid var(--ceramic); border-radius: 8px; padding: 8px; font: inherit; }
+.mentor-room__material-item { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--ceramic); padding: 10px 0; font-size: 1.3rem; }
+.mentor-room__material-item a { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.mentor-room__material-item span { color: var(--text-black-soft); font-size: 1.1rem; }.mentor-room__material-item button { border: 0; background: transparent; color: var(--red); cursor: pointer; }
+.mentor-room__materials-empty { color: var(--text-black-soft); font-size: 1.3rem; }
+.mentor-room__moderation-notice { margin: 0 0 8px; color: var(--green-accent); font-size: 1.2rem; }
+.mentor-room__participant-main { display: grid; flex: 1; min-width: 11rem; gap: 3px; }
+.mentor-room__participant-main small { display: inline-flex; align-items: center; gap: 3px; color: var(--text-black-soft); font-size: 1.1rem; }
+.mentor-room__participant-actions { display: flex; align-items: center; justify-content: flex-end; gap: 5px; flex-wrap: wrap; }
+@media (max-width: 800px) { .mentor-room__lms-extras { grid-template-columns: 1fr; }.mentor-room__material-form { grid-template-columns: 1fr 1fr; }.mentor-room__material-form input:last-of-type { grid-column: 1 / -1; } }
 /* ── Header ── */
 .mentor-room__header {
   background-color: var(--house-green);
@@ -50,6 +62,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.mentor-room__timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--white);
+  font-weight: 700;
 }
 
 .mentor-room__status-pill {
