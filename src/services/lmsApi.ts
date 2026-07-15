@@ -91,8 +91,14 @@ export interface MentorSession {
   sessionId: string;
   roomId?: string;
   levelId: number;
+  levelTitle?: string;
   status: SessionStatus;
   currentSubLevelId?: number;
+  currentSubNumber?: number;
+  totalSubLevels?: number;
+  currentSubLevelTopic?: string;
+  realtimeRoomId?: string;
+  realtimeAgoraChannelName?: string;
   topic?: string;
   startedAt?: string;
   endedAt?: string;
@@ -109,6 +115,8 @@ export interface Recording {
   startedAt?: string;
   endedAt?: string;
   provider?: string;
+  storageObjectKey?: string;
+  podcastId?: string;
 }
 
 export interface MentorDashboard {
@@ -288,23 +296,21 @@ export const deletePinnedMaterial = (materialId: number) =>
 
 export const getMentorDashboard = async () => {
   const data = await request<MentorDashboard>(LMS_BASE_URL, '/mentor/dashboard');
-  const [learnerData, sessionData] = await Promise.all([
-    getMentorLearners(),
-    getMentorSessions(),
-  ]);
+  const sessionData = await getMentorSessions();
   const sourceSessions = sessionData?.length ? sessionData : (data.currentSessions || []);
   const sessions = sourceSessions.map((session) => ({
     id: session.sessionId,
-    roomId: session.roomId || session.sessionId,
+    roomId: session.roomId || session.realtimeRoomId || session.sessionId,
     levelId: session.levelId,
-    levelTitle: `Level ${session.levelId}`,
-    currentSubNumber: 1,
-    totalSubLevels: 1,
+    levelTitle: session.levelTitle || `Level ${session.levelId}`,
+    currentSubNumber: session.currentSubNumber,
+    totalSubLevels: session.totalSubLevels,
     status: session.status,
     startedAt: session.startedAt,
     endedAt: session.endedAt,
   }));
   const active = sessions.find((session) => session.status === 'ACTIVE' || session.status === 'PAUSED');
+  const learnerData = active ? await getMentorLearners(active.id) : [];
   return {
     ...data,
     sessions,
@@ -322,8 +328,10 @@ export const getMentorDashboard = async () => {
   };
 };
 
-export const getMentorLearners = () =>
-  request<MentorLearnerProgress[]>(LMS_BASE_URL, '/mentor/dashboard/learners');
+export const getMentorLearners = (sessionId?: string) => {
+  const query = sessionId ? `?sessionId=${encodeURIComponent(sessionId)}` : '';
+  return request<MentorLearnerProgress[]>(LMS_BASE_URL, `/mentor/dashboard/learners${query}`);
+};
 
 export const getMentorSessions = () =>
   request<MentorSession[]>(LMS_BASE_URL, '/mentor/dashboard/sessions');
@@ -339,6 +347,9 @@ export const stopRecording = (recordingId: string) =>
 
 export const getSessionRecordings = (sessionId: string) =>
   request<Recording[]>(LMS_BASE_URL, `/sessions/${sessionId}/recordings`);
+
+export const getRecordingPlaybackUrl = (recordingId: string) =>
+  request<{ recordingId: string; playbackUrl: string }>(LMS_BASE_URL, `/recordings/${recordingId}/playback-url`);
 
 export const getRealtimeRoom = (roomId: string) =>
   request<Record<string, unknown>>(REALTIME_BASE_URL, `/api/rooms/${encodeURIComponent(roomId)}`);

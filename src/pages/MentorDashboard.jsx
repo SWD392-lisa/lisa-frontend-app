@@ -14,7 +14,7 @@ import {
   Zap,
   Plus,
 } from 'lucide-react';
-import { bindRealtimeRoom, createLearningSession, getLevels, getMentorDashboard } from '../services/lmsApi';
+import { bindRealtimeRoom, createLearningSession, getLevels, getMentorDashboard, getRecordingPlaybackUrl } from '../services/lmsApi';
 import { bindRealtimeRoomToLms, createRealtimeRoom } from '../services/realtimeService';
 import './MentorDashboard.css';
 
@@ -284,6 +284,8 @@ export const MentorDashboard = () => {
   const [levelsLoading, setLevelsLoading] = useState(false);
   const [createForm, setCreateForm] = useState({ language: 'ENGLISH', stage: '1', levelId: '', name: '', description: '', autoSwitchEnabled: true });
   const [createState, setCreateState] = useState({ loading: false, error: '' });
+  const [recordingError, setRecordingError] = useState('');
+  const [playingRecordingId, setPlayingRecordingId] = useState(null);
 
   const openCreateRoom = async () => {
     setShowCreateRoom(true);
@@ -385,7 +387,8 @@ export const MentorDashboard = () => {
         totalSpeakingMinutes: totalSpeakingMinutes,
         currentSession,
         recentSessions,
-        learnerSummaries
+        learnerSummaries,
+        recordings: data.recordings?.latestRecordings || []
       });
     } catch (err) {
       setError(err?.message || 'An unexpected error occurred.');
@@ -411,7 +414,20 @@ export const MentorDashboard = () => {
     currentSession,
     recentSessions,
     learnerSummaries,
+    recordings,
   } = dashboard;
+
+  const playRecording = async (recording) => {
+    try {
+      setPlayingRecordingId(recording.recordingId);
+      const playback = await getRecordingPlaybackUrl(recording.recordingId);
+      window.open(playback.playbackUrl, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      setRecordingError(err.message || 'Could not open recording.');
+    } finally {
+      setPlayingRecordingId(null);
+    }
+  };
 
   return (
     <div className="mentor-dashboard">
@@ -518,6 +534,13 @@ export const MentorDashboard = () => {
               </div>
             </>
           )}
+
+          <h2 className="mentor-dashboard__section-title">
+            <Mic size={18} color="var(--gold)" />
+            Recent Recordings
+          </h2>
+          {recordingError && <p role="alert">{recordingError}</p>}
+          {recordings.length === 0 ? <p className="mentor-dashboard__empty">No recordings yet.</p> : <div className="mentor-session-list">{recordings.map((recording) => <Card key={recording.recordingId}><CardBody><div className="mentor-session-item"><div className="mentor-session-item__info"><strong>{recording.recordingId}</strong><span>{recording.status} · {recording.provider || 'Agora'} · {recording.durationSeconds ? `${Math.round(recording.durationSeconds / 60)}m` : 'Duration pending'}</span></div><Button variant="primary-outlined" disabled={recording.status !== 'READY' || playingRecordingId === recording.recordingId} onClick={() => playRecording(recording)}>{playingRecordingId === recording.recordingId ? 'Opening...' : 'Play'}</Button></div></CardBody></Card>)}</div>}
 
         </div>
       </div>

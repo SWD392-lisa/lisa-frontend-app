@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Flame, Award, Medal, Trophy, Calendar, Bell, Play, Mic, Headphones } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { getPodcastPlaybackUrl, getPodcasts } from '../services/realtimeService';
 import './Events.css';
 
 // Mock Data
@@ -17,21 +18,32 @@ const scheduleEvents = [
   { id: 4, date: '20', month: 'Aug', title: 'Overcoming Speaking Anxiety', host: 'Dr. Emily', language: 'All' }
 ];
 
-const podcasts = [
-  { id: 1, title: 'E14: Thinking in English', author: 'LUCY Originals', isSuper: true },
-  { id: 2, title: 'E13: The Art of Small Talk', author: 'Mentor Sarah', isSuper: false },
-  { id: 3, title: 'E12: Japanese Pitch Accent', author: 'Mentor Kenji', isSuper: true },
-  { id: 4, title: 'E11: Chinese Slang 101', author: 'Mentor Wang', isSuper: false },
-  { id: 5, title: 'E10: Confident Interviews', author: 'LUCY Originals', isSuper: true }
-];
-
 const filterTabs = ['All', 'English', 'Chinese', 'Japanese'];
 
 export const Events = () => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const [podcasts, setPodcasts] = useState([]);
+  const [podcastError, setPodcastError] = useState('');
+  const [playingPodcastId, setPlayingPodcastId] = useState(null);
   
   // Real-time Countdown Timer State
   const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 14, minutes: 30, seconds: 59 });
+
+  useEffect(() => {
+    getPodcasts().then(setPodcasts).catch((err) => setPodcastError(err.message || 'Could not load podcasts.'));
+  }, []);
+
+  const playPodcast = async (podcast) => {
+    try {
+      const result = await getPodcastPlaybackUrl(podcast.podcastId);
+      const audio = new Audio(result.playbackUrl);
+      await audio.play();
+      setPlayingPodcastId(podcast.podcastId);
+      audio.onended = () => setPlayingPodcastId(null);
+    } catch (err) {
+      setPodcastError(err.message || 'Could not play podcast.');
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -183,19 +195,18 @@ export const Events = () => {
         <section className="podcast-section">
           <h2 className="section-header">Replay Station</h2>
           <div className="podcast-scroll-container">
+            {podcastError && <p role="alert">{podcastError}</p>}
             {podcasts.map(podcast => (
-              <div key={podcast.id} className="podcast-card">
+              <div key={podcast.podcastId} className="podcast-card">
                 <div className="podcast-cover">
-                  {podcast.isSuper && (
-                    <div className="podcast-super-badge">Super Exclusive</div>
-                  )}
+                  <div className="podcast-super-badge">Published</div>
                   <Headphones size={48} style={{ color: '#94a3b8', opacity: 0.5 }} />
-                  <button className="podcast-play-btn">
+                  <button className="podcast-play-btn" onClick={() => playPodcast(podcast)} aria-label="Play podcast">
                     <Play size={24} style={{ fill: 'currentColor', marginLeft: '4px' }} />
                   </button>
                 </div>
                 <h3>{podcast.title}</h3>
-                <p>{podcast.author}</p>
+                <p>Creator {podcast.creatorUserId} {playingPodcastId === podcast.podcastId ? ' - Playing' : ''}</p>
               </div>
             ))}
           </div>

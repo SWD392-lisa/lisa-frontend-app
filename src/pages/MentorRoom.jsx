@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import AgoraRTC from 'agora-rtc-sdk-ng';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { AICopilot } from '../components/lms/AICopilot';
@@ -10,6 +11,7 @@ import {
   Clock,
   MapPin,
   Mic,
+  MicOff,
   Pause,
   Play,
   RefreshCw,
@@ -33,8 +35,11 @@ import {
   addPinnedMaterial,
   deletePinnedMaterial,
   startSession,
+  startRecording,
+  stopRecording,
+  getSessionRecordings,
 } from '../services/lmsApi';
-import { createRealtimeSocket } from '../services/realtimeService';
+import { createAgoraClient, createRealtimeSocket, getAgoraToken } from '../services/realtimeService';
 import './MentorRoom.css';
 
 // ---------------------------------------------------------------------------
@@ -52,6 +57,13 @@ function formatSeconds(secs) {
 function formatTimer(seconds) {
   const total = Math.max(0, Number(seconds) || 0);
   return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(Math.floor(total % 60)).padStart(2, '0')}`;
+}
+
+function getAgoraChannel(state) {
+  return state?.realtimeAgoraChannelName
+    || state?.realtime?.agoraChannelName
+    || state?.channelName
+    || null;
 }
 
 // ---------------------------------------------------------------------------
@@ -178,16 +190,34 @@ export const MentorRoom = () => {
   const [realtimeSession, setRealtimeSession] = useState({ participants: [], handRaiseQueue: [] });
   const [realtimeConnected, setRealtimeConnected] = useState(false);
   const [recordingStatus, setRecordingStatus] = useState('IDLE');
+  const [recordingId, setRecordingId] = useState(null);
+  const [recordingActionLoading, setRecordingActionLoading] = useState(false);
   const [lmsRoomState, setLmsRoomState] = useState(null);
   const [mentorClockNow, setMentorClockNow] = useState(Date.now());
   const lmsSyncedAtRef = useRef(Date.now());
   const [moderationNotice, setModerationNotice] = useState('');
   const realtimeSocketRef = useRef(null);
+  const agoraClientRef = useRef(null);
+  const mentorTrackRef = useRef(null);
+  const mentorTrackPublishedRef = useRef(false);
+  const mentorAgoraUidRef = useRef(null);
+  const mentorMicOnRef = useRef(false);
+  const mentorSpeakingRef = useRef(false);
+  const mentorAnonymousUserIdRef = useRef(null);
+  const agoraJoinInProgressRef = useRef(false);
+  const agoraChannelRef = useRef(null);
+  const lmsRoomStateRef = useRef(null);
+  const [agoraConnected, setAgoraConnected] = useState(false);
+  const [mentorMicOn, setMentorMicOn] = useState(false);
+  const [mentorSpeaking, setMentorSpeaking] = useState(false);
+  const [micLoading, setMicLoading] = useState(false);
+  const [audioError, setAudioError] = useState('');
 
   const applyLmsState = useCallback((state) => {
     if (!state) return;
     lmsSyncedAtRef.current = Date.now();
     setLmsRoomState(state);
+    lmsRoomStateRef.current = state;
     setSessionStatus(state.status || 'WAITING');
     setCurrentSubLevel(state.currentSubLevel || null);
     const resolvedTasks = [...(state.currentSubLevel?.tasks || [])]
@@ -244,6 +274,16 @@ export const MentorRoom = () => {
       } catch (materialErr) {
         console.warn('Failed to load pinned materials:', materialErr);
         setMaterials([]);
+      }
+
+      try {
+        const recordings = await getSessionRecordings(roomId);
+        const latest = recordings?.[0];
+        const activeRecording = recordings?.find((item) => ['REQUESTED', 'RECORDING', 'PROCESSING'].includes(item.status));
+        setRecordingId((activeRecording || latest)?.recordingId || null);
+        setRecordingStatus(activeRecording?.status || 'IDLE');
+      } catch {
+        setRecordingId(null);
       }
 
       if (data?.currentSubLevel && data.currentSubLevel.tasks) {
@@ -311,6 +351,116 @@ export const MentorRoom = () => {
     };
   }, [context?.session?.sessionId, syncLmsState]);
 
+  const cleanupAgora = useCallback(async () => {
+    const client = agoraClientRef.current;
+    const track = mentorTrackRef.current;
+
+    try {
+      if (client && mentorTrackPublishedRef.current && track) {
+        await client.unpublish(track);
+      }
+    } catch {
+      // The client may already be disconnected while the page is closing.
+    }
+
+    try {
+      if (client) await client.leave();
+    } catch {
+      // Cleanup must remain best-effort during reconnect or unmount.
+    }
+
+    track?.close();
+    agoraClientRef.current = null;
+    mentorTrackRef.current = null;
+    mentorTrackPublishedRef.current = false;
+    mentorAgoraUidRef.current = null;
+    agoraChannelRef.current = null;
+    agoraJoinInProgressRef.current = false;
+    mentorMicOnRef.current = false;
+    mentorSpeakingRef.current = false;
+    setMentorMicOn(false);
+    setMentorSpeaking(false);
+    setAgoraConnected(false);
+  }, []);
+
+  const setMentorMicState = useCallback(async (nextEnabled) => {
+    const client = agoraClientRef.current;
+    const socket = realtimeSocketRef.current;
+    const sessionId = context?.session?.sessionId;
+    const channelName = agoraChannelRef.current;
+    const anonymousUserId = mentorAnonymousUserIdRef.current || currentUser?.userId;
+
+    if (!client || !agoraConnected || !socket?.connected || !sessionId || !channelName) {
+      throw new Error('Mentor audio is not connected yet. Please reconnect the room.');
+    }
+
+    setMicLoading(true);
+    const previousEnabled = mentorMicOnRef.current;
+    try {
+      if (nextEnabled) {
+        const tokenResponse = await getAgoraToken({
+          sessionId,
+          channelName,
+          anonymousUserId: anonymousUserId || 'current',
+          role: 'HOST',
+          mediaType: 'host',
+        });
+
+        if (!tokenResponse?.token) {
+          throw new Error('Agora host token response is empty.');
+        }
+        await client.renewToken(tokenResponse.token);
+
+        if (!mentorTrackRef.current) {
+          mentorTrackRef.current = await AgoraRTC.createMicrophoneAudioTrack();
+        }
+        await mentorTrackRef.current.setEnabled(true);
+        if (!mentorTrackPublishedRef.current) {
+          await client.publish(mentorTrackRef.current);
+          mentorTrackPublishedRef.current = true;
+        }
+      } else if (mentorTrackRef.current) {
+        await mentorTrackRef.current.setEnabled(false);
+        mentorSpeakingRef.current = false;
+        setMentorSpeaking(false);
+      }
+
+      const response = await new Promise((resolve, reject) => {
+        socket.timeout(10000).emit('media.status.changed', {
+          sessionId,
+          micEnabled: nextEnabled,
+          speaking: nextEnabled ? mentorSpeakingRef.current : false,
+        }, (timeoutError, result) => {
+          if (timeoutError) {
+            reject(timeoutError);
+          } else if (!result?.success) {
+            reject(new Error(result?.message || 'Could not update mentor microphone status.'));
+          } else {
+            resolve(result);
+          }
+        });
+      });
+
+      mentorMicOnRef.current = nextEnabled;
+      setMentorMicOn(nextEnabled);
+      setAudioError('');
+      return response;
+    } catch (toggleError) {
+      if (nextEnabled !== previousEnabled && mentorTrackRef.current) {
+        await mentorTrackRef.current.setEnabled(previousEnabled).catch(() => undefined);
+      }
+      throw toggleError;
+    } finally {
+      setMicLoading(false);
+    }
+  }, [agoraConnected, context?.session?.sessionId, currentUser?.userId]);
+
+  const toggleMentorMic = () => {
+    setMentorMicState(!mentorMicOnRef.current).catch((micError) => {
+      setAudioError(micError?.message || 'Microphone permission was denied.');
+    });
+  };
+
   useEffect(() => {
     if (!context?.session?.sessionId) return undefined;
     const socket = createRealtimeSocket();
@@ -321,17 +471,126 @@ export const MentorRoom = () => {
       if (!next) return;
       setRealtimeSession((old) => ({ ...old, ...next }));
     };
-    socket.on('connect', () => {
+    const connectAgora = async (channelName) => {
+      if (agoraClientRef.current || agoraJoinInProgressRef.current) return;
+      agoraJoinInProgressRef.current = true;
+      agoraChannelRef.current = channelName;
+
+      try {
+        const tokenResponse = await getAgoraToken({
+          sessionId,
+          channelName,
+          anonymousUserId: currentUser?.userId || 'current',
+          role: 'HOST',
+          mediaType: 'host',
+        });
+        if (!tokenResponse?.appId || !tokenResponse?.token || !tokenResponse?.channelName) {
+          throw new Error('Agora host token response is empty or invalid.');
+        }
+
+        const client = createAgoraClient();
+        agoraClientRef.current = client;
+        client.on('connection-state-change', (state) => {
+          setAgoraConnected(state === 'CONNECTED' || state === 'CONNECTING' || state === 'RECONNECTING');
+        });
+        client.on('user-published', async (user, mediaType) => {
+          if (mediaType !== 'audio') return;
+          try {
+            await client.subscribe(user, 'audio');
+            user.audioTrack?.play();
+          } catch (subscribeError) {
+            setAudioError(`Could not play learner audio: ${subscribeError.message}`);
+          }
+        });
+        client.on('token-privilege-will-expire', async () => {
+          try {
+            const renewed = await getAgoraToken({
+              sessionId,
+              channelName: agoraChannelRef.current,
+              anonymousUserId: mentorAnonymousUserIdRef.current || currentUser?.userId || 'current',
+              role: 'HOST',
+              mediaType: 'host',
+            });
+            await client.renewToken(renewed.token);
+          } catch (renewError) {
+            setAudioError(`Could not renew Agora token: ${renewError.message}`);
+          }
+        });
+        await client.join(tokenResponse.appId, tokenResponse.channelName, tokenResponse.token, tokenResponse.uid);
+        mentorAgoraUidRef.current = tokenResponse.uid;
+        await client.enableAudioVolumeIndicator();
+        client.on('volume-indicator', (volumes) => {
+          const ownVolume = volumes.find((volume) => String(volume.uid) === String(mentorAgoraUidRef.current));
+          const speaking = Boolean(mentorMicOnRef.current && ownVolume && ownVolume.level > 5);
+          if (speaking === mentorSpeakingRef.current) return;
+          mentorSpeakingRef.current = speaking;
+          setMentorSpeaking(speaking);
+          socket.emit('media.status.changed', { sessionId, speaking });
+        });
+        setAgoraConnected(true);
+        setAudioError('');
+      } catch (audioJoinError) {
+        await cleanupAgora();
+        setAudioError(audioJoinError?.message || 'Could not connect mentor audio.');
+      } finally {
+        agoraJoinInProgressRef.current = false;
+      }
+    };
+
+    const joinSession = async () => {
+      let roomState = lmsRoomStateRef.current;
+      let channelName = getAgoraChannel(roomState) || getAgoraChannel(context?.session);
+      if (!channelName) {
+        try {
+          roomState = await getRoomState(sessionId);
+          lmsRoomStateRef.current = roomState;
+          channelName = getAgoraChannel(roomState);
+        } catch {
+          // The error below gives the mentor an actionable room state message.
+        }
+      }
+      if (!channelName) {
+        setAudioError('This learning session has no bound Agora channel.');
+        return;
+      }
+
       setRealtimeConnected(true);
-      socket.timeout(10000).emit('session.join', { sessionId, displayName: currentUser?.fullName || 'Mentor' }, (err, response) => {
-        if (!err && response?.session) update(response);
+      socket.timeout(10000).emit('session.join', {
+        sessionId,
+        channelName,
+        displayName: currentUser?.fullName || currentUser?.email || 'Mentor',
+      }, (err, response) => {
+        if (err || !response?.success) {
+          setRealtimeConnected(false);
+          setAudioError(err?.message || response?.message || 'Could not join realtime session.');
+          return;
+        }
+        if (response.session) {
+          update(response);
+          mentorAnonymousUserIdRef.current = response.session.participants?.find(
+            (participant) => participant.role === 'HOST' || participant.role === 'SUPER',
+          )?.anonymousUserId || currentUser?.userId || null;
+        }
+        void connectAgora(channelName);
       });
+    };
+
+    socket.on('connect', () => { void joinSession(); });
+    socket.on('disconnect', () => {
+      setRealtimeConnected(false);
+      void cleanupAgora();
     });
-    socket.on('disconnect', () => setRealtimeConnected(false));
+    socket.on('connect_error', (connectError) => setAudioError(connectError?.message || 'Realtime connection failed.'));
     socket.on('presence.updated', update);
     socket.on('speaker.approved', update);
     socket.on('media.status.changed', (event) => {
       if (!event?.anonymousUserId) return;
+      if (String(event.anonymousUserId) === String(mentorAnonymousUserIdRef.current)) {
+        mentorMicOnRef.current = Boolean(event.micEnabled);
+        mentorSpeakingRef.current = Boolean(event.speaking);
+        setMentorMicOn(Boolean(event.micEnabled));
+        setMentorSpeaking(Boolean(event.speaking));
+      }
       setRealtimeSession((old) => ({
         ...old,
         participants: (old.participants || []).map((participant) => String(participant.anonymousUserId) === String(event.anonymousUserId)
@@ -360,8 +619,9 @@ export const MentorRoom = () => {
       realtimeSocketRef.current = null;
       socket.emit('session.leave', { sessionId });
       socket.disconnect();
+      void cleanupAgora();
     };
-  }, [context?.session?.sessionId, currentUser?.fullName]);
+  }, [cleanupAgora, context, currentUser?.email, currentUser?.fullName, currentUser?.userId]);
 
   const approveSpeaker = (anonymousUserId) => {
     const socket = realtimeSocketRef.current;
@@ -401,17 +661,25 @@ export const MentorRoom = () => {
     });
   };
 
-  const toggleRecording = () => {
-    if (!context?.session?.sessionId) return;
-    const socket = createRealtimeSocket();
-    socket.once('connect', () => {
-      socket.emit('session.join', { sessionId: context.session.sessionId, displayName: currentUser?.fullName || 'Mentor' }, () => {
-        const status = recordingStatus === 'RECORDING' ? 'IDLE' : 'RECORDING';
-        socket.emit('recording.status.changed', { sessionId: context.session.sessionId, status });
-        setRecordingStatus(status);
-        setTimeout(() => socket.disconnect(), 250);
-      });
-    });
+  const toggleRecording = async () => {
+    if (!context?.session?.sessionId || recordingActionLoading) return;
+    setRecordingActionLoading(true);
+    try {
+      if (recordingStatus === 'RECORDING' && recordingId) {
+        const stopped = await stopRecording(recordingId);
+        setRecordingStatus(stopped?.status || 'PROCESSING');
+      } else if (!['PROCESSING', 'REQUESTED'].includes(recordingStatus)) {
+        const started = await startRecording(context.session.sessionId);
+        setRecordingId(started?.recordingId || null);
+        setRecordingStatus(started?.status || 'RECORDING');
+      }
+      setAudioError('');
+    } catch (recordingError) {
+      setRecordingStatus('FAILED');
+      setAudioError(recordingError?.message || 'Recording operation failed.');
+    } finally {
+      setRecordingActionLoading(false);
+    }
   };
 
   // ── Handlers ──
@@ -733,6 +1001,7 @@ export const MentorRoom = () => {
           <div className="mentor-room__lms-extras">
             <div className="mentor-room__materials-card">
               <div className="mentor-room__tasks-title"><Users size={14} /> Realtime Participants <span style={{ marginLeft: 'auto' }}>{realtimeConnected ? 'Connected' : 'Offline'} · {realtimeSession.handRaiseQueue?.length || 0} hand(s)</span></div>
+              {audioError && <p className="mentor-room__audio-error" role="alert">{audioError}</p>}
               {moderationNotice && <p className="mentor-room__moderation-notice" role="status">{moderationNotice}</p>}
               {realtimeSession.participants.length === 0 ? <p className="mentor-room__materials-empty">No participants yet.</p> : realtimeSession.participants.map((participant) => (
                 <div className="mentor-room__material-item" key={participant.anonymousUserId}>
@@ -771,6 +1040,19 @@ export const MentorRoom = () => {
         {/* ── Bottom Controls ── */}
         <footer className="mentor-room__controls">
           <div className="mentor-room__controls-primary">
+            <Button
+              id="btn-mentor-mic"
+              variant={mentorMicOn ? 'primary-filled' : 'dark-outlined'}
+              onClick={toggleMentorMic}
+              disabled={!agoraConnected || micLoading || isEnded || !isSessionActive}
+              title={mentorMicOn ? 'Turn mentor microphone off' : 'Turn mentor microphone on'}
+              style={{ fontSize: '1.4rem', padding: '9px 16px' }}
+            >
+              {mentorMicOn ? <MicOff size={15} /> : <Mic size={15} />}
+              {micLoading ? 'Connecting mic...' : mentorMicOn ? 'Mute mic' : 'Enable mic'}
+              {mentorSpeaking && <span className="mentor-room__speaking-indicator">Speaking</span>}
+            </Button>
+
             {/* Next Sub-Level */}
             <Button
               id="btn-next-sublevel"
@@ -815,9 +1097,10 @@ export const MentorRoom = () => {
                 id="btn-recording"
                 variant="dark-outlined"
                 onClick={toggleRecording}
+                disabled={recordingActionLoading || ['PROCESSING', 'REQUESTED'].includes(recordingStatus)}
                 style={{ fontSize: '1.4rem', padding: '9px 16px' }}
               >
-                {recordingStatus === 'RECORDING' ? 'Stop Recording' : 'Start Recording'}
+                {recordingActionLoading ? 'Updating...' : recordingStatus === 'RECORDING' ? 'Stop Recording' : recordingStatus === 'PROCESSING' ? 'Processing...' : recordingStatus === 'READY' ? 'Start New Recording' : 'Start Recording'}
               </Button>
             )}
           </div>

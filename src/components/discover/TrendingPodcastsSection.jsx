@@ -1,18 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause, Headphones } from 'lucide-react';
-
-const mockPodcasts = [
-  { id: 1, title: '10-Minute Daily HSK 3 Vocabulary', duration: '12:45', author: 'David Chen' },
-  { id: 2, title: 'Common English Pronunciation Mistakes', duration: '08:20', author: 'Sarah Jenkins' },
-  { id: 3, title: 'Shadowing Technique for Beginners', duration: '15:30', author: 'Elena Rodriguez' },
-  { id: 4, title: 'Japanese Youth Slang 2026', duration: '09:15', author: 'Kenji Sato' },
-];
+import { getPodcastPlaybackUrl, getPodcasts } from '../../services/realtimeService';
 
 export const TrendingPodcastsSection = () => {
+  const [podcasts, setPodcasts] = useState([]);
   const [playingId, setPlayingId] = useState(null);
+  const audioRef = useRef(null);
 
-  const togglePlay = (id) => {
-    setPlayingId(playingId === id ? null : id);
+  useEffect(() => {
+    getPodcasts().then(setPodcasts).catch(() => setPodcasts([]));
+    return () => audioRef.current?.pause();
+  }, []);
+
+  const togglePlay = async (podcast) => {
+    if (playingId === podcast.podcastId) {
+      audioRef.current?.pause();
+      setPlayingId(null);
+      return;
+    }
+    const playback = await getPodcastPlaybackUrl(podcast.podcastId);
+    audioRef.current?.pause();
+    const audio = new Audio(playback.playbackUrl);
+    audioRef.current = audio;
+    audio.onended = () => setPlayingId(null);
+    await audio.play();
+    setPlayingId(podcast.podcastId);
   };
 
   return (
@@ -21,43 +33,22 @@ export const TrendingPodcastsSection = () => {
         <span className="section-subtitle-tag" style={{ display: 'inline-block', margin: '0 auto 8px' }}>Audio Library</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
           <Headphones className="text-green-accent" size={32} style={{ color: 'var(--green-accent)' }} />
-          <h2 className="section-title" style={{ margin: 0 }}>Exclusive Podcast Series</h2>
+          <h2 className="section-title" style={{ margin: 0 }}>Published Podcasts</h2>
         </div>
       </div>
-
       <div className="podcast-list">
-        {mockPodcasts.map((podcast) => {
-          const isCurrentPlaying = playingId === podcast.id;
+        {podcasts.map((podcast) => {
+          const isPlaying = playingId === podcast.podcastId;
           return (
-            <div key={podcast.id} className={`podcast-item ${isCurrentPlaying ? 'is-playing' : ''}`}>
-              <button 
-                onClick={() => togglePlay(podcast.id)}
-                className="play-btn"
-              >
-                {isCurrentPlaying ? (
-                  <Pause size={20} style={{ fill: 'currentColor' }} />
-                ) : (
-                  <Play size={20} style={{ fill: 'currentColor', marginLeft: '2px' }} />
-                )}
+            <div key={podcast.podcastId} className={`podcast-item ${isPlaying ? 'is-playing' : ''}`}>
+              <button onClick={() => togglePlay(podcast)} className="play-btn" aria-label={isPlaying ? 'Pause podcast' : 'Play podcast'}>
+                {isPlaying ? <Pause size={20} style={{ fill: 'currentColor' }} /> : <Play size={20} style={{ fill: 'currentColor', marginLeft: '2px' }} />}
               </button>
-              
               <div className="podcast-info">
                 <h3 className="podcast-title">{podcast.title}</h3>
-                <p className="podcast-meta">{podcast.author} • {podcast.duration}</p>
+                <p className="podcast-meta">Creator {podcast.creatorUserId} - {Math.round((podcast.durationSeconds || 0) / 60)}m</p>
               </div>
-              
-              {isCurrentPlaying && (
-                <div className="podcast-wave-container">
-                  <span className="podcast-wave-bar"></span>
-                  <span className="podcast-wave-bar"></span>
-                  <span className="podcast-wave-bar"></span>
-                  <span className="podcast-wave-bar"></span>
-                </div>
-              )}
-              
-              <div className="podcast-badge">
-                {isCurrentPlaying ? 'Playing' : 'Preview 30s'}
-              </div>
+              <div className="podcast-badge">{isPlaying ? 'Playing' : 'Published'}</div>
             </div>
           );
         })}
@@ -65,4 +56,3 @@ export const TrendingPodcastsSection = () => {
     </section>
   );
 };
-

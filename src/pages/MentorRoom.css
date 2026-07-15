@@ -25,6 +25,8 @@
 .mentor-room__material-item a { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.mentor-room__material-item span { color: var(--text-black-soft); font-size: 1.1rem; }.mentor-room__material-item button { border: 0; background: transparent; color: var(--red); cursor: pointer; }
 .mentor-room__materials-empty { color: var(--text-black-soft); font-size: 1.3rem; }
 .mentor-room__moderation-notice { margin: 0 0 8px; color: var(--green-accent); font-size: 1.2rem; }
+.mentor-room__audio-error { margin: 0 0 8px; color: var(--red); font-size: 1.2rem; }
+.mentor-room__speaking-indicator { margin-left: 4px; font-size: 1.1rem; }
 .mentor-room__participant-main { display: grid; flex: 1; min-width: 11rem; gap: 3px; }
 .mentor-room__participant-main small { display: inline-flex; align-items: center; gap: 3px; color: var(--text-black-soft); font-size: 1.1rem; }
 .mentor-room__participant-actions { display: flex; align-items: center; justify-content: flex-end; gap: 5px; flex-wrap: wrap; }

@@ -89,6 +89,7 @@ export const LiveRoom = () => {
         const socket = socketRef.current;
         socket.timeout(10000).emit('session.join', {
           sessionId,
+          channelName,
           displayName: currentUser?.fullName || currentUser?.email || (isMentor ? 'Mentor' : 'LUCY learner'),
           isAnonymous: !isMentor,
         }, (err, response) => err ? reject(err) : resolve(response));

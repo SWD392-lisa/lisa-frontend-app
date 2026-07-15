@@ -4,6 +4,7 @@ import { Menu, User, Bell, X, LayoutDashboard, Loader } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { getBalance } from '../../services/walletService';
+import { createRealtimeSocket, getNotifications, markNotificationRead } from '../../services/realtimeService';
 import logoPhoenix from '../../assets/images/logo_phonenix1.png';
 import './Navbar.css';
 
@@ -15,6 +16,8 @@ export const Navbar = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -24,6 +27,23 @@ export const Navbar = () => {
       .catch(() => { if (!cancelled) setWalletBalance(0); });
     return () => { cancelled = true; };
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return undefined;
+    let active = true;
+    getNotifications().then((items) => { if (active) setNotifications(items || []); }).catch(() => {});
+    const socket = createRealtimeSocket();
+    socket.on('notification.created', (item) => setNotifications((old) => [item, ...old].slice(0, 100)));
+    return () => { active = false; socket.disconnect(); };
+  }, [isAuthenticated]);
+
+  const unreadCount = notifications.filter((item) => !item.readAt).length;
+  const readNotification = async (item) => {
+    if (!item.readAt) {
+      try { await markNotificationRead(item.notificationId); } catch { /* keep local notification visible */ }
+      setNotifications((old) => old.map((entry) => entry.notificationId === item.notificationId ? { ...entry, readAt: new Date().toISOString() } : entry));
+    }
+  };
 
   const formatBalance = (amount) => {
     if (amount === null) return '...';
@@ -59,6 +79,15 @@ export const Navbar = () => {
         <div className="sb-navbar-actions">
           {isAuthenticated ? (
             <>
+              <div style={{ position: 'relative' }}>
+                <button type="button" onClick={() => setNotificationsOpen((value) => !value)} aria-label="Open notifications" title="Notifications" style={{ border: 0, background: 'transparent', cursor: 'pointer', position: 'relative', color: 'var(--text-black)' }}>
+                  <Bell size={22} />
+                  {unreadCount > 0 && <span style={{ position: 'absolute', top: -5, right: -7, minWidth: 16, height: 16, borderRadius: 999, background: 'var(--red)', color: 'white', fontSize: 10, display: 'grid', placeItems: 'center' }}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
+                </button>
+                {notificationsOpen && <div style={{ position: 'absolute', right: 0, top: '32px', width: 300, maxHeight: 360, overflowY: 'auto', background: 'var(--white)', border: '1px solid var(--ceramic)', borderRadius: 8, boxShadow: 'var(--shadow-card)', zIndex: 20, padding: 8 }}>
+                  {notifications.length === 0 ? <p style={{ padding: 12, margin: 0 }}>No notifications.</p> : notifications.slice(0, 8).map((item) => <button type="button" key={item.notificationId} onClick={() => readNotification(item)} style={{ display: 'block', width: '100%', textAlign: 'left', border: 0, borderBottom: '1px solid var(--ceramic)', background: item.readAt ? 'transparent' : 'rgba(203,162,88,.12)', padding: 10, cursor: 'pointer' }}><strong>{item.title}</strong><span style={{ display: 'block', fontSize: 12, marginTop: 3 }}>{item.message}</span></button>)}
+                </div>}
+              </div>
               <Link to="/wallet" style={{ color: 'var(--text-black)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <span style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--gold)' }}>{formatBalance(walletBalance)}</span>

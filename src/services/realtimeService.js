@@ -53,3 +53,8 @@ export const bindRealtimeRoomToLms = (roomId, lmsSessionId) => api(`/api/rooms/$
 });
 
 export const createAgoraClient = () => AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+
+export const getPodcasts = () => api('/api/podcasts');
+export const getPodcastPlaybackUrl = (podcastId) => api(`/api/podcasts/${encodeURIComponent(podcastId)}/playback-url`);
+export const getNotifications = () => api('/api/notifications');
+export const markNotificationRead = (notificationId) => api(`/api/notifications/${encodeURIComponent(notificationId)}/read`, { method: 'PATCH' });
