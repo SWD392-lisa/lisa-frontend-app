@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta.env.FRONTEND_VITE_REALTIME_URL || 'http://localhost:3000').replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.FRONTEND_VITE_REALTIME_URL || 'http://localhost:3001').replace(/\/$/, '');
 
 async function fetchRooms(status = 'OPEN') {
   const response = await fetch(`${API_BASE_URL}/api/rooms?status=${status}`);
