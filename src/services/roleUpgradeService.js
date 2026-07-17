@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5149';
+const API_BASE = import.meta.env.FRONTEND_VITE_API_BASE_URL || 'http://localhost:5149';
 
 const parseResponse = async (response) => {
     try {

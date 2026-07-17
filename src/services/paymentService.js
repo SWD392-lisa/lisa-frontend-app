@@ -1,6 +1,6 @@
 // src/services/paymentService.js
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5149';
+const API_BASE = import.meta.env.FRONTEND_VITE_API_BASE_URL || 'http://localhost:5149';
 
 // Helper to parse JSON safely
 const parseResponse = async (response) => {

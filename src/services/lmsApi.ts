@@ -1,7 +1,7 @@
 /**
  * LMS API Service — Phase 3 Mentor LMS
  *
- * Base URL: VITE_LMS_API_URL (e.g. http://localhost:8080/api/lms)
+ * Base URL: FRONTEND_VITE_LMS_API_URL (e.g. http://localhost:8080/api/lms)
  * Auth: Bearer token from localStorage('lucy_token')
  *
  * Real endpoints:
@@ -12,7 +12,7 @@
  *   GET    /dashboard/mentors/{mentorUserId}
  */
 
-const BASE_URL = import.meta.env.VITE_LMS_API_URL ?? 'http://localhost:8080/api/lms';
+const BASE_URL = import.meta.env.FRONTEND_VITE_LMS_API_URL ?? 'http://localhost:8080/api/lms';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('lucy_token');
