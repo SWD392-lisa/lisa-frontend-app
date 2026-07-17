@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardBody } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
@@ -12,9 +12,10 @@ import {
   RefreshCw,
   Users,
   Zap,
+  Plus,
 } from 'lucide-react';
-import { getMentorDashboard } from '../services/lmsApi';
-import { mockMentorDashboard } from '../services/mockData';
+import { bindRealtimeRoom, createLearningSession, getLevels, getMentorDashboard, getRecordingPlaybackUrl } from '../services/lmsApi';
+import { bindRealtimeRoomToLms, createRealtimeRoom } from '../services/realtimeService';
 import './MentorDashboard.css';
 
 // ---------------------------------------------------------------------------
@@ -151,7 +152,7 @@ function ActiveSessionCard({ session }) {
         Started: {formatTime(session.startedAt)} ({formatDate(session.startedAt)})
       </div>
       <div className="mentor-active-session__actions">
-        <Link to={`/mentor/room/${session.roomId}`} style={{ textDecoration: 'none' }}>
+        <Link to={`/mentor/room/${session.sessionId}`} style={{ textDecoration: 'none' }}>
           <Button variant="inverted" style={{ fontSize: '1.4rem', padding: '8px 20px' }}>
             <PlayCircle size={16} />
             Open Room
@@ -274,9 +275,58 @@ function ErrorState({ message, onRetry }) {
 
 export const MentorDashboard = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCreateRoom, setShowCreateRoom] = useState(false);
+  const [levels, setLevels] = useState([]);
+  const [levelsLoading, setLevelsLoading] = useState(false);
+  const [createForm, setCreateForm] = useState({ language: 'ENGLISH', stage: '1', levelId: '', name: '', description: '', autoSwitchEnabled: true });
+  const [createState, setCreateState] = useState({ loading: false, error: '' });
+  const [recordingError, setRecordingError] = useState('');
+  const [playingRecordingId, setPlayingRecordingId] = useState(null);
+
+  const openCreateRoom = async () => {
+    setShowCreateRoom(true);
+    if (levels.length) return;
+    try {
+      setLevelsLoading(true);
+      setCreateState({ loading: false, error: '' });
+      setLevels(await getLevels(createForm.language, Number(createForm.stage)));
+    } catch (err) {
+      setCreateState({ loading: false, error: err.message || 'Could not load levels.' });
+    } finally {
+      setLevelsLoading(false);
+    }
+  };
+
+  const handleCreateRoom = async (event) => {
+    event.preventDefault();
+    if (!createForm.levelId || !createForm.name.trim()) return;
+    setCreateState({ loading: true, error: '' });
+    try {
+      const selectedLevel = levels.find((level) => String(level.id) === String(createForm.levelId));
+      const lmsSession = await createLearningSession({
+        levelId: Number(createForm.levelId),
+        autoSwitchEnabled: createForm.autoSwitchEnabled,
+      });
+      const realtimeRoom = await createRealtimeRoom({
+        name: createForm.name.trim(),
+        description: createForm.description.trim() || undefined,
+        level: String(selectedLevel?.levelNumber || createForm.levelId),
+      });
+      const sessionId = lmsSession.sessionId || lmsSession.id;
+      await bindRealtimeRoom(sessionId, {
+        realtimeRoomId: realtimeRoom.roomId || realtimeRoom.id,
+        realtimeAgoraChannelName: realtimeRoom.agoraChannelName || realtimeRoom.defaultChannelName,
+      });
+      await bindRealtimeRoomToLms(realtimeRoom.roomId || realtimeRoom.id, sessionId);
+      navigate(`/mentor/room/${sessionId}`);
+    } catch (err) {
+      setCreateState({ loading: false, error: err.message || 'Could not create room.' });
+    }
+  };
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
@@ -337,7 +387,8 @@ export const MentorDashboard = () => {
         totalSpeakingMinutes: totalSpeakingMinutes,
         currentSession,
         recentSessions,
-        learnerSummaries
+        learnerSummaries,
+        recordings: data.recordings?.latestRecordings || []
       });
     } catch (err) {
       setError(err?.message || 'An unexpected error occurred.');
@@ -363,7 +414,20 @@ export const MentorDashboard = () => {
     currentSession,
     recentSessions,
     learnerSummaries,
+    recordings,
   } = dashboard;
+
+  const playRecording = async (recording) => {
+    try {
+      setPlayingRecordingId(recording.recordingId);
+      const playback = await getRecordingPlaybackUrl(recording.recordingId);
+      window.open(playback.playbackUrl, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      setRecordingError(err.message || 'Could not open recording.');
+    } finally {
+      setPlayingRecordingId(null);
+    }
+  };
 
   return (
     <div className="mentor-dashboard">
@@ -388,6 +452,11 @@ export const MentorDashboard = () => {
             <Zap size={18} color="var(--gold)" />
             Overview
           </h2>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 18 }}>
+            <Button variant="primary-filled" onClick={openCreateRoom}>
+              <Plus size={17} /> Create Live Room
+            </Button>
+          </div>
           <div className="mentor-dashboard__stats-grid">
             <StatCard
               icon={<BookOpen size={22} color="var(--green-accent)" />}
@@ -466,8 +535,30 @@ export const MentorDashboard = () => {
             </>
           )}
 
+          <h2 className="mentor-dashboard__section-title">
+            <Mic size={18} color="var(--gold)" />
+            Recent Recordings
+          </h2>
+          {recordingError && <p role="alert">{recordingError}</p>}
+          {recordings.length === 0 ? <p className="mentor-dashboard__empty">No recordings yet.</p> : <div className="mentor-session-list">{recordings.map((recording) => <Card key={recording.recordingId}><CardBody><div className="mentor-session-item"><div className="mentor-session-item__info"><strong>{recording.recordingId}</strong><span>{recording.status} · {recording.provider || 'Agora'} · {recording.durationSeconds ? `${Math.round(recording.durationSeconds / 60)}m` : 'Duration pending'}</span></div><Button variant="primary-outlined" disabled={recording.status !== 'READY' || playingRecordingId === recording.recordingId} onClick={() => playRecording(recording)}>{playingRecordingId === recording.recordingId ? 'Opening...' : 'Play'}</Button></div></CardBody></Card>)}</div>}
+
         </div>
       </div>
+      {showCreateRoom && (
+        <div className="mentor-dashboard__modal-backdrop" onClick={() => setShowCreateRoom(false)}>
+          <form className="mentor-dashboard__create-modal" onSubmit={handleCreateRoom} onClick={(event) => event.stopPropagation()}>
+            <h2>Create Live Learning Room</h2>
+            <label>Room name<input value={createForm.name} onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} placeholder="English Speaking Practice" required /></label>
+            <label>Language<select value={createForm.language} onChange={async (e) => { const language = e.target.value; setCreateForm({ ...createForm, language, levelId: '' }); setLevelsLoading(true); try { setLevels(await getLevels(language, Number(createForm.stage))); setCreateState({ loading: false, error: '' }); } catch (err) { setLevels([]); setCreateState({ loading: false, error: err.message }); } finally { setLevelsLoading(false); } }}><option value="ENGLISH">English</option><option value="CHINESE">Chinese</option><option value="JAPANESE">Japanese</option></select></label>
+            <label>Stage<select value={createForm.stage} onChange={async (e) => { const stage = e.target.value; setCreateForm({ ...createForm, stage, levelId: '' }); setLevelsLoading(true); try { setLevels(await getLevels(createForm.language, Number(stage))); setCreateState({ loading: false, error: '' }); } catch (err) { setLevels([]); setCreateState({ loading: false, error: err.message }); } finally { setLevelsLoading(false); } }}><option value="1">Stage 1 · Beginner</option><option value="2">Stage 2 · Intermediate</option><option value="3">Stage 3 · Advanced</option></select></label>
+            <label>Level<select value={createForm.levelId} onChange={(e) => setCreateForm({ ...createForm, levelId: e.target.value })} disabled={levelsLoading} required><option value="">{levelsLoading ? 'Loading levels...' : levels.length ? 'Select a level' : 'No levels available'}</option>{levels.map((level) => <option key={level.id} value={level.id}>Level {level.levelNumber} · {level.title}</option>)}</select></label>
+            <label>Description<textarea value={createForm.description} onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })} rows="3" /></label>
+            <label className="mentor-dashboard__checkbox"><input type="checkbox" checked={createForm.autoSwitchEnabled} onChange={(e) => setCreateForm({ ...createForm, autoSwitchEnabled: e.target.checked })} /> Auto switch sub-level</label>
+            {createState.error && <p className="mentor-dashboard__create-error" role="alert">{createState.error}</p>}
+            <div className="mentor-dashboard__create-actions"><Button variant="dark-outlined" type="button" onClick={() => setShowCreateRoom(false)}>Cancel</Button><Button variant="primary-filled" type="submit" disabled={createState.loading}>{createState.loading ? 'Creating...' : 'Create and Open Room'}</Button></div>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

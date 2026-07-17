@@ -10,6 +10,9 @@ export const Home = () => {
   const [featuredRooms, setFeaturedRooms] = useState([]);
   const [recommendedRooms, setRecommendedRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const roomMentorName = (room) => room.mentor?.name || room.hostDisplayName || 'Mentor';
+  const roomParticipantCount = (room) => room.participants_count ?? room.participantCount ?? 0;
+  const roomMaxParticipants = (room) => room.max_participants ?? room.maxParticipants ?? '—';
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -45,10 +48,10 @@ export const Home = () => {
                   </div>
                   <h2 className="text-white" style={{ fontSize: '2rem', marginBottom: '16px' }}>{room.title}</h2>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', color: 'var(--text-white-soft)' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Users size={16} /> {room.participants_count}/{room.max_participants}</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Headphones size={16} /> {room.mentor.name}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Users size={16} /> {roomParticipantCount(room)}/{roomMaxParticipants(room)}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Headphones size={16} /> {roomMentorName(room)}</span>
                   </div>
-                  <Link to={`/room/${room.id}`} style={{ display: 'block' }}>
+                  <Link to={`/room/${room.lmsSessionId || room.id}`} style={{ display: 'block' }}>
                     <Button variant="inverted" fullWidth>Tham gia ngay</Button>
                   </Link>
                 </CardBody>
@@ -66,15 +69,15 @@ export const Home = () => {
             <Card key={room.id}>
               <CardBody>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '1.4rem', color: 'var(--text-black-soft)' }}>{room.language} • Level {room.level_id}</span>
+                  <span style={{ fontSize: '1.4rem', color: 'var(--text-black-soft)' }}>{room.language || 'Live room'} • Level {room.level_id || room.level || '—'}</span>
                 </div>
                 <h3 style={{ fontSize: '1.8rem', fontWeight: 600, marginBottom: '8px' }}>{room.title}</h3>
                 <p style={{ color: 'var(--text-black-soft)', fontSize: '1.4rem', marginBottom: '16px' }}>
-                  Mentor: {room.mentor.name}
+                  Mentor: {roomMentorName(room)}
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '1.4rem', color: 'var(--text-black-soft)' }}>{room.participants_count} người nghe</span>
-                  <Link to={`/room/${room.id}`}>
+                  <span style={{ fontSize: '1.4rem', color: 'var(--text-black-soft)' }}>{roomParticipantCount(room)} người nghe</span>
+                  <Link to={`/room/${room.lmsSessionId || room.id}`}>
                     <Button variant="primary-outlined">Chi tiết</Button>
                   </Link>
                 </div>

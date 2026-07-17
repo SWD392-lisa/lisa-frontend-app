@@ -14,6 +14,9 @@ import { UpcomingEvents } from './pages/UpcomingEvents';
 import { LiveRoom } from './pages/LiveRoom';
 import { Profile } from './pages/Profile';
 import { Learning } from './pages/Learning';
+import { LevelDetail } from './pages/LevelDetail';
+import { SubLevelLearning } from './pages/SubLevelLearning';
+import { LearnerProgress } from './pages/LearnerProgress';
 import { Wallet } from './pages/Wallet';
 import { MentorDashboard } from './pages/MentorDashboard';
 import { MentorRoom } from './pages/MentorRoom';
@@ -76,6 +79,9 @@ function App() {
               <Route element={<MainLayout />}>
                 <Route path="/dashboard" element={<Home />} />
                 <Route path="/learning" element={<Learning />} />
+                <Route path="/learning/levels/:levelId" element={<LevelDetail />} />
+                <Route path="/learning/levels/:levelId/sublevels/:subLevelId" element={<SubLevelLearning />} />
+                <Route path="/learning/progress" element={<LearnerProgress />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/wallet" element={<Wallet />} />
                 <Route path="/checkout" element={<CheckoutPage />} />

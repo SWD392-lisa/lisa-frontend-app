@@ -1,28 +1,19 @@
-import { mockRooms } from './mockData';
+const API_BASE_URL = (import.meta.env.FRONTEND_VITE_REALTIME_URL || 'http://localhost:3000').replace(/\/$/, '');
 
-// TODO: Replace with actual API calls
-// const API_BASE_URL = import.meta.env.FRONTEND_VITE_API_BASE_URL;
-// const API_URL = `${API_BASE_URL}/rooms`;
+async function fetchRooms(status = 'OPEN') {
+  const response = await fetch(`${API_BASE_URL}/api/rooms?status=${status}`);
+  if (!response.ok) throw new Error(`Could not load rooms (${response.status})`);
+  const rooms = await response.json();
+  return rooms.filter((room) => room.lmsSessionId);
+}
 
 export const roomService = {
-  getFeatured: async () => {
-    // return fetch(`${API_URL}/featured`).then(r => r.json())
-    return new Promise(resolve => setTimeout(() => resolve(mockRooms.slice(0, 2)), 300));
-  },
-
-  getRecommended: async (userLevel) => {
-    // return fetch(`${API_URL}/recommended?user_level=${userLevel}`).then(r => r.json())
-    return new Promise(resolve => setTimeout(() => resolve(mockRooms), 300));
-  },
-
-  getAll: async (filters = {}) => {
-    // const query = new URLSearchParams(filters).toString();
-    // return fetch(`${API_URL}?${query}`).then(r => r.json())
-    return new Promise(resolve => setTimeout(() => resolve(mockRooms), 300));
-  },
-
+  getFeatured: async () => (await fetchRooms('OPEN')).slice(0, 2),
+  getRecommended: async () => fetchRooms('OPEN'),
+  getAll: async (filters = {}) => fetchRooms(filters.status || 'OPEN'),
   getById: async (id) => {
-    // return fetch(`${API_URL}/${id}`).then(r => r.json())
-    return new Promise(resolve => setTimeout(() => resolve(mockRooms.find(r => r.id === id) || mockRooms[0]), 300));
-  }
+    const response = await fetch(`${API_BASE_URL}/api/rooms/${id}`);
+    if (!response.ok) throw new Error(`Could not load room (${response.status})`);
+    return response.json();
+  },
 };
