@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, User, Bell, X, LayoutDashboard, Loader } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
+import { isCreator, isMentor } from '../../utils/roleAccess';
 import { getBalance } from '../../services/walletService';
 import { createRealtimeSocket, getNotifications, markNotificationRead } from '../../services/realtimeService';
 import logoPhoenix from '../../assets/images/logo_phonenix1.png';
@@ -11,8 +12,8 @@ import './Navbar.css';
 export const Navbar = () => {
   const { currentUser } = useAuth();
   const isAuthenticated = !!currentUser;
-  const isMentor = currentUser?.account_type === 'MENTOR' ||
-    (currentUser?.roleCode && ['PRO', 'MENTOR', 'SUPER', 'CREATOR', 'ADMIN'].includes(currentUser.roleCode.toUpperCase()));
+  const creatorAccess = isCreator(currentUser);
+  const mentorAccess = isMentor(currentUser);
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState(null);
@@ -69,9 +70,14 @@ export const Navbar = () => {
           <Link to="/learning" className={`sb-navbar-link ${location.pathname.startsWith('/learning') ? 'is-active' : ''}`}>Learning</Link>
           <Link to="/support" className={`sb-navbar-link ${isActive('/support') ? 'is-active' : ''}`}>Student Support</Link>
           <Link to="/events" className={`sb-navbar-link ${isActive('/events') ? 'is-active' : ''}`}>Events</Link>
-          {isMentor && (
+          {mentorAccess && (
             <Link to="/mentor/dashboard" className={`sb-navbar-link ${isActive('/mentor/dashboard') ? 'is-active' : ''}`}>
               Dashboard
+            </Link>
+          )}
+          {creatorAccess && (
+            <Link to="/creator" className={`sb-navbar-link ${location.pathname.startsWith('/creator') ? 'is-active' : ''}`}>
+              Creator Portal
             </Link>
           )}
         </nav>
@@ -135,9 +141,14 @@ export const Navbar = () => {
               <Link to="/learning" className={`sb-mobile-drawer-link ${location.pathname.startsWith('/learning') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Learning</Link>
               <Link to="/support" className={`sb-mobile-drawer-link ${isActive('/support') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Student Support</Link>
               <Link to="/events" className={`sb-mobile-drawer-link ${isActive('/events') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Events</Link>
-              {isMentor && (
+              {mentorAccess && (
                 <Link to="/mentor/dashboard" className={`sb-mobile-drawer-link ${isActive('/mentor/dashboard') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>
                   Dashboard
+                </Link>
+              )}
+              {creatorAccess && (
+                <Link to="/creator" className={`sb-mobile-drawer-link ${location.pathname.startsWith('/creator') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>
+                  Creator Portal
                 </Link>
               )}
             </nav>

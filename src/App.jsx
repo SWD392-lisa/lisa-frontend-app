@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
+import { CreatorRoute } from './components/layout/CreatorRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { Landing } from './pages/Landing';
 import { Home } from './pages/Home';
@@ -36,6 +37,11 @@ import CheckoutPage from './pages/CheckoutPage';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentError from './pages/PaymentError';
 import PaymentCancel from './pages/PaymentCancel';
+import { CreatorDashboard } from './pages/creator/CreatorDashboard';
+import { CreatorCurriculum } from './pages/creator/CreatorCurriculum';
+import { CreatorRecordings } from './pages/creator/CreatorRecordings';
+import { CreatorPodcasts } from './pages/creator/CreatorPodcasts';
+import { CreatorUsers } from './pages/creator/CreatorUsers';
 import './App.css';
 
 // Component to handle root route
@@ -98,6 +104,16 @@ function App() {
                 <Route path="/mentor/dashboard" element={<MentorDashboard />} />
               </Route>
               <Route path="/mentor/room/:roomId" element={<MentorRoom />} />
+            </Route>
+
+            <Route element={<CreatorRoute />}>
+              <Route element={<MainLayout />}>
+                <Route path="/creator" element={<CreatorDashboard />} />
+                <Route path="/creator/curriculum" element={<CreatorCurriculum />} />
+                <Route path="/creator/recordings" element={<CreatorRecordings />} />
+                <Route path="/creator/podcasts" element={<CreatorPodcasts />} />
+                <Route path="/creator/users" element={<CreatorUsers />} />
+              </Route>
             </Route>
 
             {/* Fallback Route */}

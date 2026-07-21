@@ -1,7 +1,11 @@
 const configuredLmsUrl = import.meta.env.FRONTEND_VITE_LMS_API_URL || 'http://localhost:8080/api/lms';
 const LMS_BASE_URL = configuredLmsUrl.replace(/\/$/, '');
 const CURRICULUM_BASE_URL = LMS_BASE_URL.replace(/\/api\/lms$/, '/api/curriculum');
-const REALTIME_BASE_URL = (import.meta.env.FRONTEND_VITE_REALTIME_URL || 'http://localhost:3001').replace(/\/$/, '');
+const REALTIME_BASE_URL = (
+  import.meta.env.FRONTEND_VITE_REALTIME_URL
+  || import.meta.env.VITE_REALTIME_URL
+  || 'http://localhost:3000'
+).replace(/\/$/, '');
 
 export type Language = 'ENGLISH' | 'CHINESE' | 'JAPANESE';
 export type SessionStatus = 'WAITING' | 'LIVE' | 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'ENDED';

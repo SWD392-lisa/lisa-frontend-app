@@ -1,7 +1,11 @@
 import { io } from 'socket.io-client';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 
-const REALTIME_BASE_URL = (import.meta.env.FRONTEND_VITE_REALTIME_URL || 'http://localhost:3001').replace(/\/$/, '');
+const REALTIME_BASE_URL = (
+  import.meta.env.FRONTEND_VITE_REALTIME_URL
+  || import.meta.env.VITE_REALTIME_URL
+  || 'http://localhost:3000'
+).replace(/\/$/, '');
 
 function token() {
   return localStorage.getItem('lucy_token');
