@@ -14,3 +14,18 @@ export async function getRoomPersona(roomSessionId) {
   if (!response.ok) throw new Error(body?.message || 'Could not create anonymous room persona.');
   return body;
 }
+
+export async function getRoomParticipantIdentities(roomSessionId, anonymousIds) {
+  const token = localStorage.getItem('lucy_token');
+  const response = await fetch(`${API_BASE_URL}/api/privacy/room-participant-identities`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ roomSessionId, anonymousIds }),
+  });
+  const body = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(body?.message || 'Could not load participant identities.');
+  return Array.isArray(body) ? body : [];
+}

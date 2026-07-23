@@ -49,6 +49,7 @@ import {
 } from '../services/realtimeService';
 import { LocalRoomRecorder } from '../utils/localRoomRecorder';
 import { deactivateRoomGiftRecipient, registerRoomGiftRecipient } from '../services/giftService';
+import { getRoomParticipantIdentities } from '../services/privacyService';
 import { GiftEffect } from '../components/room/GiftEffect';
 import './MentorRoom.css';
 
@@ -198,6 +199,8 @@ export const MentorRoom = () => {
   // End session dialog
   const [showEndDialog, setShowEndDialog] = useState(false);
   const [realtimeSession, setRealtimeSession] = useState({ participants: [], handRaiseQueue: [] });
+  const [participantIdentities, setParticipantIdentities] = useState({});
+  const [roomHostIdentitySessionId, setRoomHostIdentitySessionId] = useState(null);
   const [realtimeConnected, setRealtimeConnected] = useState(false);
   const [recordingStatus, setRecordingStatus] = useState('IDLE');
   const [recordingId, setRecordingId] = useState(null);
@@ -226,15 +229,52 @@ export const MentorRoom = () => {
   const [audioError, setAudioError] = useState('');
   const [giftEffect, setGiftEffect] = useState(null);
   const seenGiftEventsRef = useRef(new Set());
+  const participantIdentityRequestsRef = useRef(new Set());
   const giftTimerRef = useRef(null);
 
   useEffect(() => {
-    if (roomId) registerRoomGiftRecipient(roomId).catch((giftError) => console.warn('Could not register room gift recipient:', giftError));
+    let active = true;
+    if (roomId) {
+      registerRoomGiftRecipient(roomId)
+        .then(() => active && setRoomHostIdentitySessionId(roomId))
+        .catch((giftError) => console.warn('Could not register room gift recipient:', giftError));
+    }
+    return () => { active = false; };
   }, [roomId]);
 
   useEffect(() => {
     realtimeSessionRef.current = realtimeSession;
   }, [realtimeSession]);
+
+  useEffect(() => {
+    const roomSessionId = context?.session?.sessionId;
+    if (!roomSessionId || roomHostIdentitySessionId !== roomId) return undefined;
+
+    const anonymousIds = [...new Set(
+      (realtimeSession.participants || [])
+        .filter((participant) => participant.role === 'STUDENT' && participant.anonymousUserId)
+        .map((participant) => String(participant.anonymousUserId)),
+    )];
+    const idsToLoad = anonymousIds.filter((id) => !participantIdentityRequestsRef.current.has(id));
+    if (idsToLoad.length === 0) return undefined;
+
+    idsToLoad.forEach((id) => participantIdentityRequestsRef.current.add(id));
+    let active = true;
+    getRoomParticipantIdentities(roomSessionId, idsToLoad)
+      .then((identities) => {
+        if (!active) return;
+        setParticipantIdentities((current) => ({
+          ...current,
+          ...Object.fromEntries(identities.map((identity) => [String(identity.anonymousId), identity])),
+        }));
+      })
+      .catch((identityError) => {
+        idsToLoad.forEach((id) => participantIdentityRequestsRef.current.delete(id));
+        console.warn('Could not resolve participant identities:', identityError);
+      });
+
+    return () => { active = false; };
+  }, [context?.session?.sessionId, realtimeSession.participants, roomHostIdentitySessionId, roomId]);
 
   const applyLmsState = useCallback((state) => {
     if (!state) return;
@@ -839,6 +879,29 @@ export const MentorRoom = () => {
   const handleEndSession = async () => {
     setShowEndDialog(false);
     try {
+      // A local recording must flush its final chunk before the realtime room is
+      // closed. Otherwise its server record is left in RECORDING forever.
+      if (recordingStatus === 'RECORDING' && recordingId) {
+        setRecordingActionLoading(true);
+        try {
+          if (localRecorderRef.current) {
+            await localRecorderRef.current.stop();
+            localRecorderRef.current = null;
+          }
+          const stopped = await stopRecording(recordingId);
+          setRecordingStatus(stopped?.status || 'PROCESSING');
+          setRecordingId(null);
+        } catch (recordingError) {
+          await abortLocalRecording(
+            recordingId,
+            recordingError?.message || 'Recording could not be finalized before the room ended',
+          ).catch(() => undefined);
+          setRecordingStatus('FAILED');
+          setRecordingId(null);
+        } finally {
+          setRecordingActionLoading(false);
+        }
+      }
       await endSession(roomId);
       await deactivateRoomGiftRecipient(roomId).catch(() => undefined);
       const realtimeRoomId = lmsRoomStateRef.current?.realtimeRoomId
@@ -941,6 +1004,14 @@ export const MentorRoom = () => {
     ? Math.floor(Math.max(0, mentorClockNow - lmsSyncedAtRef.current) / 1000)
     : 0;
   const mentorSecondsRemaining = Math.max(0, Number(lmsRoomState?.secondsRemaining || 0) - elapsedSinceSync);
+  const displayedParticipants = realtimeSession.participants.map((participant) => {
+    const identity = participantIdentities[String(participant.anonymousUserId)];
+    if (!identity) return participant;
+    return {
+      ...participant,
+      displayName: `${identity.fullName} (${identity.email})`,
+    };
+  });
 
   return (
     <>
@@ -1087,7 +1158,7 @@ export const MentorRoom = () => {
               <div className="mentor-room__tasks-title"><Users size={14} /> Realtime Participants <span style={{ marginLeft: 'auto' }}>{realtimeConnected ? 'Connected' : 'Offline'} · {realtimeSession.handRaiseQueue?.length || 0} hand(s)</span></div>
               {audioError && <p className="mentor-room__audio-error" role="alert">{audioError}</p>}
               {moderationNotice && <p className="mentor-room__moderation-notice" role="status">{moderationNotice}</p>}
-              {realtimeSession.participants.length === 0 ? <p className="mentor-room__materials-empty">No participants yet.</p> : realtimeSession.participants.map((participant) => (
+              {displayedParticipants.length === 0 ? <p className="mentor-room__materials-empty">No participants yet.</p> : displayedParticipants.map((participant) => (
                 <div className="mentor-room__material-item" key={participant.anonymousUserId}>
                   {participant.personaAssetUrl && <img src={participant.personaAssetUrl} alt="" style={{ width: 36, height: 36, borderRadius: '50%', flex: '0 0 auto' }} />}
                   <span className="mentor-room__participant-main"><strong>{participant.displayName || 'Anonymous'}</strong><small>{participant.role} · {participant.speaking ? <><Volume2 size={13} /> Speaking</> : participant.micEnabled ? <><Mic size={13} /> Mic on</> : <><VolumeX size={13} /> Mic off</>}{participant.isActiveSpeaker ? ' · Speaker' : ''}</small></span>

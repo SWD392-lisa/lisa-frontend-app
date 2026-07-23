@@ -83,6 +83,11 @@
 .avatar-name {
   font-size: 1.4rem;
   color: var(--white);
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
+  line-height: 1.35;
 }
 
 .audience-area {
@@ -100,8 +105,9 @@
 
 .audience-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 18px;
+  align-items: stretch;
 }
 
 .avatar img {
@@ -117,9 +123,15 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 8px;
+  min-width: 0;
+  min-height: 142px;
+  padding: 12px 10px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: 8px;
+}
+
+.participant-tile .avatar-wrapper {
+  width: 100%;
 }
 
 .participant-tile.is-speaking {
@@ -130,9 +142,12 @@
 .participant-status {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   color: var(--text-white-soft);
   font-size: 1.1rem;
+  min-height: 18px;
+  white-space: nowrap;
 }
 
 .speaker-badge {
@@ -140,6 +155,13 @@
   font-size: 1rem;
   font-weight: 700;
   text-transform: uppercase;
+  min-height: 15px;
+}
+
+@media (max-width: 360px) {
+  .audience-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .room-task-list {

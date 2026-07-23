@@ -1,4 +1,4 @@
-import { getRoomState } from './lmsApi';
+import { getRoomLobby } from './lmsApi';
 
 const API_BASE_URL = (
   import.meta.env.FRONTEND_VITE_REALTIME_URL
@@ -14,9 +14,9 @@ async function fetchRooms(status = 'OPEN') {
 
   const verifiedRooms = await Promise.all(boundRooms.map(async (room) => {
     try {
-      const session = await getRoomState(room.lmsSessionId);
+      const session = await getRoomLobby(room.lmsSessionId);
       const sessionStatus = String(session?.status || '').toUpperCase();
-      return ['WAITING', 'LIVE', 'ACTIVE', 'PAUSED'].includes(sessionStatus)
+      return ['WAITING', 'LIVE', 'ACTIVE'].includes(sessionStatus)
         ? { ...room, sessionStatus }
         : null;
     } catch (error) {

@@ -87,6 +87,13 @@ export interface RoomState {
   realtime?: Record<string, unknown>;
 }
 
+export interface RoomLobby {
+  sessionId: string;
+  status: SessionStatus;
+  levelSummary?: RoomState['levelSummary'];
+  currentSubLevel?: SubLevel;
+}
+
 export interface PinnedMaterial {
   id: number;
   title: string;
@@ -297,6 +304,9 @@ export const endSession = (sessionId: string) =>
 
 export const getRoomState = (sessionId: string) =>
   request<RoomState>(LMS_BASE_URL, `/room-sessions/${sessionId}/state`);
+
+export const getRoomLobby = (sessionId: string) =>
+  request<RoomLobby>(LMS_BASE_URL, `/room-sessions/${sessionId}/lobby`);
 
 export const joinSessionAttendance = (sessionId: string) =>
   request(LMS_BASE_URL, `/room-sessions/${sessionId}/attendance/join`, {
