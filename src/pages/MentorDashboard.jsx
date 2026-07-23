@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardBody } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -13,9 +13,12 @@ import {
   Users,
   Zap,
   Plus,
+  Gift,
+  Trophy,
 } from 'lucide-react';
 import { bindRealtimeRoom, createLearningSession, getLevels, getMentorDashboard, getRecordingPlaybackUrl } from '../services/lmsApi';
 import { bindRealtimeRoomToLms, createRealtimeRoom } from '../services/realtimeService';
+import { getMentorLeaderboard } from '../services/leaderboardService';
 import './MentorDashboard.css';
 
 // ---------------------------------------------------------------------------
@@ -335,7 +338,11 @@ export const MentorDashboard = () => {
       if (!currentUser?.userId) {
         throw new Error('Not authenticated');
       }
-      const data = await getMentorDashboard(currentUser.userId);
+      const [data, weeklyRankingResult, allTimeRankingResult] = await Promise.all([
+        getMentorDashboard(currentUser.userId),
+        getMentorLeaderboard('weekly', 1, 1).catch(() => null),
+        getMentorLeaderboard('alltime', 1, 1).catch(() => null),
+      ]);
       
       // Map backend DTO to frontend UI expectations
       const sessions = data.sessions || [];
@@ -388,7 +395,11 @@ export const MentorDashboard = () => {
         currentSession,
         recentSessions,
         learnerSummaries,
-        recordings: data.recordings?.latestRecordings || []
+        recordings: data.recordings?.latestRecordings || [],
+        leaderboard: {
+          weekly: weeklyRankingResult?.viewer || null,
+          alltime: allTimeRankingResult?.viewer || null,
+        },
       });
     } catch (err) {
       setError(err?.message || 'An unexpected error occurred.');
@@ -398,7 +409,8 @@ export const MentorDashboard = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    fetchDashboard();
+    const timerId = window.setTimeout(fetchDashboard, 0);
+    return () => window.clearTimeout(timerId);
   }, [fetchDashboard]);
 
   if (loading) return <LoadingSkeleton />;
@@ -415,6 +427,7 @@ export const MentorDashboard = () => {
     recentSessions,
     learnerSummaries,
     recordings,
+    leaderboard,
   } = dashboard;
 
   const playRecording = async (recording) => {
@@ -489,6 +502,22 @@ export const MentorDashboard = () => {
               label="Completion Rate"
             />
           </div>
+
+          <section className="mentor-dashboard__ranking-card">
+            <div className="mentor-dashboard__ranking-heading">
+              <span className="mentor-dashboard__ranking-icon"><Trophy size={22} /></span>
+              <div>
+                <h2>Your Mentor Reputation</h2>
+                <p>Ranking is based on the value of completed gifts received.</p>
+              </div>
+              <Link to="/leaderboard" className="mentor-dashboard__ranking-link">View leaderboard</Link>
+            </div>
+            <div className="mentor-dashboard__ranking-stats">
+              <div><span>Weekly rank</span><strong>{leaderboard.weekly ? `#${leaderboard.weekly.rank}` : 'Unranked'}</strong></div>
+              <div><span>All-time rank</span><strong>{leaderboard.alltime ? `#${leaderboard.alltime.rank}` : 'Unranked'}</strong></div>
+              <div><span><Gift size={14} /> All-time gifts</span><strong>{(leaderboard.alltime?.giftCount || 0).toLocaleString()}</strong></div>
+            </div>
+          </section>
 
           {/* Active session */}
           {currentSession && (

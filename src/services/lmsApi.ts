@@ -48,6 +48,20 @@ export interface LearnerProgress {
   updatedAt?: string;
 }
 
+export interface SpeakingAssessment {
+  taskId: number;
+  transcript: string;
+  overallScore: number;
+  relevanceScore: number;
+  grammarScore: number;
+  vocabularyScore: number;
+  feedback: string;
+  suggestedAnswer: string;
+  isPersonalBest: boolean;
+  speakingSeconds: number;
+  assessedAt: string;
+}
+
 export interface Session {
   sessionId: string;
   channelName?: string;
@@ -210,6 +224,25 @@ export const getAiSuggestions = (context: AiSuggestionContext) =>
     method: 'POST',
     body: JSON.stringify({ ...context, count: context.count || 3 }),
   });
+
+export const askSupportAi = (question: string, locale = 'vi') =>
+  request<{ answer: string; suggestedLinks: Array<{ label: string; path: string }>; provider: string; model: string; answeredAt: string }>(
+    CURRICULUM_BASE_URL.replace(/\/curriculum$/, ''),
+    '/ai/support',
+    { method: 'POST', body: JSON.stringify({ question, locale }) },
+  );
+
+export const assessSpeaking = (payload: {
+  taskId: number;
+  transcript: string;
+  speakingSeconds: number;
+}) => request<SpeakingAssessment>(CURRICULUM_BASE_URL.replace(/\/curriculum$/, ''), '/ai/speaking-assessments', {
+  method: 'POST',
+  body: JSON.stringify(payload),
+});
+
+export const getSpeakingAssessments = (subLevelId: number | string) =>
+  request<SpeakingAssessment[]>(CURRICULUM_BASE_URL.replace(/\/curriculum$/, ''), `/ai/speaking-assessments?subLevelId=${encodeURIComponent(subLevelId)}`);
 
 export const getLevel = (levelId: string | number) =>
   request<Level>(CURRICULUM_BASE_URL, `/levels/${levelId}`);

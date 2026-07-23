@@ -1,61 +1,66 @@
-import React from 'react';
-import { Star } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Gift, Trophy } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { getMentorLeaderboard } from '../../services/leaderboardService';
 
-const mockMentors = [
-  { id: 1, name: 'Elena Rodriguez', role: 'Spanish Native', hours: '1.2k+', rating: 4.9, img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop', badge: 'LUCY Pro' },
-  { id: 2, name: 'Kenji Sato', role: 'JLPT N1 Expert', hours: '850+', rating: 5.0, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop', badge: 'LUCY Super' },
-  { id: 3, name: 'Sarah Jenkins', role: 'IELTS Examiner', hours: '2.5k+', rating: 4.8, img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop', badge: 'LUCY Super' },
-  { id: 4, name: 'David Chen', role: 'HSK 6 Master', hours: '500+', rating: 4.9, img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop', badge: 'LUCY Pro' },
-];
+function initials(name) {
+  return String(name || 'Mentor').trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase()).join('') || 'M';
+}
 
-export const TopMentorsSection = ({ onRequireLogin }) => {
+export const TopMentorsSection = () => {
+  const [mentors, setMentors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    getMentorLeaderboard('weekly', 1, 4)
+      .then((result) => { if (active) setMentors(result?.items || []); })
+      .catch((loadError) => { if (active) setError(loadError?.message || 'Could not load top mentors.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
   return (
     <section className="mentors-section">
       <div className="section-header-row" style={{ display: 'block', textAlign: 'center', marginBottom: '40px' }}>
-        <span className="section-subtitle-tag" style={{ display: 'inline-block', margin: '0 auto 8px' }}>Verified Tutors</span>
-        <h2 className="section-title" style={{ marginBottom: '12px' }}>Learn with Top Language Experts</h2>
+        <span className="section-subtitle-tag" style={{ display: 'inline-block', margin: '0 auto 8px' }}>Mentor reputation</span>
+        <h2 className="section-title" style={{ marginBottom: '12px' }}>Top Mentors This Week</h2>
         <p style={{ fontSize: '1.6rem', color: 'var(--text-black-soft)', maxWidth: '600px', margin: '0 auto' }}>
-          LUCY Pro & Super Mentors with verified credentials.
+          Ranked by completed gifts received from the LUCY community.
         </p>
       </div>
 
+      {loading && <p className="empty-state">Loading top mentors...</p>}
+      {!loading && error && <p className="empty-state" role="alert">{error}</p>}
+      {!loading && !error && mentors.length === 0 && <p className="empty-state">No mentors have received gifts this week yet.</p>}
       <div className="mentors-grid">
-        {mockMentors.map((mentor) => (
-          <div key={mentor.id} className="mentor-card">
+        {mentors.map((mentor) => (
+          <div key={mentor.mentorId} className="mentor-card">
             <div className="mentor-avatar-wrapper">
-              <img 
-                src={mentor.img} 
-                alt={mentor.name} 
-                className="mentor-avatar" 
-                style={{ 
-                  borderColor: mentor.badge === 'LUCY Super' ? '#7c3aed' : '#cba258',
-                  padding: '3px'
-                }}
-              />
-              <div className={`mentor-badge ${mentor.badge === 'LUCY Super' ? 'mentor-badge--super' : ''}`}>
-                {mentor.badge}
+              <div className="mentor-avatar mentor-avatar--initials" aria-label={mentor.displayName}>{initials(mentor.displayName)}</div>
+              <div className={`mentor-badge ${mentor.roleCode === 'SUPER' ? 'mentor-badge--super' : ''}`}>
+                {mentor.roleCode === 'SUPER' ? 'LUCY Super' : 'LUCY Pro'}
               </div>
             </div>
             
-            <h3 className="mentor-name">{mentor.name}</h3>
-            <p className="mentor-role">{mentor.role}</p>
+            <h3 className="mentor-name">{mentor.displayName}</h3>
+            <p className="mentor-role">Rank #{mentor.rank}</p>
             
             <div className="mentor-stats">
               <div className="rating-wrapper">
-                <Star className="rating-star-icon" size={16} />
-                <span>{mentor.rating}</span>
+                <Gift className="rating-star-icon" size={16} />
+                <span>{mentor.giftCount.toLocaleString()} gifts</span>
               </div>
-              <div className="stats-divider"></div>
-              <div>{mentor.hours} Live hours</div>
             </div>
             
-            <button 
-              onClick={onRequireLogin}
+            <Link
+              to="/leaderboard"
               className="sb-button sb-button--dark-outlined"
               style={{ width: '100%', padding: '8px 16px', fontSize: '1.4rem' }}
             >
-              View Profile
-            </button>
+              <Trophy size={15} /> View ranking
+            </Link>
           </div>
         ))}
       </div>

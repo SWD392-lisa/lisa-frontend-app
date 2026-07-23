@@ -1,5 +1,6 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { isMentor } from '../../utils/roleAccess';
 import './Footer.css';
 
 // SVG Icons for Socials (Safe, no third-party dependencies)
@@ -26,6 +27,9 @@ const XIcon = () => (
 
 
 export const Footer = () => {
+  const { currentUser } = useAuth();
+  const mentorAccess = isMentor(currentUser);
+
   return (
     <>
       <footer className="global-footer">
@@ -44,7 +48,7 @@ export const Footer = () => {
             <div className="footer-col">
               <h3>Discover</h3>
               <Link to="/courses">100-Level Path</Link>
-              <Link to="/discover/mentors">Featured Mentors</Link>
+              {mentorAccess && <Link to="/leaderboard">Mentor Leaderboard</Link>}
               <Link to="/events/podcasts">Exclusive Podcasts</Link>
             </div>
             

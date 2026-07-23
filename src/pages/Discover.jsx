@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { isMentor } from '../utils/roleAccess';
 import { RequireLoginModal } from '../components/ui/RequireLoginModal';
 import { LiveNowSection } from '../components/discover/LiveNowSection';
 import { TopMentorsSection } from '../components/discover/TopMentorsSection';
@@ -8,7 +10,9 @@ import { LevelPathTeaser } from '../components/discover/LevelPathTeaser';
 import './Discover.css';
 
 export const Discover = () => {
+  const { currentUser } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const canViewMentorRanking = isMentor(currentUser);
 
   const handleRequireLogin = () => {
     setIsModalOpen(true);
@@ -36,10 +40,13 @@ export const Discover = () => {
         
         <hr className="section-divider" />
         
-        {/* Section 2: Top Mentors */}
-        <TopMentorsSection onRequireLogin={handleRequireLogin} />
-
-        <hr className="section-divider" />
+        {canViewMentorRanking && (
+          <>
+            {/* Section 2: Top Mentors */}
+            <TopMentorsSection />
+            <hr className="section-divider" />
+          </>
+        )}
         
         {/* Section 3: Trending Podcasts */}
         <TrendingPodcastsSection />

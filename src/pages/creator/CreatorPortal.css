@@ -42,3 +42,14 @@
 @media (max-width: 520px) { .creator-metric-grid, .creator-quick-grid, .creator-recording-grid { grid-template-columns: 1fr; }.creator-panel { padding: 16px; }.creator-upload-form { grid-template-columns: 1fr; }.creator-file-field { grid-column: auto; }.creator-check-field { padding-bottom: 0; }.creator-podcast-card { grid-template-columns: 1fr; }.creator-podcast-card__art { max-width: 96px; }.creator-capability-banner { display: block; }.creator-capability-banner span { margin: 6px 0 0; text-align: left; }.creator-recording-card__actions { align-items: flex-start; flex-direction: column; }.creator-readonly-note { text-align: left; } }
 
 .creator-badge--approved { background: var(--green-accent); }.creator-badge--pending { background: var(--gold); color: var(--black); }.creator-badge--rejected { background: var(--red); }.creator-badge--unpublished { background: var(--text-black-soft); }.creator-inline-note { min-height: 0 !important; padding: 8px 10px; border-left: 2px solid var(--gold); background: var(--gold-lightest); }.creator-recording-card__actions { justify-content: flex-start; flex-wrap: wrap; }.creator-action-button:disabled, .creator-danger-button:disabled { cursor: not-allowed; opacity: .5; }.creator-table-actions { display: flex; flex-wrap: wrap; gap: 7px; }.creator-table td small { display: block; margin-top: 3px; color: var(--text-black-soft); }.creator-detail-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }.creator-detail-list div { padding: 11px 0; border-bottom: 1px solid var(--ceramic); }.creator-detail-list dt { color: var(--text-black-soft); font-size: 1.15rem; }.creator-detail-list dd { margin: 4px 0 0; }
+.creator-recording-video { display: block; width: 100%; margin-top: 14px; border-radius: 8px; background: #062f2a; aspect-ratio: 16 / 9; }
+
+/* Recording cards contain long generated IDs, so every value column must be
+   allowed to shrink instead of widening the card/grid track. */
+.creator-recording-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); }
+.creator-recording-card { display: flex; flex-direction: column; overflow: hidden; }
+.creator-recording-card dl { min-width: 0; }
+.creator-recording-card dl div { display: grid; grid-template-columns: minmax(96px, .8fr) minmax(0, 1.2fr); align-items: baseline; }
+.creator-recording-card dt, .creator-recording-card dd { min-width: 0; }
+.creator-recording-card dd { width: 100%; max-width: none; }
+.creator-recording-card__actions { margin-top: auto; padding-top: 16px; }

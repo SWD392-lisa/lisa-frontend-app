@@ -39,7 +39,17 @@ import {
   stopRecording,
   getSessionRecordings,
 } from '../services/lmsApi';
-import { createAgoraClient, createRealtimeSocket, getAgoraToken } from '../services/realtimeService';
+import {
+  abortLocalRecording,
+  createAgoraClient,
+  createRealtimeSocket,
+  endRealtimeRoom,
+  getAgoraToken,
+  uploadLocalRecordingChunk,
+} from '../services/realtimeService';
+import { LocalRoomRecorder } from '../utils/localRoomRecorder';
+import { deactivateRoomGiftRecipient, registerRoomGiftRecipient } from '../services/giftService';
+import { GiftEffect } from '../components/room/GiftEffect';
 import './MentorRoom.css';
 
 // ---------------------------------------------------------------------------
@@ -197,6 +207,8 @@ export const MentorRoom = () => {
   const lmsSyncedAtRef = useRef(Date.now());
   const [moderationNotice, setModerationNotice] = useState('');
   const realtimeSocketRef = useRef(null);
+  const realtimeSessionRef = useRef(realtimeSession);
+  const localRecorderRef = useRef(null);
   const agoraClientRef = useRef(null);
   const mentorTrackRef = useRef(null);
   const mentorTrackPublishedRef = useRef(false);
@@ -212,6 +224,17 @@ export const MentorRoom = () => {
   const [mentorSpeaking, setMentorSpeaking] = useState(false);
   const [micLoading, setMicLoading] = useState(false);
   const [audioError, setAudioError] = useState('');
+  const [giftEffect, setGiftEffect] = useState(null);
+  const seenGiftEventsRef = useRef(new Set());
+  const giftTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (roomId) registerRoomGiftRecipient(roomId).catch((giftError) => console.warn('Could not register room gift recipient:', giftError));
+  }, [roomId]);
+
+  useEffect(() => {
+    realtimeSessionRef.current = realtimeSession;
+  }, [realtimeSession]);
 
   const applyLmsState = useCallback((state) => {
     if (!state) return;
@@ -413,6 +436,7 @@ export const MentorRoom = () => {
 
         if (!mentorTrackRef.current) {
           mentorTrackRef.current = await AgoraRTC.createMicrophoneAudioTrack();
+          localRecorderRef.current?.addAudioTrack(mentorTrackRef.current);
         }
         await mentorTrackRef.current.setEnabled(true);
         if (!mentorTrackPublishedRef.current) {
@@ -498,6 +522,7 @@ export const MentorRoom = () => {
           try {
             await client.subscribe(user, 'audio');
             user.audioTrack?.play();
+            localRecorderRef.current?.addAudioTrack(user.audioTrack);
           } catch (subscribeError) {
             setAudioError(`Could not play learner audio: ${subscribeError.message}`);
           }
@@ -611,6 +636,13 @@ export const MentorRoom = () => {
       setModerationNotice(`Participant removed: ${event?.targetAnonymousUserId || 'unknown'}.`);
     });
     socket.on('recording.status.changed', (event) => setRecordingStatus(event?.status || 'IDLE'));
+    socket.on('gift.sent', (event) => {
+      if (!event?.eventId || seenGiftEventsRef.current.has(event.eventId)) return;
+      seenGiftEventsRef.current.add(event.eventId);
+      setGiftEffect(event);
+      window.clearTimeout(giftTimerRef.current);
+      giftTimerRef.current = window.setTimeout(() => setGiftEffect(null), 3000);
+    });
     socket.on('hand.queue.updated', (queue) => setRealtimeSession((old) => ({
       ...old,
       handRaiseQueue: queue?.handRaiseQueue || [],
@@ -620,6 +652,7 @@ export const MentorRoom = () => {
       socket.emit('session.leave', { sessionId });
       socket.disconnect();
       void cleanupAgora();
+      window.clearTimeout(giftTimerRef.current);
     };
   }, [cleanupAgora, context, currentUser?.email, currentUser?.fullName, currentUser?.userId]);
 
@@ -664,18 +697,58 @@ export const MentorRoom = () => {
   const toggleRecording = async () => {
     if (!context?.session?.sessionId || recordingActionLoading) return;
     setRecordingActionLoading(true);
+    let readyToFinalize = false;
     try {
       if (recordingStatus === 'RECORDING' && recordingId) {
+        if (localRecorderRef.current) {
+          try {
+            await localRecorderRef.current.stop();
+          } catch (uploadError) {
+            await abortLocalRecording(recordingId, uploadError?.message || 'Local recording upload failed').catch(() => undefined);
+            throw uploadError;
+          }
+          localRecorderRef.current = null;
+        }
+        readyToFinalize = true;
         const stopped = await stopRecording(recordingId);
         setRecordingStatus(stopped?.status || 'PROCESSING');
       } else if (!['PROCESSING', 'REQUESTED'].includes(recordingStatus)) {
-        const started = await startRecording(context.session.sessionId);
-        setRecordingId(started?.recordingId || null);
-        setRecordingStatus(started?.status || 'RECORDING');
+        const recorder = new LocalRoomRecorder({
+          recordingId: null,
+          sessionTitle: currentSubLevel?.topic || context?.session?.levelTitle || 'LUCY Learning Room',
+          getParticipants: () => realtimeSessionRef.current?.participants || [],
+          uploadChunk: uploadLocalRecordingChunk,
+        });
+        const client = agoraClientRef.current;
+        const audioTracks = [
+          mentorTrackRef.current,
+          ...(client?.remoteUsers || []).map((user) => user.audioTrack),
+        ].filter(Boolean);
+        await recorder.prepareAudio(audioTracks);
+        localRecorderRef.current = recorder;
+        let started;
+        try {
+          started = await startRecording(context.session.sessionId);
+          recorder.setRecordingId(started.recordingId);
+          setRecordingId(started.recordingId);
+          setRecordingStatus(started.status || 'RECORDING');
+          await recorder.start();
+        } catch (captureError) {
+          await recorder.dispose().catch(() => undefined);
+          localRecorderRef.current = null;
+          if (started?.recordingId) {
+            await abortLocalRecording(started.recordingId, captureError?.message || 'Local recorder failed to start').catch(() => undefined);
+          }
+          throw captureError;
+        }
       }
       setAudioError('');
     } catch (recordingError) {
-      setRecordingStatus('FAILED');
+      if (localRecorderRef.current) {
+        await localRecorderRef.current.dispose().catch(() => undefined);
+        localRecorderRef.current = null;
+      }
+      setRecordingStatus(readyToFinalize ? 'RECORDING' : 'FAILED');
       setAudioError(recordingError?.message || 'Recording operation failed.');
     } finally {
       setRecordingActionLoading(false);
@@ -767,6 +840,16 @@ export const MentorRoom = () => {
     setShowEndDialog(false);
     try {
       await endSession(roomId);
+      await deactivateRoomGiftRecipient(roomId).catch(() => undefined);
+      const realtimeRoomId = lmsRoomStateRef.current?.realtimeRoomId
+        || context?.session?.realtimeRoomId;
+      if (realtimeRoomId) {
+        try {
+          await endRealtimeRoom(realtimeRoomId);
+        } catch (realtimeError) {
+          console.warn('LMS session ended, but realtime room cleanup failed:', realtimeError);
+        }
+      }
       setSessionStatus('ENDED');
       setTimeout(() => navigate(-1), 1000);
     } catch (err) {
@@ -861,6 +944,7 @@ export const MentorRoom = () => {
 
   return (
     <>
+      <GiftEffect event={giftEffect} />
       {showEndDialog && (
         <EndSessionDialog
           onConfirm={handleEndSession}
@@ -1005,6 +1089,7 @@ export const MentorRoom = () => {
               {moderationNotice && <p className="mentor-room__moderation-notice" role="status">{moderationNotice}</p>}
               {realtimeSession.participants.length === 0 ? <p className="mentor-room__materials-empty">No participants yet.</p> : realtimeSession.participants.map((participant) => (
                 <div className="mentor-room__material-item" key={participant.anonymousUserId}>
+                  {participant.personaAssetUrl && <img src={participant.personaAssetUrl} alt="" style={{ width: 36, height: 36, borderRadius: '50%', flex: '0 0 auto' }} />}
                   <span className="mentor-room__participant-main"><strong>{participant.displayName || 'Anonymous'}</strong><small>{participant.role} · {participant.speaking ? <><Volume2 size={13} /> Speaking</> : participant.micEnabled ? <><Mic size={13} /> Mic on</> : <><VolumeX size={13} /> Mic off</>}{participant.isActiveSpeaker ? ' · Speaker' : ''}</small></span>
                   <span className="mentor-room__participant-actions">
                     {realtimeSession.handRaiseQueue?.includes(participant.anonymousUserId) && <Button type="button" onClick={() => approveSpeaker(participant.anonymousUserId)} style={{ padding: '5px 9px', fontSize: '1.1rem' }}>Approve speaker</Button>}

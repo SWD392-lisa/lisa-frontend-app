@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, User, Bell, X, LayoutDashboard, Loader } from 'lucide-react';
+import { Menu, User, Bell, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { isCreator, isMentor } from '../../utils/roleAccess';
@@ -66,6 +66,7 @@ export const Navbar = () => {
         <nav className="sb-navbar-links">
           <Link to={isAuthenticated ? "/dashboard" : "/"} className={`sb-navbar-link ${isActive(isAuthenticated ? "/dashboard" : "/") ? 'is-active' : ''}`}>Home</Link>
           <Link to="/discover" className={`sb-navbar-link ${isActive('/discover') ? 'is-active' : ''}`}>Discover</Link>
+          {mentorAccess && <Link to="/leaderboard" className={`sb-navbar-link ${isActive('/leaderboard') ? 'is-active' : ''}`}>Leaderboard</Link>}
           <Link to="/courses" className={`sb-navbar-link ${isActive('/courses') ? 'is-active' : ''}`}>Courses</Link>
           <Link to="/learning" className={`sb-navbar-link ${location.pathname.startsWith('/learning') ? 'is-active' : ''}`}>Learning</Link>
           <Link to="/support" className={`sb-navbar-link ${isActive('/support') ? 'is-active' : ''}`}>Student Support</Link>
@@ -137,6 +138,7 @@ export const Navbar = () => {
             <nav className="sb-mobile-drawer-links">
               <Link to={isAuthenticated ? "/dashboard" : "/"} className={`sb-mobile-drawer-link ${isActive(isAuthenticated ? "/dashboard" : "/") ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
               <Link to="/discover" className={`sb-mobile-drawer-link ${isActive('/discover') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Discover</Link>
+              {mentorAccess && <Link to="/leaderboard" className={`sb-mobile-drawer-link ${isActive('/leaderboard') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Leaderboard</Link>}
               <Link to="/courses" className={`sb-mobile-drawer-link ${isActive('/courses') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Courses</Link>
               <Link to="/learning" className={`sb-mobile-drawer-link ${location.pathname.startsWith('/learning') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Learning</Link>
               <Link to="/support" className={`sb-mobile-drawer-link ${isActive('/support') ? 'is-active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Student Support</Link>

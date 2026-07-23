@@ -1,8 +1,8 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { CreatorRoute } from './components/layout/CreatorRoute';
+import { MentorRoute } from './components/layout/MentorRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { Landing } from './pages/Landing';
 import { Home } from './pages/Home';
@@ -25,7 +25,7 @@ import { Introduction } from './pages/Introduction';
 import { Vision } from './pages/Vision';
 import { Team } from './pages/Team';
 import { ContactUs } from './pages/ContactUs';
-import { FeaturedMentors } from './pages/FeaturedMentors';
+import { MentorLeaderboard } from './pages/MentorLeaderboard';
 import { ExclusivePodcasts } from './pages/ExclusivePodcasts';
 import { CommunityGuidelines } from './pages/CommunityGuidelines';
 import { ReportViolation } from './pages/ReportViolation';
@@ -71,13 +71,19 @@ function App() {
               <Route path="/support/report" element={<ReportViolation />} />
               <Route path="/events" element={<UpcomingEvents />} />
               <Route path="/events/podcasts" element={<ExclusivePodcasts />} />
-              <Route path="/discover/mentors" element={<FeaturedMentors />} />
               <Route path="/about" element={<Introduction />} />
               <Route path="/about/vision" element={<Vision />} />
               <Route path="/about/team" element={<Team />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/mentors/apply" element={<ForMentors />} />
               <Route path="/app" element={<DownloadApp />} />
+            </Route>
+
+            <Route element={<MentorRoute />}>
+              <Route element={<MainLayout />}>
+                <Route path="/leaderboard" element={<MentorLeaderboard />} />
+                <Route path="/discover/mentors" element={<MentorLeaderboard />} />
+              </Route>
             </Route>
 
             {/* Protected Routes */}

@@ -537,8 +537,8 @@ POST /api/gifts/send
 
 **API Call:**
 ```
-GET /api/leaderboard?type={mentor|learner}&period={weekly|alltime}&page={n}
-Service: Java
+GET /api/leaderboard/mentors?period={weekly|alltime}&page={n}&pageSize={n}
+Service: .NET (User & Payment)
 ```
 
 ---
@@ -572,7 +572,7 @@ Service: .NET
 | `/api/lms/*` | Java | 100 Level, nội dung học |
 | `/api/podcasts/*` | Java + Node.js | Ghi âm, lưu trữ, nghe |
 | `/api/ai/*` | Java | Gợi ý câu hỏi AI |
-| `/api/leaderboard/*` | Java | Xếp hạng |
+| `/api/leaderboard/*` | .NET Core | Xếp hạng Mentor theo giao dịch quà |
 | `/api/notifications/*` | .NET Core | Push notification |
 | `wss://gateway/rooms/*` | Node.js (Socket.io) | Real-time events |
 

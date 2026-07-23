@@ -378,3 +378,26 @@
 .mentor-dashboard__checkbox input { width: auto; }
 .mentor-dashboard__create-error { color: var(--red); margin: 8px 0 14px; }
 .mentor-dashboard__create-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+.mentor-dashboard__ranking-card {
+  margin: 0 0 32px;
+  padding: 22px;
+  border: 1px solid rgba(203, 162, 88, .42);
+  border-radius: var(--radius-card);
+  background: linear-gradient(135deg, #fffaf0, #fff);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .04);
+}
+.mentor-dashboard__ranking-heading { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; }
+.mentor-dashboard__ranking-heading h2 { margin: 0 0 3px; font-size: 1.8rem; color: var(--house-green); }
+.mentor-dashboard__ranking-heading p { margin: 0; font-size: 1.3rem; color: var(--text-black-soft); }
+.mentor-dashboard__ranking-icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; color: var(--house-green); background: #f5dfaa; }
+.mentor-dashboard__ranking-link { color: var(--green-accent); font-size: 1.3rem; font-weight: 800; text-decoration: none; }
+.mentor-dashboard__ranking-stats { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.mentor-dashboard__ranking-stats div { padding: 13px; display: grid; gap: 4px; border-radius: 10px; background: rgba(255,255,255,.75); }
+.mentor-dashboard__ranking-stats span { display: flex; align-items: center; gap: 5px; color: var(--text-black-soft); font-size: 1.2rem; }
+.mentor-dashboard__ranking-stats strong { color: var(--house-green); font-size: 1.8rem; }
+@media (max-width: 640px) {
+  .mentor-dashboard__ranking-heading { grid-template-columns: auto 1fr; }
+  .mentor-dashboard__ranking-link { grid-column: 2; }
+  .mentor-dashboard__ranking-stats { grid-template-columns: 1fr; }
+}

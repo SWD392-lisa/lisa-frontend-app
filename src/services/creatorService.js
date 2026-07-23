@@ -82,6 +82,8 @@ export const updateCreatorUserStatus = (id, payload) => request(userBase, `/api/
 
 export const getCreatorRecordings = (params) => request(realtimeBase, `/api/admin/recordings${queryString(params)}`);
 export const reviewCreatorRecording = (id, payload) => request(realtimeBase, `/api/admin/recordings/${encodeURIComponent(id)}/review`, { method: 'PATCH', body: JSON.stringify(payload) });
+export const updateCreatorRecording = (id, payload) => request(realtimeBase, `/api/admin/recordings/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(payload) });
+export const deleteCreatorRecording = (id) => request(realtimeBase, `/api/admin/recordings/${encodeURIComponent(id)}`, { method: 'DELETE' });
 
 export const getCreatorPodcasts = (params) => request(realtimeBase, `/api/admin/podcasts${queryString(params)}`);
 export const updateCreatorPodcast = (id, payload) => request(realtimeBase, `/api/admin/podcasts/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(payload) });

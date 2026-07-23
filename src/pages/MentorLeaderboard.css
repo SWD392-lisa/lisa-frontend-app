@@ -1,0 +1,52 @@
+.mentor-leaderboard { min-height: 100vh; background: var(--canvas-cream); color: var(--text-black); }
+.mentor-leaderboard__hero { padding: 72px 20px 94px; text-align: center; color: white; background: radial-gradient(circle at top, rgba(203,162,88,.34), transparent 38%), linear-gradient(145deg, #1e3932, #006241); }
+.mentor-leaderboard__hero > svg { color: var(--gold); }
+.mentor-leaderboard__eyebrow { margin: 10px 0 4px; color: #eed59b; font-size: 1.3rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.mentor-leaderboard__hero h1 { margin: 0; font-size: clamp(3.2rem, 7vw, 5.6rem); }
+.mentor-leaderboard__hero p:last-child { max-width: 620px; margin: 12px auto 0; color: rgba(255,255,255,.82); font-size: 1.6rem; }
+.mentor-leaderboard__container { width: min(1000px, calc(100% - 32px)); margin: -48px auto 0; padding-bottom: 72px; position: relative; }
+.mentor-leaderboard__tabs { width: max-content; max-width: 100%; margin: 0 auto 28px; padding: 5px; display: flex; gap: 4px; border-radius: 999px; background: white; box-shadow: 0 12px 30px rgba(0,0,0,.1); }
+.mentor-leaderboard__tabs button { border: 0; border-radius: 999px; padding: 10px 24px; background: transparent; color: var(--text-black-soft); font: inherit; font-weight: 700; cursor: pointer; }
+.mentor-leaderboard__tabs button.is-active { background: var(--house-green); color: white; }
+.mentor-leaderboard__viewer { margin: 0 auto 28px; padding: 18px 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; border: 1px solid rgba(203,162,88,.45); border-radius: 18px; background: #fffdf7; box-shadow: 0 8px 22px rgba(0,0,0,.04); }
+.mentor-leaderboard__viewer div { display: grid; gap: 3px; text-align: center; }
+.mentor-leaderboard__viewer span { color: var(--text-black-soft); font-size: 1.2rem; }
+.mentor-leaderboard__viewer strong { color: var(--house-green); font-size: 2rem; }
+.mentor-leaderboard__podium { min-height: 300px; display: grid; grid-template-columns: repeat(3, 1fr); align-items: end; gap: 18px; margin-bottom: 28px; }
+.mentor-leaderboard__podium-card { position: relative; padding: 28px 18px 24px; text-align: center; border: 1px solid rgba(0,0,0,.06); border-radius: 22px; background: white; box-shadow: 0 12px 28px rgba(0,0,0,.06); }
+.mentor-leaderboard__podium-card--1 { min-height: 286px; padding-top: 42px; border-color: rgba(203,162,88,.55); background: linear-gradient(180deg, #fff9e8, white); }
+.mentor-leaderboard__podium-card--2 { min-height: 250px; }
+.mentor-leaderboard__podium-card--3 { min-height: 226px; }
+.mentor-leaderboard__podium-card h3 { margin: 13px 0 8px; font-size: 1.8rem; }
+.mentor-leaderboard__podium-card p { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 18px 0 0; color: var(--text-black-soft); font-weight: 700; }
+.mentor-leaderboard__medal { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); padding: 6px 13px; border-radius: 999px; background: var(--house-green); color: white; font-weight: 800; box-shadow: 0 5px 12px rgba(0,98,65,.23); }
+.mentor-leaderboard__podium-card--1 .mentor-leaderboard__medal { background: var(--gold); color: var(--house-green); }
+.mentor-leaderboard__avatar { width: 82px; height: 82px; margin: 0 auto; display: grid; place-items: center; border: 4px solid #eed59b; border-radius: 50%; color: white; background: linear-gradient(145deg, var(--house-green), var(--green-accent)); font-size: 2.3rem; font-weight: 800; }
+.mentor-leaderboard__avatar--small { width: 46px; height: 46px; margin: 0; border-width: 2px; font-size: 1.4rem; }
+.mentor-leaderboard__role { display: inline-flex; padding: 4px 9px; border-radius: 999px; color: #795b14; background: #fff1c8; font-size: 1.1rem; font-weight: 800; }
+.mentor-leaderboard__role--super { color: #fff; background: linear-gradient(135deg, #4f46e5, #a33bc2); }
+.mentor-leaderboard__list { display: grid; gap: 10px; }
+.mentor-leaderboard__row { min-height: 72px; padding: 12px 18px; display: grid; grid-template-columns: 58px 46px 1fr auto; gap: 14px; align-items: center; border: 1px solid rgba(0,0,0,.06); border-radius: 15px; background: white; box-shadow: 0 5px 16px rgba(0,0,0,.035); }
+.mentor-leaderboard__row.is-viewer { border-color: var(--gold); background: #fffaf0; }
+.mentor-leaderboard__rank { color: var(--house-green); font-size: 1.8rem; }
+.mentor-leaderboard__identity { min-width: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mentor-leaderboard__identity > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.5rem; }
+.mentor-leaderboard__gifts { display: flex; align-items: center; gap: 6px; color: var(--text-black-soft); font-size: 1.3rem; font-weight: 700; }
+.mentor-leaderboard__pagination { margin-top: 28px; display: flex; align-items: center; justify-content: center; gap: 18px; }
+.mentor-leaderboard__pagination span { font-weight: 700; color: var(--text-black-soft); }
+.mentor-leaderboard__state { min-height: 280px; padding: 50px 20px; display: grid; place-items: center; align-content: center; gap: 10px; text-align: center; border-radius: 20px; background: white; color: var(--text-black-soft); }
+.mentor-leaderboard__state h2, .mentor-leaderboard__state p { margin: 0; }
+.mentor-leaderboard__state--error { color: var(--red); }
+.mentor-leaderboard__spinner { width: 30px; height: 30px; border: 3px solid var(--ceramic); border-top-color: var(--green-accent); border-radius: 50%; animation: mentor-leaderboard-spin .8s linear infinite; }
+@keyframes mentor-leaderboard-spin { to { transform: rotate(360deg); } }
+@media (max-width: 700px) {
+  .mentor-leaderboard__hero { padding-top: 48px; }
+  .mentor-leaderboard__viewer { grid-template-columns: 1fr; }
+  .mentor-leaderboard__podium { min-height: 0; grid-template-columns: 1fr; align-items: stretch; }
+  .mentor-leaderboard__podium-card { min-height: 0; padding: 28px 18px 22px; }
+  .mentor-leaderboard__podium-card--1 { order: -1; }
+  .mentor-leaderboard__row { grid-template-columns: 46px 42px 1fr; padding: 12px; }
+  .mentor-leaderboard__avatar--small { width: 42px; height: 42px; }
+  .mentor-leaderboard__gifts { grid-column: 3; }
+  .mentor-leaderboard__pagination { gap: 8px; }
+}

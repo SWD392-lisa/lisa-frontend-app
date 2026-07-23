@@ -1,11 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AgoraRTC from 'agora-rtc-sdk-ng';
-import { ExternalLink, FileText, Hand, Mic, MicOff, Users, UserMinus, Volume2, VolumeX, X, Clock3 } from 'lucide-react';
+import { ExternalLink, FileText, Gift as GiftIcon, Hand, Mic, MicOff, Users, UserMinus, Volume2, VolumeX, X, Clock3 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { getAgoraToken, createAgoraClient, createRealtimeSocket } from '../services/realtimeService';
 import { getPinnedMaterials, getRoomState, joinSessionAttendance, leaveSessionAttendance } from '../services/lmsApi';
+import { getRoomPersona } from '../services/privacyService';
+import { getGiftCatalog, sendGiftToRoom } from '../services/giftService';
+import { getBalance } from '../services/walletService';
+import { GiftEffect } from '../components/room/GiftEffect';
 import './LiveRoom.css';
 
 const emptySession = { participants: [], handQueue: [] };
@@ -48,7 +52,8 @@ export const LiveRoom = () => {
   const speakingRef = useRef(false);
   const micOnRef = useRef(false);
   const stateSyncedAtRef = useRef(Date.now());
-  const anonymousUserIdRef = useRef(getCurrentIdentity(currentUser));
+  const anonymousUserIdRef = useRef(null);
+  const roomAccessTokenRef = useRef(null);
   const stateRef = useRef(null);
   const sessionRef = useRef(emptySession);
   const speakerApprovedRef = useRef(false);
@@ -62,6 +67,30 @@ export const LiveRoom = () => {
   const [error, setError] = useState('');
   const [clockNow, setClockNow] = useState(Date.now());
   const [removedFromRoom, setRemovedFromRoom] = useState(false);
+  const [roomPersona, setRoomPersona] = useState(null);
+  const [giftOpen, setGiftOpen] = useState(false);
+  const [giftCatalog, setGiftCatalog] = useState([]);
+  const [giftBalance, setGiftBalance] = useState(null);
+  const [selectedGiftId, setSelectedGiftId] = useState('');
+  const [giftQuantity, setGiftQuantity] = useState(1);
+  const [giftSending, setGiftSending] = useState(false);
+  const [giftEffect, setGiftEffect] = useState(null);
+  const seenGiftEventsRef = useRef(new Set());
+  const giftTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (isMentor || !sessionId) return undefined;
+    let active = true;
+    getRoomPersona(sessionId)
+      .then((persona) => {
+        if (!active) return;
+        roomAccessTokenRef.current = persona.roomAccessToken;
+        anonymousUserIdRef.current = String(persona.anonymousId);
+        setRoomPersona(persona);
+      })
+      .catch((personaError) => active && setError(personaError.message));
+    return () => { active = false; };
+  }, [isMentor, sessionId]);
 
   useEffect(() => {
     micOnRef.current = micOn;
@@ -90,7 +119,6 @@ export const LiveRoom = () => {
         socket.timeout(10000).emit('session.join', {
           sessionId,
           channelName,
-          displayName: currentUser?.fullName || currentUser?.email || (isMentor ? 'Mentor' : 'LUCY learner'),
           isAnonymous: !isMentor,
         }, (err, response) => err ? reject(err) : resolve(response));
       });
@@ -109,7 +137,7 @@ export const LiveRoom = () => {
           anonymousUserId: anonymousUserIdRef.current || 'current',
           role: 'STUDENT',
           mediaType: 'audience',
-        });
+        }, roomAccessTokenRef.current);
         if (!agora?.appId || !agora?.token || !agora?.channelName) {
           throw new Error('Agora token response is empty or invalid.');
         }
@@ -139,7 +167,7 @@ export const LiveRoom = () => {
         : rawMessage;
       setError(message);
     }
-  }, [currentUser?.email, currentUser?.fullName, currentUser?.userId, isMentor, sessionId]);
+  }, [isMentor, sessionId]);
 
   const setMicState = useCallback(async (nextEnabled, { forced = false } = {}) => {
     if (!agoraRef.current) {
@@ -163,7 +191,7 @@ export const LiveRoom = () => {
         anonymousUserId: ownId,
         role: 'STUDENT',
         mediaType: 'speaker',
-      });
+      }, roomAccessTokenRef.current);
       await agoraRef.current.renewToken(speakerToken.token);
 
       if (!localTrackRef.current) {
@@ -194,9 +222,9 @@ export const LiveRoom = () => {
   }, [sessionId]);
 
   useEffect(() => {
-    if (isMentor) return undefined;
+    if (isMentor || !roomPersona?.roomAccessToken) return undefined;
     let active = true;
-    const socket = createRealtimeSocket();
+    const socket = createRealtimeSocket(roomPersona.roomAccessToken);
     socketRef.current = socket;
     const updateSnapshot = (payload) => {
       if (!active) return;
@@ -257,6 +285,13 @@ export const LiveRoom = () => {
       agoraRef.current?.leave().catch(() => {});
       socket.disconnect();
     });
+    socket.on('gift.sent', (event) => {
+      if (!event?.eventId || seenGiftEventsRef.current.has(event.eventId)) return;
+      seenGiftEventsRef.current.add(event.eventId);
+      setGiftEffect(event);
+      window.clearTimeout(giftTimerRef.current);
+      giftTimerRef.current = window.setTimeout(() => setGiftEffect(null), 3000);
+    });
 
     (async () => {
       try {
@@ -305,8 +340,9 @@ export const LiveRoom = () => {
       micOnRef.current = false;
       if (agoraRef.current) agoraRef.current.leave().catch(() => {});
       leaveSessionAttendance(sessionId).catch(() => {});
+      window.clearTimeout(giftTimerRef.current);
     };
-  }, [isMentor, joinAudio, sessionId, setMicState]);
+  }, [isMentor, joinAudio, roomPersona?.roomAccessToken, sessionId, setMicState]);
 
   const toggleHand = () => {
     if (!sessionJoined || !socketRef.current?.connected) {
@@ -333,10 +369,44 @@ export const LiveRoom = () => {
     }
   };
 
+  const openGiftPicker = async () => {
+    setGiftOpen(true);
+    setError('');
+    try {
+      const [catalog, wallet] = await Promise.all([getGiftCatalog(), getBalance()]);
+      setGiftCatalog(Array.isArray(catalog) ? catalog : []);
+      setGiftBalance(wallet);
+      if (!selectedGiftId && catalog?.[0]?.id) setSelectedGiftId(catalog[0].id);
+    } catch (giftError) {
+      setError(giftError.message);
+    }
+  };
+
+  const sendGift = async () => {
+    const selected = giftCatalog.find((gift) => String(gift.id) === String(selectedGiftId));
+    if (!selected || giftSending) return;
+    const total = Number(selected.price || 0) * giftQuantity;
+    if (Number(giftBalance?.balance || 0) < total) {
+      setError('Số dư không đủ. Vui lòng nạp thêm trong Ví.');
+      return;
+    }
+    setGiftSending(true);
+    try {
+      await sendGiftToRoom({ roomSessionId: sessionId, giftId: selected.id, quantity: giftQuantity, idempotencyKey: crypto.randomUUID() });
+      setGiftBalance(await getBalance());
+      setGiftOpen(false);
+      setError('');
+    } catch (giftError) {
+      setError(giftError.message);
+    } finally {
+      setGiftSending(false);
+    }
+  };
+
   if (removedFromRoom) {
     return <div className="live-room live-room__message"><UserMinus size={32} /><strong>Removed from room</strong><Button onClick={() => navigate('/learning')}>Back to learning</Button></div>;
   }
-  if (!state) return <div style={{ padding: 40 }}>Loading learning room...</div>;
+  if (!state) return <div style={{ padding: 40 }}>{error || 'Loading anonymous learning room...'}</div>;
   const participants = session.participants || [];
   const currentSubLevel = state.currentSubLevel;
   const elapsedSinceSync = state.status === 'LIVE'
@@ -346,6 +416,7 @@ export const LiveRoom = () => {
   const ownParticipant = participants.find((participant) => String(participant.anonymousUserId) === String(anonymousUserIdRef.current));
 
   return <div className="live-room bg-house-green text-white">
+    <GiftEffect event={giftEffect} />
     <header className="room-header">
       <div>
         <h1 className="text-white" style={{ fontSize: '2rem', marginBottom: 4 }}>{state.levelSummary?.title || 'LUCY Live Learning'}</h1>
@@ -358,7 +429,7 @@ export const LiveRoom = () => {
     </header>
     <main className="room-main">
       <section className="stage-area">
-        <div className={`avatar-wrapper ${ownParticipant?.speaking ? 'is-speaking' : ''}`}><div className="avatar">{isMentor ? 'M' : 'L'}</div><span className="avatar-name">{isMentor ? 'Mentor' : 'LUCY Learner'}</span></div>
+        <div className={`avatar-wrapper ${ownParticipant?.speaking ? 'is-speaking' : ''}`}><div className="avatar">{roomPersona?.personaAssetUrl ? <img src={roomPersona.personaAssetUrl} alt="" /> : 'L'}</div><span className="avatar-name">{roomPersona?.displayName || 'Anonymous learner'}</span></div>
         <p>{state.status} · {sessionJoined ? 'Room joined' : connected ? 'Realtime connected' : 'Connecting...'}</p>
         {!micOn && <p>{speakerApproved ? 'Approved to speak' : 'Waiting for mentor approval'}</p>}
         {error && <p role="alert" style={{ color: '#ffd5d5' }}>{error}</p>}
@@ -366,7 +437,7 @@ export const LiveRoom = () => {
       </section>
       <section className="audience-area">
         <div className="section-title"><Users size={16} /> Participants ({participants.length})</div>
-        <div className="audience-grid">{participants.map((participant) => <div className={`participant-tile ${participant.speaking ? 'is-speaking' : ''}`} key={participant.anonymousUserId}><div className="avatar-wrapper small"><div className="avatar">{participant.displayName?.[0] || 'L'}</div><span className="avatar-name">{participant.displayName || 'Anonymous'}</span></div><span className="participant-status">{participant.speaking ? <Volume2 size={14} /> : participant.micEnabled ? <Mic size={14} /> : <VolumeX size={14} />} {participant.speaking ? 'Speaking' : participant.micEnabled ? 'Mic on' : 'Mic off'}</span>{participant.isActiveSpeaker && <span className="speaker-badge">Speaker</span>}</div>)}</div>
+        <div className="audience-grid">{participants.map((participant) => <div className={`participant-tile ${participant.speaking ? 'is-speaking' : ''}`} key={participant.anonymousUserId}><div className="avatar-wrapper small"><div className="avatar">{participant.personaAssetUrl ? <img src={participant.personaAssetUrl} alt="" /> : participant.displayName?.[0] || 'M'}</div><span className="avatar-name">{participant.displayName || 'Anonymous'}</span></div><span className="participant-status">{participant.speaking ? <Volume2 size={14} /> : participant.micEnabled ? <Mic size={14} /> : <VolumeX size={14} />} {participant.speaking ? 'Speaking' : participant.micEnabled ? 'Mic on' : 'Mic off'}</span>{participant.isActiveSpeaker && <span className="speaker-badge">Speaker</span>}</div>)}</div>
       </section>
       <section className="room-materials">
         <div className="section-title"><FileText size={16} /> Pinned materials</div>
@@ -374,8 +445,10 @@ export const LiveRoom = () => {
       </section>
     </main>
     <footer className="room-controls">
+      {!isMentor && <Button variant="inverted" onClick={openGiftPicker} disabled={!sessionJoined}><GiftIcon size={20} /> Tặng quà</Button>}
       {!isMentor && <Button variant="inverted" onClick={toggleHand} disabled={!sessionJoined} style={{ padding: '12px 18px', borderRadius: 999, backgroundColor: handRaised ? 'var(--gold)' : 'var(--white)', color: handRaised ? '#fff' : 'var(--text-black)' }} title={handRaised ? 'Lower hand' : 'Raise hand'}><Hand size={20} color={handRaised ? '#fff' : 'var(--text-black)'} /> {handRaised ? 'Lower hand' : 'Raise hand'}</Button>}
       <Button variant="inverted" onClick={toggleMic} style={{ padding: 12, borderRadius: '50%', backgroundColor: micOn ? 'var(--white)' : 'var(--red)' }} title={micOn ? 'Mute microphone' : 'Turn on microphone'}>{micOn ? <Mic size={24} color="var(--green-accent)" /> : <MicOff size={24} color="#fff" />}</Button>
     </footer>
+    {giftOpen && <div className="gift-modal-backdrop" role="presentation" onMouseDown={() => setGiftOpen(false)}><div className="gift-modal" role="dialog" aria-modal="true" aria-label="Tặng quà cho Mentor" onMouseDown={(event) => event.stopPropagation()}><button className="gift-modal__close" onClick={() => setGiftOpen(false)} aria-label="Đóng"><X size={20} /></button><h2>Tặng quà cho Mentor</h2><p>Số dư: <strong>{Number(giftBalance?.balance || 0).toLocaleString('vi-VN')} {giftBalance?.currency || 'VND'}</strong></p><div className="gift-catalog">{giftCatalog.map((gift) => <button key={gift.id} type="button" className={String(selectedGiftId) === String(gift.id) ? 'is-selected' : ''} onClick={() => setSelectedGiftId(gift.id)}>{gift.iconUrl ? <img src={gift.iconUrl} alt="" /> : <GiftIcon size={26} />}<strong>{gift.name}</strong><span>{Number(gift.price).toLocaleString('vi-VN')} {gift.currency}</span></button>)}</div><label className="gift-quantity">Số lượng<input type="number" min="1" max="99" value={giftQuantity} onChange={(event) => setGiftQuantity(Math.max(1, Math.min(99, Number(event.target.value) || 1)))} /></label><Button fullWidth onClick={sendGift} disabled={!selectedGiftId || giftSending}>{giftSending ? 'Đang gửi...' : 'Xác nhận tặng quà'}</Button>{giftCatalog.find((gift) => String(gift.id) === String(selectedGiftId)) && Number(giftBalance?.balance || 0) < Number(giftCatalog.find((gift) => String(gift.id) === String(selectedGiftId)).price || 0) * giftQuantity && <button className="gift-wallet-link" onClick={() => navigate('/wallet')}>Nạp thêm trong Ví</button>}</div></div>}
   </div>;
 };

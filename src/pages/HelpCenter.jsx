@@ -1,219 +1,72 @@
 import React, { useState } from 'react';
-import { 
-  Search, 
-  Sparkles, 
-  VideoOff, 
-  UserCheck, 
-  Wallet, 
-  Bug, 
-  ChevronDown, 
-  ChevronRight,
-  HelpCircle
-} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Bug, ChevronDown, HelpCircle, Search, Sparkles, UserCheck, VideoOff, Wallet } from 'lucide-react';
+import { askSupportAi } from '../services/lmsApi';
+import { useAuth } from '../context/AuthContext';
 import './HelpCenter.css';
 
 const FAQ_DATA = {
   'Sự cố Phòng Live': [
-    { id: 'a1', question: 'Làm sao để sửa lỗi tiếng vọng (echo) mic khi đang gọi?', answer: 'Bạn hãy sử dụng tai nghe để khử nhiễu hoàn toàn. Nếu vẫn bị, hãy tắt mic khi không nói hoặc tinh chỉnh độ nhạy micro trong phần cài đặt.' },
-    { id: 'a2', question: 'Tại sao người khác không nghe thấy giọng của tôi?', answer: 'Hãy kiểm tra quyền truy cập micro trong trình duyệt web của bạn và đảm bảo đã chọn đúng thiết bị micro đầu vào.' }
+    { id: 'a1', question: 'Làm sao giảm tiếng vọng khi dùng micro?', answer: 'Hãy dùng tai nghe, tắt micro khi không nói và kiểm tra đúng thiết bị đầu vào trong quyền của trình duyệt.' },
+    { id: 'a2', question: 'Tại sao người khác không nghe thấy tôi?', answer: 'Bạn cần giơ tay, chờ Mentor duyệt quyền phát biểu, sau đó cho phép trình duyệt truy cập micro và bật micro trong phòng.' },
   ],
   'Tài khoản & Ẩn danh': [
-    { id: 'l1', question: 'Danh tính thật của tôi có bị lộ không?', answer: 'Tuyệt đối không. LUCY cam kết bảo mật danh tính 100%. Mọi người dùng chỉ nhìn thấy biệt danh ẩn danh ngẫu nhiên của bạn.' },
-    { id: 'l2', question: 'Làm thế nào để thay đổi biệt danh ẩn danh?', answer: 'Bạn có thể vào trang Cá nhân (Profile) và chọn làm mới biệt danh ẩn danh để hệ thống cấp một tên mới ngẫu nhiên.' }
+    { id: 'l1', question: 'Người khác có thấy danh tính thật của tôi không?', answer: 'Trong phòng live, learner được cấp Persona và biệt danh riêng theo từng phòng. Realtime, người tham gia khác và recording không nhận tên, email hoặc mã tài khoản thật của learner.' },
+    { id: 'l2', question: 'Persona được chọn như thế nào?', answer: 'Hệ thống tự chọn ngẫu nhiên một Persona động vật khi bạn vào phòng. Khi kết nối lại cùng phòng, bạn tiếp tục dùng Persona đó.' },
   ],
   'Thanh toán & Ví': [
-    { id: 'w1', question: 'Stars là gì và làm sao để kiếm thêm Stars?', answer: 'Stars là đơn vị trong LUCY dùng để tặng quà cho các Creator hoặc Mentor. Bạn có thể kiếm qua việc hoàn thành nhiệm vụ nói hàng ngày hoặc mua trong trang Ví.' },
-    { id: 'w2', question: 'Giao dịch rút tiền của Creator có an toàn không?', answer: 'Chúng tôi sử dụng cổng thanh toán mã hóa đạt chuẩn bảo mật để bảo vệ mọi giao dịch chuyển tiền về ví tài khoản ngân hàng của bạn.' }
+    { id: 'w1', question: 'Làm sao nạp tiền vào Ví?', answer: 'Vào trang Ví, chọn số tiền cần nạp và hoàn tất thanh toán. Số dư được cập nhật sau khi giao dịch được xác nhận.' },
+    { id: 'w2', question: 'Làm sao tặng quà cho Mentor?', answer: 'Trong phòng live, bấm Tặng quà, chọn quà và số lượng rồi xác nhận. Nếu số dư không đủ, hệ thống sẽ dẫn bạn về trang Ví.' },
   ],
-  'Kỹ thuật & Lỗi App': [
-    { id: 't1', question: 'LUCY có ứng dụng trên điện thoại di động không?', answer: 'Có, ứng dụng hiện có sẵn trên cả cửa hàng App Store và Google Play Store. Bạn có thể quét mã QR ở chân trang để tải.' },
-    { id: 't2', question: 'Tại sao trang web load chậm hoặc bị đơ phòng?', answer: 'Hãy kiểm tra lại đường truyền internet của bạn, hoặc thử tải lại trang (F5). Nếu vẫn bị lỗi, hãy gửi yêu cầu hỗ trợ kỹ thuật.' }
-  ]
+  'Kỹ thuật & Ứng dụng': [
+    { id: 't1', question: 'LUCY hiện dùng được ở đâu?', answer: 'Phiên bản hiện tại là web app. Thông tin phát hành App Store hoặc Google Play chưa được xác nhận.' },
+    { id: 't2', question: 'Trang web hoặc phòng bị chậm thì làm gì?', answer: 'Kiểm tra kết nối mạng, đóng ứng dụng đang chiếm micro, tải lại trang và thử vào phòng lại. Nếu vẫn lỗi, gửi báo cáo tại trang Hỗ trợ.' },
+  ],
 };
 
 const TABS = Object.keys(FAQ_DATA);
+const categories = [
+  ['Sự cố Phòng Live', VideoOff, 'Khắc phục lỗi micro, âm thanh và kết nối phòng.'],
+  ['Tài khoản & Ẩn danh', UserCheck, 'Persona, biệt danh theo phòng và bảo vệ danh tính.'],
+  ['Thanh toán & Ví', Wallet, 'Nạp tiền, kiểm tra số dư và tặng quà cho Mentor.'],
+  ['Kỹ thuật & Ứng dụng', Bug, 'Sự cố trình duyệt, kết nối và gửi phản hồi.'],
+];
 
 export const HelpCenter = () => {
+  const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [expandedFaq, setExpandedFaq] = useState(null);
-  const [searchVal, setSearchVal] = useState('');
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const toggleFaq = (id) => {
-    setExpandedFaq(expandedFaq === id ? null : id);
+  const askAi = async (event) => {
+    event.preventDefault();
+    const normalized = question.trim();
+    if (!normalized || loading || !currentUser) return;
+    setLoading(true); setError(''); setAnswer(null);
+    try { setAnswer(await askSupportAi(normalized)); }
+    catch (aiError) { setError(aiError.message || 'AI Support đang tạm thời không khả dụng.'); }
+    finally { setLoading(false); }
   };
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (!searchVal) return;
-    alert(`LUCY AI Copilot đang tìm kiếm câu trả lời cho: "${searchVal}"...`);
-  };
+  return <div className="help-page"><div className="help-container">
+    <section className="help-hero">
+      <h1>Chúng tôi có thể giúp gì cho bạn?</h1>
+      <form onSubmit={askAi} className="help-search-wrapper">
+        <input className="search-input-field" maxLength={500} placeholder="Hỏi LUCY AI cách sử dụng sản phẩm..." value={question} onChange={(event) => setQuestion(event.target.value)} />
+        <div className="search-actions-box"><Sparkles size={22} className="ai-sparkle-btn" /><button type="submit" className="search-submit-btn" disabled={loading || !question.trim()}><Search size={20} /></button></div>
+      </form>
+      {!currentUser && <div className="support-ai-login"><span>Đăng nhập để sử dụng LUCY AI Support.</span><Link to="/login" state={{ from: '/support' }}>Đăng nhập</Link></div>}
+      {loading && <div className="support-ai-result is-loading"><Sparkles size={20} /> AI đang tìm hướng dẫn phù hợp...</div>}
+      {error && <div className="support-ai-result is-error" role="alert"><strong>Chưa thể trả lời</strong><p>{error}</p><button onClick={askAi}>Thử lại</button></div>}
+      {answer && <div className="support-ai-result" aria-live="polite"><div className="support-ai-result__title"><Sparkles size={20} /> LUCY AI</div><p>{answer.answer}</p>{answer.suggestedLinks?.length > 0 && <div className="support-ai-links">{answer.suggestedLinks.map((link) => <Link key={link.path} to={link.path}>{link.label}</Link>)}</div>}<small>{answer.provider} · {answer.model}</small></div>}
+    </section>
 
-  return (
-    <div className="help-page">
-      <div className="help-container">
-        
-        {/* 1. Hero Search Section */}
-        <section className="help-hero">
-          <h1>Chúng tôi có thể giúp gì cho bạn?</h1>
-          <form onSubmit={handleSearchSubmit} className="help-search-wrapper">
-            <input 
-              type="text" 
-              className="search-input-field" 
-              placeholder="Hỏi LUCY AI hoặc tìm kiếm sự cố..." 
-              value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
-            />
-            <div className="search-actions-box">
-              <div className="ai-sparkle-btn" title="Hỏi AI Copilot" onClick={() => alert('LUCY AI Copilot đang khởi chạy...')}>
-                <Sparkles size={22} />
-              </div>
-              <button type="submit" className="search-submit-btn">
-                <Search size={20} />
-              </button>
-            </div>
-          </form>
-        </section>
+    <h2 className="help-grid-title">Danh mục hỗ trợ phổ biến</h2>
+    <section className="help-categories-grid">{categories.map(([title, Icon, description]) => <button type="button" className="help-cat-card glass-card" key={title} onClick={() => { setActiveTab(title); setExpandedFaq(null); }}><div className="help-cat-icon"><Icon size={28} /></div><h3>{title}</h3><p>{description}</p></button>)}</section>
 
-        {/* 2. Category Grid */}
-        <h2 className="help-grid-title">Danh mục hỗ trợ phổ biến</h2>
-        <section className="help-categories-grid">
-          
-          <div className="help-cat-card glass-card" onClick={() => setActiveTab('Sự cố Phòng Live')}>
-            <div className="help-cat-icon">
-              <VideoOff size={28} />
-            </div>
-            <h3>Sự cố Phòng Live</h3>
-            <p>Khắc phục lỗi mic, âm thanh, kết nối phòng đàm thoại.</p>
-          </div>
-
-          <div className="help-cat-card glass-card" onClick={() => setActiveTab('Tài khoản & Ẩn danh')}>
-            <div className="help-cat-icon">
-              <UserCheck size={28} />
-            </div>
-            <h3>Tài khoản & Ẩn danh</h3>
-            <p>Chính sách bảo mật danh tính, đổi tên ẩn danh, hồ sơ cá nhân.</p>
-          </div>
-
-          <div className="help-cat-card glass-card" onClick={() => setActiveTab('Thanh toán & Ví')}>
-            <div className="help-cat-icon">
-              <Wallet size={28} />
-            </div>
-            <h3>Thanh toán & Ví</h3>
-            <p>Nạp rút Stars, mua gói Pro, tặng quà Super Creator.</p>
-          </div>
-
-          <div className="help-cat-card glass-card" onClick={() => setActiveTab('Kỹ thuật & Lỗi App')}>
-            <div className="help-cat-icon">
-              <Bug size={28} />
-            </div>
-            <h3>Kỹ thuật & Lỗi App</h3>
-            <p>Sự cố ứng dụng di động, cập nhật phiên bản, gửi phản hồi lỗi.</p>
-          </div>
-
-        </section>
-
-        {/* 3. FAQ Accordion section (Preserved from old code, upgraded styles) */}
-        <section className="faq-section" style={{ padding: '48px 0', borderTop: '1px solid #edebe9' }}>
-          <h2 style={{ textAlign: 'center', fontSize: '2.8rem', fontWeight: 700, marginBottom: '40px', color: '#1E3932' }}>
-            Câu hỏi thường gặp (FAQs)
-          </h2>
-          
-          <div className="faq-layout" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            
-            {/* Filter Buttons */}
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {TABS.map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    setActiveTab(tab);
-                    setExpandedFaq(null);
-                  }}
-                  style={{
-                    backgroundColor: activeTab === tab ? 'var(--green-accent)' : '#FFFFFF',
-                    color: activeTab === tab ? '#FFFFFF' : '#4b5563',
-                    border: '1px solid #edebe9',
-                    padding: '10px 24px',
-                    borderRadius: '50px',
-                    fontSize: '1.4rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Content List */}
-            <div style={{ maxWidth: '800px', width: '100%', margin: '0 auto' }}>
-              {FAQ_DATA[activeTab].map(faq => {
-                const isOpen = expandedFaq === faq.id;
-                return (
-                  <div 
-                    key={faq.id} 
-                    style={{ 
-                      backgroundColor: '#FFFFFF', 
-                      border: '1px solid #edebe9', 
-                      borderRadius: '16px', 
-                      marginBottom: '16px',
-                      overflow: 'hidden',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.01)'
-                    }}
-                  >
-                    <button 
-                      onClick={() => toggleFaq(faq.id)}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        background: 'transparent',
-                        border: 'none',
-                        padding: '20px 24px',
-                        textAlign: 'left',
-                        fontSize: '1.6rem',
-                        fontWeight: 700,
-                        color: 'var(--text-black)',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <HelpCircle size={18} style={{ color: 'var(--green-accent)' }} />
-                        {faq.question}
-                      </span>
-                      <ChevronDown 
-                        size={20} 
-                        style={{ 
-                          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', 
-                          transition: 'transform 0.2s',
-                          color: 'var(--text-black-soft)'
-                        }} 
-                      />
-                    </button>
-                    {isOpen && (
-                      <div 
-                        style={{ 
-                          padding: '0 24px 20px 54px', 
-                          fontSize: '1.5rem', 
-                          lineHeight: '1.6', 
-                          color: 'var(--text-black-soft)' 
-                        }}
-                      >
-                        {faq.answer}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-          </div>
-        </section>
-
-      </div>
-    </div>
-  );
+    <section className="faq-section"><h2>Câu hỏi thường gặp</h2><div className="faq-tabs">{TABS.map((tab) => <button className={activeTab === tab ? 'is-active' : ''} key={tab} onClick={() => { setActiveTab(tab); setExpandedFaq(null); }}>{tab}</button>)}</div><div className="faq-list">{FAQ_DATA[activeTab].map((faq) => { const open = expandedFaq === faq.id; return <article key={faq.id}><button onClick={() => setExpandedFaq(open ? null : faq.id)}><span><HelpCircle size={18} />{faq.question}</span><ChevronDown size={20} className={open ? 'is-open' : ''} /></button>{open && <p>{faq.answer}</p>}</article>; })}</div></section>
+  </div></div>;
 };
